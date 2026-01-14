@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile: test</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profile: <code class="inline">test</code></h1>
+        <p>
+          The <code class="inline">test</code> profile is a focused workflow for testing tasks. It’s described as “testing utilities
+          layered on top of <code class="inline">base</code>”.
+        </p>
+
+        <h2>Use it when</h2>
+        <ul>
+          <li>You want the assistant to focus on writing/running tests and interpreting failures</li>
+          <li>You want less “general exploration” and more test-oriented iteration</li>
+        </ul>
+
+        <h2>Expected characteristics</h2>
+        <ul>
+          <li><strong>Base capabilities</strong>: filesystem + bash are still central</li>
+          <li><strong>Task/workflow bias</strong>: tends to emphasize structured “do this, then that” sequences</li>
+          <li><strong>Reduced breadth</strong>: compared to <code class="inline">dev</code>, often fewer extra integrations</li>
+        </ul>
+
+        <h2>Tradeoffs</h2>
+        <ul>
+          <li>Less suited for broad research/design tasks than <code class="inline">dev</code></li>
+          <li>You may miss convenience agents/tools that aren’t part of the testing-focused set</li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

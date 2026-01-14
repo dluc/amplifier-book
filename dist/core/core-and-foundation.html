@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>amplifier-core & foundation</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1><code class="inline">amplifier-core</code> and <code class="inline">amplifier-foundation</code></h1>
+
+        <p>
+          Amplifier’s ecosystem is intentionally split into:
+          <strong>a small kernel</strong> (<code class="inline">amplifier-core</code>) and
+          <strong>higher-level building blocks</strong> (notably <code class="inline">amplifier-foundation</code>, plus apps, profiles,
+          collections, and runtime modules). This separation is what makes it possible for the CLI to be “just one application”.
+        </p>
+
+        <div class="callout">
+          <strong>Mechanism, not policy</strong>
+          <div>
+            The kernel’s job is to define stable contracts and lifecycle plumbing. Choices like provider selection, logging detail,
+            privacy redaction rules, approval UX, and interactive rendering live in modules and applications.
+          </div>
+        </div>
+
+        <h2><code class="inline">amplifier-core</code>: what it actually contains</h2>
+        <p>
+          In code, <code class="inline">amplifier-core</code> is not “an agent app”. It’s a library that provides the minimal runtime
+          kernel: a session abstraction, module mounting, a hook/event system, and strict request/response envelopes for providers.
+        </p>
+
+        <p>
+          Sources:
+          <a href="https://github.com/microsoft/amplifier-core" target="_blank" rel="noreferrer">microsoft/amplifier-core</a>,
+          especially
+          <a href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/session.py" target="_blank" rel="noreferrer"
+            >amplifier_core/session.py</a
+          >,
+          <a
+            href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/coordinator.py"
+            target="_blank"
+            rel="noreferrer"
+            >amplifier_core/coordinator.py</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/loader.py" target="_blank" rel="noreferrer"
+            >amplifier_core/loader.py</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/interfaces.py" target="_blank" rel="noreferrer"
+            >amplifier_core/interfaces.py</a
+          >.
+        </p>
+
+        <h3>The “unit of execution”: <code class="inline">AmplifierSession</code></h3>
+        <p>
+          The main entry point in the kernel is <code class="inline">AmplifierSession</code>. A session is created from a mount plan
+          (a dict) that names an orchestrator (“loop”), a context manager, plus zero or more providers, tools, and hooks.
+        </p>
+
+        <div class="callout">
+          <strong>Key idea</strong>
+          <div>
+            A session is a <em>composition</em> of modules. The kernel doesn’t embed a “default agent”; the orchestrator module defines
+            what “running the agent” means.
+          </div>
+        </div>
+
+        <h3>Stable extension points (contracts)</h3>
+        <p>
+          Core uses <code class="inline">typing.Protocol</code> to define structural contracts: modules don’t have to subclass anything
+          as long as they implement the expected shape.
+        </p>
+
+        <table class="data-table">
+          <colgroup>
+            <col style="width: 30%" />
+            <col style="width: 40%" />
+            <col style="width: 30%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Contract</th>
+              <th>What it enables</th>
+              <th>Where it lives</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">Orchestrator</code></td>
+              <td>The agent loop (how prompts, tool calls, and model calls are sequenced)</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/interfaces.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/interfaces.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">Provider</code></td>
+              <td>A backend that turns a typed request into a typed response (and parses tool calls)</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/interfaces.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/interfaces.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">Tool</code></td>
+              <td>Callable capability that returns a typed <code class="inline">ToolResult</code></td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/interfaces.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/interfaces.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">ContextManager</code></td>
+              <td>Storage and compaction of messages (dict-based for persistence flexibility)</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/interfaces.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/interfaces.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">HookHandler</code></td>
+              <td>Lifecycle middleware around “one turn” (observe, deny, modify, inject context, ask user)</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/hooks.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/hooks.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">ModuleSourceResolver</code></td>
+              <td>Pluggable policy for “where does module X come from?” (git, workspace, overrides, etc.)</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/module_sources.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >amplifier_core/module_sources.py</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td><code class="inline">ApprovalSystem</code> / <code class="inline">DisplaySystem</code></td>
+              <td>App-provided UX backends for approval prompts and user-visible messages</td>
+              <td>
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/approval.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >approval.py</a
+                >
+                /
+                <a
+                  href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/display.py"
+                  target="_blank"
+                  rel="noreferrer"
+                  >display.py</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Typed provider “envelopes” are kernel-level contracts</h3>
+        <p>
+          Provider inputs and outputs are standardized via Pydantic models: providers receive a <code class="inline">ChatRequest</code>
+          and return a <code class="inline">ChatResponse</code> with structured content blocks (text, tool calls, tool results, etc.).
+          This makes multi-provider support possible without turning orchestrators into provider-specific adapters.
+        </p>
+        <ul>
+          <li>
+            Request/response models:
+            <a
+              href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/message_models.py"
+              target="_blank"
+              rel="noreferrer"
+              >amplifier_core/message_models.py</a
+            >
+          </li>
+          <li>
+            A simpler “content block” representation for events/streaming UI:
+            <a
+              href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/content_models.py"
+              target="_blank"
+              rel="noreferrer"
+              >amplifier_core/content_models.py</a
+            >
+          </li>
+        </ul>
+
+        <h3>Mounting and lifecycle: coordinator + loader + hooks</h3>
+        <p>
+          The kernel’s “plumbing” is split into:
+          <code class="inline">ModuleCoordinator</code> (mount points + event routing),
+          <code class="inline">ModuleLoader</code> (import + validation),
+          and <code class="inline">HookRegistry</code> (deterministic hook chain + special actions).
+        </p>
+
+        <div class="mermaid">
+flowchart TB
+  A["App creates mount plan"] --> S["AmplifierSession(config)"]
+  S --> C["ModuleCoordinator<br/>mount points + hook routing"]
+  S --> L["ModuleLoader<br/>resolve + validate + import"]
+
+  L --> M["Module mount() functions"]
+  M -->|mount| C
+
+  C --> O["Orchestrator"]
+  C --> P["Providers (dict)"]
+  C --> T["Tools (dict)"]
+  C --> X["ContextManager"]
+  C --> H["HookRegistry"]
+
+  O -->|execute| H
+  O -->|complete| P
+  O -->|execute| T
+  O -->|read/write| X
+        </div>
+
+        <h3>Validation is part of the kernel</h3>
+        <p>
+          <code class="inline">amplifier-core</code> includes validators for module types (tool/provider/hook/context/orchestrator).
+          This is the kernel enforcing “contract shape” without prescribing behavior.
+        </p>
+        <p>
+          Validation code:
+          <a
+            href="https://github.com/microsoft/amplifier-core/tree/main/amplifier_core/validation"
+            target="_blank"
+            rel="noreferrer"
+            >amplifier_core/validation/</a
+          >.
+        </p>
+
+        <h2><code class="inline">amplifier-foundation</code>: the library layer (bundles, sources, registry)</h2>
+        <p>
+          <code class="inline">amplifier-foundation</code> is not a “core kernel”. It’s a higher-level library that helps apps
+          <em>package</em>, <em>compose</em>, and <em>run</em> configurations + resources in a turn-key way.
+        </p>
+
+        <p>
+          Sources:
+          <a href="https://github.com/microsoft/amplifier-foundation" target="_blank" rel="noreferrer">microsoft/amplifier-foundation</a>,
+          especially
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/bundle.py" target="_blank" rel="noreferrer"
+            >amplifier_foundation/bundle.py</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/registry.py" target="_blank" rel="noreferrer"
+            >amplifier_foundation/registry.py</a
+          >,
+          <a
+            href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/modules/activator.py"
+            target="_blank"
+            rel="noreferrer"
+            >amplifier_foundation/modules/activator.py</a
+          >.
+        </p>
+
+        <h3>Bundle = composable mount plan + resources</h3>
+        <p>
+          Foundation introduces the <code class="inline">Bundle</code> dataclass as the basic unit of composition. Bundles contain:
+          session config (orchestrator + context), lists of providers/tools/hooks, plus resources like agent definitions and context
+          files. Bundles can include other bundles and compose via deterministic merge rules.
+        </p>
+        <p>
+          This is the key “non-CLI” story: bundles give you a reproducible unit you can load in a service, a web app, a daemon, or a
+          batch runner without inheriting CLI conventions.
+        </p>
+
+        <h3>Module activation + source resolution</h3>
+        <p>
+          Foundation also ships a simple “mechanism-only” module activator that can download modules from URIs and make them importable
+          (optionally installing dependencies via <code class="inline">uv</code>). This is intentionally simpler than the ecosystem’s
+          layered resolver (which is handled by <code class="inline">amplifier-module-resolution</code>).
+        </p>
+
+        <h3>Registry: managing bundles in <code class="inline">~/.amplifier</code></h3>
+        <p>
+          <code class="inline">BundleRegistry</code> is a concrete, app-friendly class that stores a registry + cache under
+          <code class="inline">AMPLIFIER_HOME</code> (default <code class="inline">~/.amplifier</code>), can load bundles from names or
+          URIs, and tracks update checks.
+        </p>
+
+        <h2>How this fits with the rest of Amplifier</h2>
+        <p>
+          The CLI is one consumer of the ecosystem, but not the only model. At a high level:
+        </p>
+        <div class="mermaid">
+flowchart LR
+  core["amplifier-core<br/>contracts + session runtime"] --> apps["Applications<br/>(CLI, web apps, services)"]
+  apps --> profiles["Profiles<br/>mount-plan compilation"]
+  apps --> bundles["Bundles (foundation)<br/>packaging + composition"]
+  apps --> resolver["Module resolution<br/>(layered policy)"]
+  apps --> collections["Collections<br/>packaged profiles/agents/context"]
+  modules["Runtime modules<br/>(providers/tools/hooks/loops/contexts)"] --> apps
+        </div>
+
+        <p>
+          Ecosystem map:
+          <a href="/ecosystem/repos.html">Repo overview</a>.
+        </p>
+
+        <h2>Why this separation exists</h2>
+        <ul>
+          <li><strong>Stability</strong>: contracts change slowly; modules and apps can evolve faster.</li>
+          <li><strong>Replaceability</strong>: you can build multiple applications (CLI, web, service) on the same kernel.</li>
+          <li><strong>Security posture</strong>: risky behaviors can be isolated to specific modules and profiles.</li>
+        </ul>
+
+        <h2>Concrete “build your own app” sketch</h2>
+        <p>
+          To build something that is not the CLI (for example: a web service that runs multiple tasks), you typically:
+        </p>
+        <ol>
+          <li>Compile or load a mount plan (from profiles, from a bundle, or hand-authored).</li>
+          <li>Provide app-specific systems (approval + display) appropriate to your UX.</li>
+          <li>Create an <code class="inline">AmplifierSession</code> and execute prompts (possibly concurrently with multiple sessions).</li>
+        </ol>
+        <pre><code class="language-python">from amplifier_core.session import AmplifierSession
+
+# mount_plan = ... (from profiles, bundles, or your own config)
+session = AmplifierSession(config=mount_plan, approval_system=my_approval_ui, display_system=my_display)
+await session.initialize()
+result = await session.execute("Plan a set of tasks, then execute them.")</code></pre>
+
+        <div class="callout ok">
+          <strong>Next</strong>
+          <div>
+            If you want the “turn-key” packaging story (load a domain bundle, activate modules, create sessions), start with
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/CONCEPTS.md" target="_blank" rel="noreferrer"
+              >amplifier-foundation/docs/CONCEPTS.md</a
+            >
+            and
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/PATTERNS.md" target="_blank" rel="noreferrer"
+              >amplifier-foundation/docs/PATTERNS.md</a
+            >.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>

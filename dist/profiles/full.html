@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile: full</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profile: <code class="inline">full</code></h1>
+        <p>
+          The <code class="inline">full</code> profile is a showcase build: “nearly every module enabled”. It’s great for demos and
+          exploration, but often not ideal for day-to-day work.
+        </p>
+
+        <h2>Use it when</h2>
+        <ul>
+          <li>You want to explore what the ecosystem can do</li>
+          <li>You’re demoing Amplifier and want maximum capability breadth</li>
+        </ul>
+
+        <h2>Expected characteristics</h2>
+        <ul>
+          <li><strong>Maximum surface area</strong>: lots of tools, hooks, and optional behaviors</li>
+          <li><strong>More variability</strong>: the assistant can choose among many capabilities</li>
+          <li><strong>More overhead</strong>: more modules to load and configure</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Tradeoff</strong>
+          <div>
+            Debugging odd behavior can be harder in <code class="inline">full</code>. If you’re diagnosing a problem, switching to
+            <code class="inline">base</code> or <code class="inline">foundation</code> can reduce noise.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

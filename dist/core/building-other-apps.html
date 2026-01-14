@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Building Other Apps</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Building a different app on Amplifier</h1>
+        <p>
+          The CLI is one application. You can build a completely different interface (for example, a web app that runs multiple tasks)
+          by hosting the same kernel contracts and loading the same kinds of modules.
+        </p>
+
+        <h2>Target example: a web app that runs multiple tasks</h2>
+        <p>
+          Imagine a server that accepts “task requests” (each with a prompt, profile, and constraints), runs them concurrently, and
+          streams progress + final results to a browser UI.
+        </p>
+
+        <h2>Recommended architecture (conceptual)</h2>
+        <div class="mermaid">
+flowchart LR
+  ui["Browser UI"] --> api["Web API"]
+  api --> runner["Task runner (your app)"]
+  runner --> mount["Load profile → mount modules"]
+  runner --> loop["Run orchestrator loop per task"]
+  runner --> store["Persist session/events per task"]
+  runner --> stream["Stream events to UI (SSE/WebSocket)"]
+  stream --> ui
+        </div>
+
+        <h2>Key design decisions you’ll make</h2>
+        <ul>
+          <li><strong>Isolation</strong>: per-task sandboxing, filesystem scope, and credentials boundaries.</li>
+          <li><strong>Concurrency model</strong>: one process per task vs async coroutines vs worker queue.</li>
+          <li><strong>Event transport</strong>: SSE/WebSockets; you can treat the kernel’s event stream as the canonical source.</li>
+          <li><strong>Profiles as presets</strong>: let users select “dev” vs “foundation” vs “test” per task.</li>
+          <li><strong>Approvals</strong>: web UI equivalents of interactive approvals (human-in-the-loop gates).</li>
+        </ul>
+
+        <h2>How you would reuse the ecosystem</h2>
+        <ul>
+          <li>Reuse provider modules to avoid re-implementing model integrations.</li>
+          <li>Reuse tool modules where safe (filesystem/bash might need stronger sandboxing in a web server).</li>
+          <li>Reuse hooks for logging/redaction, but route output into your web observability stack.</li>
+          <li>Reuse profiles (or author new ones) as user-facing “modes”.</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Don’t copy the CLI’s threat model</strong>
+          <div>
+            A CLI assumes a single interactive user. A web app runs multi-tenant workloads and needs hard isolation. Treat tools like
+            bash/filesystem as high-risk unless you have strong sandboxing.
+          </div>
+        </div>
+
+        <h2>Real Example: AI Email Assistant Web App</h2>
+
+        <p>
+          A complete example showing how to build a web application that uses Amplifier to intelligently handle emails.
+        </p>
+
+        <h3>Requirements</h3>
+        <ul>
+          <li>Read emails from Gmail (OAuth) or IMAP</li>
+          <li>Create one Amplifier session per email (deterministic session ID)</li>
+          <li>Auto-refresh emails every minute</li>
+          <li>Web UI to configure, view emails, and trigger AI actions</li>
+          <li>Stream AI responses in real-time</li>
+          <li>Actions: reply, archive, custom workflows</li>
+        </ul>
+
+        <h3>Architecture Overview</h3>
+
+        <div class="mermaid">
+flowchart TB
+  UI["Web UI (React/Vue)"] -->|HTTP/SSE| API["FastAPI Backend"]
+  API --> EmailSvc["Email Service"]
+  API --> AmpSvc["Amplifier Service"]
+
+  EmailSvc -->|Poll every 60s| Gmail["Gmail API / IMAP"]
+  EmailSvc -->|Store| DB[(SQLite/PostgreSQL)]
+
+  AmpSvc -->|Load bundle| Bundle["Email Assistant Bundle"]
+  AmpSvc -->|Create session| Session["AmplifierSession per email"]
+  Session -->|Use tools| EmailTools["Email Tools (reply, archive)"]
+  Session -->|Stream events| SSE["Server-Sent Events"]
+  SSE --> UI
+        </div>
+
+        <h3>Technology Stack</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Technology</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Backend</td>
+              <td>FastAPI (Python 3.11+)</td>
+              <td>Web API, SSE streaming</td>
+            </tr>
+            <tr>
+              <td>Frontend</td>
+              <td>React/Vue/Svelte</td>
+              <td>Email list, configuration UI</td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>google-auth + gmail API / imaplib</td>
+              <td>Read/send emails</td>
+            </tr>
+            <tr>
+              <td>Database</td>
+              <td>SQLite (or PostgreSQL)</td>
+              <td>Email metadata, seen tracking</td>
+            </tr>
+            <tr>
+              <td>AI</td>
+              <td>amplifier-core + amplifier-foundation</td>
+              <td>Session orchestration</td>
+            </tr>
+            <tr>
+              <td>Provider</td>
+              <td>provider-anthropic</td>
+              <td>Claude for intelligence</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Step 1: Email Service (IMAP Example)</h3>
+
+        <pre><code class="language-python"># email_service.py
+import imaplib
+import email
+from email.header import decode_header
+from datetime import datetime
+import hashlib
+import sqlite3
+
+class EmailManager:
+    def __init__(self, db_path="data/emails.db"):
+        self.conn = sqlite3.connect(db_path)
+        self._init_db()
+        self.imap = None
+
+    def _init_db(self):
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS emails (
+                id TEXT PRIMARY KEY,
+                sender TEXT,
+                subject TEXT,
+                date TEXT,
+                body TEXT,
+                seen BOOLEAN DEFAULT 0,
+                handled BOOLEAN DEFAULT 0
+            )
+        """)
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS config (
+                key TEXT PRIMARY KEY,
+                value TEXT
+            )
+        """)
+        self.conn.commit()
+
+    def connect_imap(self, server, email_addr, password):
+        """Connect to IMAP server and save config"""
+        self.imap = imaplib.IMAP4_SSL(server)
+        self.imap.login(email_addr, password)
+
+        # Save config (encrypt in production!)
+        self.conn.execute(
+            "INSERT OR REPLACE INTO config VALUES (?, ?)",
+            ("imap_server", server)
+        )
+        self.conn.execute(
+            "INSERT OR REPLACE INTO config VALUES (?, ?)",
+            ("email", email_addr)
+        )
+        # In production: use keyring or encrypted storage for password
+        self.conn.commit()
+
+    def deterministic_id(self, sender, subject, date):
+        """Generate deterministic session ID"""
+        content = f"{sender}|{subject}|{date}"
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    def fetch_new_emails(self):
+        """Fetch new emails and store in DB"""
+        if not self.imap:
+            raise Exception("Not connected to IMAP")
+
+        self.imap.select("INBOX")
+        _, messages = self.imap.search(None, "UNSEEN")
+
+        new_emails = []
+        for num in messages[0].split():
+            _, msg_data = self.imap.fetch(num, "(RFC822)")
+            email_body = msg_data[0][1]
+            email_message = email.message_from_bytes(email_body)
+
+            sender = email_message.get("From", "")
+            subject = email_message.get("Subject", "")
+            date = email_message.get("Date", "")
+
+            # Decode subject if needed
+            if subject:
+                decoded = decode_header(subject)[0]
+                if isinstance(decoded[0], bytes):
+                    subject = decoded[0].decode(decoded[1] or 'utf-8')
+
+            # Get email body
+            body = ""
+            if email_message.is_multipart():
+                for part in email_message.walk():
+                    if part.get_content_type() == "text/plain":
+                        body = part.get_payload(decode=True).decode()
+                        break
+            else:
+                body = email_message.get_payload(decode=True).decode()
+
+            email_id = self.deterministic_id(sender, subject, date)
+
+            # Store in DB
+            self.conn.execute("""
+                INSERT OR IGNORE INTO emails
+                (id, sender, subject, date, body)
+                VALUES (?, ?, ?, ?, ?)
+            """, (email_id, sender, subject, date, body))
+
+            new_emails.append({
+                "id": email_id,
+                "sender": sender,
+                "subject": subject,
+                "date": date,
+                "body": body
+            })
+
+        self.conn.commit()
+        return new_emails
+
+    def get_all_emails(self):
+        """Get all emails from DB"""
+        cursor = self.conn.execute(
+            "SELECT id, sender, subject, date, handled FROM emails ORDER BY date DESC"
+        )
+        return [
+            {"id": r[0], "sender": r[1], "subject": r[2], "date": r[3], "handled": bool(r[4])}
+            for r in cursor.fetchall()
+        ]
+
+    def get_email(self, email_id):
+        """Get email details"""
+        cursor = self.conn.execute(
+            "SELECT sender, subject, date, body FROM emails WHERE id = ?",
+            (email_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return None
+        return {
+            "id": email_id,
+            "sender": row[0],
+            "subject": row[1],
+            "date": row[2],
+            "body": row[3]
+        }
+
+    def mark_handled(self, email_id):
+        """Mark email as handled"""
+        self.conn.execute(
+            "UPDATE emails SET handled = 1 WHERE id = ?",
+            (email_id,)
+        )
+        self.conn.commit()
+</code></pre>
+
+        <h3>Step 2: Email Tool Module</h3>
+
+        <p>
+          Create a proper Amplifier module at <code>modules/tool-email/</code>. This allows the tool to be:
+        </p>
+        <ul>
+          <li>Loaded through the bundle (not hardcoded)</li>
+          <li>Accessed via coordinator (shared instance)</li>
+          <li>Potentially published to git for reuse</li>
+        </ul>
+
+        <p>See <code>examples/email-assistant/modules/tool-email/</code> for the complete implementation, or <a href="/core/creating-modules.html">Creating Custom Modules</a> guide.</p>
+
+        <p><strong>Key files</strong>:</p>
+        <ul>
+          <li><code>pyproject.toml</code> - Module metadata with entry point</li>
+          <li><code>amplifier_module_tool_email/__init__.py</code> - mount() function</li>
+          <li><code>amplifier_module_tool_email/manager.py</code> - EmailManager (IMAP, SQLite)</li>
+          <li><code>amplifier_module_tool_email/tool.py</code> - EmailTool with operations</li>
+        </ul>
+
+        <p><strong>The tool provides operations</strong>:</p>
+        <pre><code class="language-python"># Operation-based tool (like tool-issue)
+async def execute(self, input: dict) -> ToolResult:
+    operation = input.get("operation")
+    params = input.get("params", {})
+
+    if operation == "reply":
+        return await self._reply(params)
+    elif operation == "archive":
+        return await self._archive(params)
+    elif operation == "fetch":
+        return await self._fetch(params)
+    # ... more operations
+</code></pre>
+
+        <h3>Step 3: Amplifier Integration</h3>
+
+        <pre><code class="language-python"># amplifier_service.py
+from amplifier_core import AmplifierSession
+from amplifier_foundation.bundle import load_bundle
+from email_tools import EmailReplyTool, EmailArchiveTool
+import asyncio
+
+class AmplifierEmailService:
+    def __init__(self):
+        self.sessions = {}  # session_id -> AmplifierSession
+        self.prepared_bundle = None
+
+    async def initialize(self):
+        """Initialize async (bundle loading is async)."""
+        bundle_path = Path(__file__).parent.parent / "bundle.md"
+        bundle = await load_bundle(str(bundle_path))
+        self.prepared_bundle = await bundle.prepare()  # Load and validate modules
+
+    async def handle_email(self, email_id: str):
+        """Create session and handle email with AI"""
+
+        # Get email details
+        email_data = self.email_service.get_email(email_id)
+        if not email_data:
+            raise ValueError(f"Email {email_id} not found")
+
+        # Use deterministic session ID
+        session_id = email_id
+
+        # Create or resume session
+        if session_id not in self.sessions:
+            # Add email-specific tools to mount plan
+            tools = self.mount_plan["tools"].copy()
+            tools.append(EmailReplyTool(self.email_service, email_id))
+            tools.append(EmailArchiveTool(self.email_service, email_id))
+
+            # Create session
+            session = AmplifierSession(
+                session_id=session_id,
+                orchestrator=self.mount_plan["orchestrator"],
+                providers=self.mount_plan["providers"],
+                tools=tools,
+                hooks=self.mount_plan["hooks"],
+                context=self.mount_plan["context"]
+            )
+
+            self.sessions[session_id] = session
+        else:
+            session = self.sessions[session_id]
+
+        # Compose prompt for AI
+        prompt = f"""
+You are handling an email. Here are the details:
+
+From: {email_data['sender']}
+Subject: {email_data['subject']}
+Date: {email_data['date']}
+
+Body:
+{email_data['body']}
+
+---
+
+Please analyze this email and suggest appropriate actions. You can:
+1. Compose a reply using the email_reply tool
+2. Archive it using the email_archive tool
+3. Ask me for guidance if unsure
+
+What should we do with this email?
+"""
+
+        # Run session and yield events
+        async for event in session.run_async(prompt):
+            yield event
+</code></pre>
+
+        <h3>Step 4: FastAPI Backend</h3>
+
+        <pre><code class="language-python"># main.py - FastAPI application
+from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import asyncio
+import json
+from amplifier_service import AmplifierEmailService
+from amplifier_core import AmplifierSession
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Your frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Services
+amplifier_svc = None
+email_tool = None  # Will be set after bundle loads
+
+# Background task to poll emails
+async def poll_emails():
+    while True:
+        try:
+            new_emails = email_svc.fetch_new_emails()
+            print(f"Fetched {len(new_emails)} new emails")
+        except Exception as e:
+            print(f"Error fetching emails: {e}")
+        await asyncio.sleep(60)  # Every minute
+
+@app.on_event("startup")
+async def startup():
+    global amplifier_svc, email_tool
+
+    # Initialize Amplifier service
+    amplifier_svc = AmplifierEmailService()
+    await amplifier_svc.initialize()
+
+    # Get email tool from coordinator
+    temp_session = await amplifier_svc.prepared_bundle.create_session(
+        session_id="temp-for-tool-access"
+    )
+    email_tool = temp_session.coordinator.get("tools", "email")
+
+    # Start background email polling
+    asyncio.create_task(poll_emails())
+
+# API Models
+class IMAPConfig(BaseModel):
+    server: str
+    email: str
+    password: str
+
+class EmailAction(BaseModel):
+    action: str  # "handle", "archive", "reply"
+    prompt: str | None = None
+
+# API Endpoints
+@app.post("/api/config/imap")
+async def configure_imap(config: IMAPConfig):
+    """Configure IMAP connection"""
+    try:
+        email_svc.connect_imap(config.server, config.email, config.password)
+        return {"status": "connected"}
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+@app.get("/api/emails")
+async def list_emails():
+    """List all emails"""
+    emails = email_svc.get_all_emails()
+    return {"emails": emails}
+
+@app.get("/api/emails/{email_id}")
+async def get_email(email_id: str):
+    """Get email details"""
+    email_data = email_svc.get_email(email_id)
+    if not email_data:
+        return {"error": "Email not found"}, 404
+    return email_data
+
+@app.post("/api/emails/{email_id}/handle")
+async def handle_email(email_id: str, action: EmailAction):
+    """Handle email with AI (Server-Sent Events stream)"""
+
+    async def event_stream():
+        try:
+            async for event in amplifier_svc.handle_email(email_id):
+                # Stream events to frontend
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream"
+    )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+</code></pre>
+
+        <h3>Step 5: Email Assistant Bundle</h3>
+
+        <pre><code class="language-yaml"># bundle.md (at project root)
+---
+bundle:
+  name: email-assistant
+  version: 1.0.0
+  description: AI email assistant with reply/archive capabilities
+
+includes:
+  - bundle: git+https://github.com/microsoft/amplifier-foundation@main
+
+providers:
+  - module: provider-anthropic
+    source: git+https://github.com/microsoft/amplifier-module-provider-anthropic@main
+    config:
+      default_model: claude-sonnet-4-5
+
+tools:
+  - module: tool-email
+    source: ./modules/tool-email  # Local module
+    config:
+      db_path: ../data/emails.db  # Relative to module location
+
+hooks:
+  - module: hooks-logging
+    source: git+https://github.com/microsoft/amplifier-module-hooks-logging@main
+---
+
+# Email Assistant
+
+You are an intelligent email assistant.
+
+## Your Tools
+
+Use the **email** tool with these operations:
+- email(operation="get", params={"email_id": "..."})
+- email(operation="reply", params={"email_id": "...", "reply_text": "...", "action": "send"})
+- email(operation="archive", params={"email_id": "..."})
+- email(operation="label", params={"email_id": "...", "label": "urgent"})
+
+## Your Approach
+
+1. Analyze the email (sender, subject, urgency)
+2. Determine action (reply/archive/label/ask)
+3. Use the email tool to execute actions
+4. Ask user if unsure
+</code></pre>
+
+        <h3>Step 6: Frontend (React Example)</h3>
+
+        <pre><code class="language-javascript">// EmailList.jsx
+import { useState, useEffect } from 'react';
+
+function EmailList() {
+  const [emails, setEmails] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [aiResponse, setAiResponse] = useState("");
+
+  // Fetch emails every 5 seconds
+  useEffect(() => {
+    const fetchEmails = async () => {
+      const res = await fetch('http://localhost:8000/api/emails');
+      const data = await res.json();
+      setEmails(data.emails);
+    };
+
+    fetchEmails();
+    const interval = setInterval(fetchEmails, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleWithAI = async (emailId) => {
+    setAiResponse("Processing...");
+
+    // Open SSE connection
+    const eventSource = new EventSource(
+      `http://localhost:8000/api/emails/${emailId}/handle`
+    );
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'text') {
+        setAiResponse(prev => prev + data.content);
+      } else if (data.type === 'tool_result') {
+        setAiResponse(prev => prev + `\n[Tool: ${data.tool}] ${data.output}`);
+      } else if (data.type === 'complete') {
+        eventSource.close();
+      }
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setAiResponse(prev => prev + "\n[Error: Connection lost]");
+    };
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;AI Email Assistant&lt;/h1&gt;
+
+      &lt;div className="email-list"&gt;
+        {emails.map(email => (
+          &lt;div key={email.id} className="email-item"&gt;
+            &lt;div&gt;
+              &lt;strong&gt;{email.subject}&lt;/strong&gt;
+              &lt;div&gt;From: {email.sender}&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;button onClick={() => handleWithAI(email.id)}&gt;
+              Handle with AI
+            &lt;/button&gt;
+            {email.handled && &lt;span&gt;✓ Handled&lt;/span&gt;}
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      {aiResponse && (
+        &lt;div className="ai-response"&gt;
+          &lt;h2&gt;AI Response&lt;/h2&gt;
+          &lt;pre&gt;{aiResponse}&lt;/pre&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+
+        <h3>Step 7: Deployment</h3>
+
+        <pre><code class="language-bash"># Install dependencies
+uv venv
+source .venv/bin/activate
+uv pip install fastapi uvicorn amplifier-core amplifier-foundation
+
+# Run backend
+python main.py
+
+# Run frontend (separate terminal)
+cd frontend
+npm install
+npm run dev
+</code></pre>
+
+        <h3>Key Design Decisions</h3>
+
+        <div class="callout">
+          <strong>Deterministic Session IDs</strong>
+          <div>
+            Using hash(sender + subject + date) ensures the same email always maps to the same session. This means:
+            <ul>
+              <li>Conversation context persists across page refreshes</li>
+              <li>You can resume handling an email later</li>
+              <li>Multiple users can't accidentally duplicate work</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Operation-Based Tool Pattern</strong>
+          <div>
+            The email tool is a single module with multiple operations (get, reply, archive, label, fetch, list).
+            It embeds an EmailManager that maintains state (IMAP connection, database). This follows the same pattern as
+            <code>tool-issue</code> in the ecosystem - one tool, multiple operations, embedded state management.
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Security Considerations</strong>
+          <div>
+            <ul>
+              <li><strong>Credential storage</strong>: Use keyring or encrypted storage, not plaintext</li>
+              <li><strong>Approval hooks</strong>: Require human approval before sending emails</li>
+              <li><strong>Rate limiting</strong>: Prevent AI from sending too many emails</li>
+              <li><strong>Validation</strong>: Validate email addresses and content before sending</li>
+              <li><strong>Audit logging</strong>: Log all AI actions for review</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>What You Get</h3>
+
+        <ul>
+          <li>✅ One Amplifier session per email (isolated context)</li>
+          <li>✅ Deterministic session IDs (reproducible)</li>
+          <li>✅ Auto-refresh every minute (background task)</li>
+          <li>✅ Real-time streaming (SSE)</li>
+          <li>✅ Custom tools (reply, archive)</li>
+          <li>✅ Approval gates (safety)</li>
+          <li>✅ Web UI (accessible from anywhere)</li>
+        </ul>
+
+        <h3>Extensions</h3>
+
+        <p>Easy additions to this foundation:</p>
+
+        <ul>
+          <li><strong>Calendar integration</strong> - Extract dates, create events</li>
+          <li><strong>Multi-account</strong> - Handle multiple email addresses</li>
+          <li><strong>Smart labels</strong> - Auto-categorize emails</li>
+          <li><strong>Templates</strong> - Store common reply patterns</li>
+          <li><strong>Slack integration</strong> - Notify team of important emails</li>
+          <li><strong>Analytics</strong> - Track response times, AI accuracy</li>
+        </ul>
+
+        <h2>General Patterns for Building Apps</h2>
+
+        <h3>What to Reuse from Amplifier</h3>
+        <ul>
+          <li><strong>amplifier-core</strong> - Session orchestration (mandatory)</li>
+          <li><strong>amplifier-foundation</strong> - Bundle loading, module resolution (highly recommended)</li>
+          <li><strong>Provider modules</strong> - Anthropic/OpenAI/etc. integrations (save months of work)</li>
+          <li><strong>Tool modules</strong> - Filesystem, bash, web (where appropriate)</li>
+          <li><strong>Hook modules</strong> - Logging, redaction, streaming (adapt to your UI)</li>
+          <li><strong>Bundles</strong> - Use existing or create custom</li>
+        </ul>
+
+        <h3>What to Build Custom</h3>
+        <ul>
+          <li><strong>UI layer</strong> - Your interface (web/mobile/desktop)</li>
+          <li><strong>Session storage</strong> - CLI uses filesystem, you might use database/cloud</li>
+          <li><strong>Settings management</strong> - CLI uses YAML, you might use UI/API</li>
+          <li><strong>Domain tools</strong> - Email operations, calendar, CRM, etc.</li>
+          <li><strong>Authentication</strong> - User accounts, permissions</li>
+        </ul>
+
+        <h2>Additional Resources</h2>
+
+        <ul>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-core/tree/main/examples" target="_blank" rel="noreferrer">
+              amplifier-core/examples/
+            </a> - Reference implementations
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-foundation/tree/main/examples" target="_blank" rel="noreferrer">
+              amplifier-foundation/examples/
+            </a> - Bundle usage examples
+          </li>
+          <li>
+            <a href="https://github.com/robotdad/amplifier-app-transcribe" target="_blank" rel="noreferrer">
+              amplifier-app-transcribe
+            </a> - Community app example
+          </li>
+          <li>
+            <a href="https://github.com/robotdad/amplifier-app-blog-creator" target="_blank" rel="noreferrer">
+              amplifier-app-blog-creator
+            </a> - Another community app
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>

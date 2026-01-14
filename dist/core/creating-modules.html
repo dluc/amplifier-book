@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Creating Custom Modules</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Creating Custom Amplifier Modules</h1>
+
+        <p>
+          This guide shows how to create custom modules for Amplifier, based on real experience building the email assistant example.
+          We'll cover the patterns, pitfalls, and best practices learned from actual implementation.
+        </p>
+
+        <h2>When to Create a Module vs Inline Code</h2>
+
+        <div class="grid2">
+          <div class="callout">
+            <strong>Create a Module When</strong>
+            <div>
+              <ul>
+                <li>Functionality is reusable across apps</li>
+                <li>It provides general-purpose capabilities</li>
+                <li>No app-specific context required</li>
+                <li>You want to distribute it in the ecosystem</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>Use Inline Code When</strong>
+            <div>
+              <ul>
+                <li>Tightly coupled to your app's architecture</li>
+                <li>Needs runtime context (like specific IDs)</li>
+                <li>Only this app will use it</li>
+                <li>Rapid prototyping and iteration</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h2>Module Structure (Standard Pattern)</h2>
+
+        <pre><code class="language-text">your-module/
+├── pyproject.toml                      # Package metadata
+├── amplifier_module_tool_yourname/
+│   ├── __init__.py                     # mount() function
+│   ├── tool.py                         # Tool implementation
+│   └── manager.py                      # State/business logic (if needed)
+└── README.md
+</code></pre>
+
+        <h3>Example: pyproject.toml</h3>
+
+        <pre><code class="language-toml">[project]
+name = "amplifier-module-tool-email"
+version = "1.0.0"
+description = "Email management for Amplifier"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.entry-points."amplifier.modules"]
+tool-email = "amplifier_module_tool_email:mount"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+</code></pre>
+
+        <div class="callout warn">
+          <strong>Critical: Database Paths in Modules</strong>
+          <div>
+            <p>When your module needs file paths (like SQLite database), paths in config are relative to where Python runs, not where bundle.md is.</p>
+            <p>For modules in <code>modules/tool-email/</code> loaded from <code>bundle.md</code> at project root:</p>
+            <pre><code class="language-yaml"># In bundle.md
+tools:
+  - module: tool-email
+    source: ./modules/tool-email
+    config:
+      db_path: ../data/emails.db  # Relative to where module runs
+</code></pre>
+            <p>The <code>../</code> is because modules run from their own directory context.</p>
+          </div>
+        </div>
+
+        <h2>The mount() Function (Entry Point)</h2>
+
+        <p>Every module must have a <code class="inline">mount()</code> function:</p>
+
+        <pre><code class="language-python">async def mount(coordinator, config: dict | None = None):
+    """Mount the module.
+
+    Args:
+        coordinator: ModuleCoordinator from amplifier-core
+        config: Configuration from bundle
+
+    Returns:
+        Optional cleanup function
+    """
+    config = config or {}
+
+    # Create your tool/hook/provider
+    tool = EmailTool(config)
+
+    # Register with coordinator
+    await coordinator.mount("tools", tool, name=tool.name)
+
+    return  # Or return cleanup function
+</code></pre>
+
+        <h2>Pattern: Tool with Embedded State</h2>
+
+        <p>
+          For tools that need to maintain state (like database connections, API clients), use the embedded manager pattern.
+          This is how <code class="inline">tool-issue</code> works.
+        </p>
+
+        <h3>Manager Class (Holds State)</h3>
+
+        <pre><code class="language-python"># manager.py
+import sqlite3
+
+class EmailManager:
+    """Manages email state: IMAP connection, database, operations."""
+
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        self.conn = sqlite3.connect(db_path)
+        self.imap = None
+        self._init_db()
+
+    def _init_db(self):
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS emails (
+                id TEXT PRIMARY KEY,
+                sender TEXT,
+                subject TEXT,
+                body TEXT
+            )
+        """)
+
+    def connect_imap(self, server, email, password):
+        import imaplib
+        self.imap = imaplib.IMAP4_SSL(server)
+        self.imap.login(email, password)
+
+    def fetch_emails(self, limit=20):
+        # IMAP operations...
+        pass
+
+    def get_email(self, email_id):
+        cursor = self.conn.execute(
+            "SELECT * FROM emails WHERE id = ?", (email_id,)
+        )
+        return cursor.fetchone()
+</code></pre>
+
+        <h3>Tool Class (Exposes Operations)</h3>
+
+        <pre><code class="language-python"># tool.py
+from amplifier_core import ToolResult
+from .manager import EmailManager
+
+class EmailTool:
+    """Tool that wraps EmailManager and exposes operations to AI."""
+
+    name = "email"
+    description = "Manage emails: fetch, reply, archive"
+
+    def __init__(self, email_manager: EmailManager):
+        self.email_manager = email_manager
+
+    @property
+    def input_schema(self) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": ["fetch", "get", "reply", "archive"],
+                    "description": "Operation to perform"
+                },
+                "params": {
+                    "type": "object",
+                    "description": "Parameters for operation"
+                }
+            },
+            "required": ["operation"]
+        }
+
+    async def execute(self, input: dict) -> ToolResult:
+        operation = input.get("operation")
+        params = input.get("params", {})
+
+        if operation == "fetch":
+            emails = self.email_manager.fetch_emails(
+                limit=params.get("limit", 20)
+            )
+            return ToolResult(
+                output=f"Fetched {len(emails)} emails",
+                data={"emails": emails},
+                success=True
+            )
+        elif operation == "get":
+            email = self.email_manager.get_email(params.get("email_id"))
+            if not email:
+                return ToolResult(
+                    success=False,
+                    error={"message": "Email not found"}
+                )
+            return ToolResult(
+                output="Email retrieved",
+                data=email,
+                success=True
+            )
+        # ... more operations
+</code></pre>
+
+        <h3>Mount Function (Wires It Together)</h3>
+
+        <pre><code class="language-python"># __init__.py
+from .manager import EmailManager
+from .tool import EmailTool
+
+async def mount(coordinator, config: dict | None = None):
+    """Mount email tool with embedded state."""
+    config = config or {}
+
+    # Create manager (holds state)
+    db_path = config.get("db_path", "emails.db")
+    email_manager = EmailManager(db_path)
+
+    # Create tool (exposes to AI)
+    tool = EmailTool(email_manager)
+
+    # Register with coordinator
+    await coordinator.mount("tools", tool, name=tool.name)
+
+    return
+</code></pre>
+
+        <h2>Critical Learning: Accessing Tools from Your App</h2>
+
+        <div class="callout warn">
+          <strong>Common Mistake: Importing Managers Directly</strong>
+          <div>
+            <p><strong>❌ Wrong:</strong></p>
+            <pre><code class="language-python"># Your web app
+from my_module.manager import EmailManager
+
+email_mgr = EmailManager()  # Creates NEW instance
+# This is separate from the one in Amplifier sessions!
+</code></pre>
+            <p>This creates a duplicate instance. The web app and Amplifier sessions don't share state.</p>
+          </div>
+        </div>
+
+        <div class="callout ok">
+          <strong>✅ Correct Pattern: Use PreparedBundle.create_session()</strong>
+          <div>
+            <pre><code class="language-python"># Your web app
+from amplifier_foundation.registry import load_bundle
+
+# Load and prepare bundle
+bundle = await load_bundle("./bundle.md")
+prepared_bundle = await bundle.prepare()  # This loads and validates modules
+
+# Create session using PreparedBundle (not manual AmplifierSession)
+session = await prepared_bundle.create_session(
+    session_id="temp-for-tool-access"
+)
+
+# Get the mounted tool from coordinator
+email_tool = session.coordinator.get("tools", "email")
+
+# Now use it!
+result = await email_tool.execute({
+    "operation": "fetch",
+    "params": {"limit": 50}
+})
+</code></pre>
+            <p>
+              <strong>Key points</strong>:
+            </p>
+            <ul>
+              <li><code>prepare()</code> loads and validates all modules</li>
+              <li><code>create_session()</code> properly initializes the session with mounted modules</li>
+              <li><code>coordinator.get("tools", "email")</code> accesses mounted tools</li>
+              <li>This is the SAME instance that AI sessions use - shared state!</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Real Example: Email Assistant</h2>
+
+        <p>
+          The <code class="inline">examples/email-assistant/</code> directory contains a complete, working implementation
+          showing all these patterns in practice.
+        </p>
+
+        <h3>What It Demonstrates</h3>
+
+        <ul>
+          <li><strong>Custom module</strong> - <code>modules/tool-email/</code> with EmailManager + EmailTool</li>
+          <li><strong>Web app integration</strong> - FastAPI backend accesses tool through coordinator</li>
+          <li><strong>Shared state</strong> - Web API and AI sessions use same EmailManager instance</li>
+          <li><strong>Operation-based tool</strong> - Single tool with multiple operations (like tool-issue)</li>
+          <li><strong>Bundle configuration</strong> - Module loaded via bundle.md</li>
+          <li><strong>Real Amplifier sessions</strong> - Not mocks, actual AmplifierSession with streaming</li>
+        </ul>
+
+        <h3>Key Files to Study</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>What It Shows</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>modules/tool-email/__init__.py</code></td>
+              <td>Module mount() function, wiring EmailManager → EmailTool</td>
+            </tr>
+            <tr>
+              <td><code>modules/tool-email/manager.py</code></td>
+              <td>State management: IMAP, SQLite, email operations</td>
+            </tr>
+            <tr>
+              <td><code>modules/tool-email/tool.py</code></td>
+              <td>Operation-based tool exposing manager to AI</td>
+            </tr>
+            <tr>
+              <td><code>backend/main.py</code></td>
+              <td>How web app accesses tool through coordinator</td>
+            </tr>
+            <tr>
+              <td><code>backend/amplifier_service.py</code></td>
+              <td>Creating sessions, streaming events, accessing tools</td>
+            </tr>
+            <tr>
+              <td><code>bundle.md</code></td>
+              <td>Bundle configuration with local module reference</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Common Pitfalls & Solutions</h2>
+
+        <h3>Pitfall 1: Wrong Import Path</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: <code>from amplifier_foundation.bundle import load_bundle</code></strong>
+          <div>
+            <p>Correct import:</p>
+            <pre><code>from amplifier_foundation.registry import load_bundle</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 2: Wrong Method Name</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: <code>bundle.compile()</code></strong>
+          <div>
+            <p>Correct method:</p>
+            <pre><code>composed = bundle.compose()
+mount_plan = composed.to_mount_plan()</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 3: Async Loading Not Awaited</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: <code>bundle = load_bundle(path)</code></strong>
+          <div>
+            <p><code>load_bundle</code>, <code>prepare()</code>, and <code>create_session()</code> are all async:</p>
+            <pre><code>bundle = await load_bundle(path)
+prepared = await bundle.prepare()  # Also async!
+session = await prepared.create_session(...)  # Also async!</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 4: Wrong Session Method</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: <code>async for event in session.run_async(prompt)</code></strong>
+          <div>
+            <p>AmplifierSession doesn't have <code>run_async()</code>. Use:</p>
+            <pre><code>response = await session.execute(prompt)
+# Returns the full response as a string
+</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 5: ToolResult Attribute</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: <code>result.data</code></strong>
+          <div>
+            <p>ToolResult uses <code>.output</code>, not <code>.data</code>:</p>
+            <pre><code># Wrong
+return ToolResult(data={"emails": emails})
+emails = result.data
+
+# Correct
+return ToolResult(output={"emails": emails})
+emails = result.output
+</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 6: Module File Paths</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: Paths relative to bundle.md don't work in modules</strong>
+          <div>
+            <p>Module file paths are relative to module directory, not bundle.md:</p>
+            <pre><code class="language-yaml"># bundle.md at root, module in modules/tool-email/, want data/ at root:
+tools:
+  - module: tool-email
+    source: ./modules/tool-email
+    config:
+      db_path: ../data/emails.db  # ../ goes up from module dir
+</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 7: Context Field Format</h3>
+
+        <div class="callout warn">
+          <strong>❌ Error: Using list for context</strong>
+          <div>
+            <pre><code class="language-yaml"># Wrong
+context:
+  - file: context/guidelines.md
+</code></pre>
+            <p>Context should be referenced via @mentions in markdown, not YAML:</p>
+            <pre><code class="language-yaml"># Correct - no context field, use @mentions
+---
+bundle:
+  name: my-bundle
+---
+
+# Instructions
+
+@my-bundle:context/guidelines.md
+</code></pre>
+          </div>
+        </div>
+
+        <h3>Pitfall 5: Accessing Tools Outside Sessions</h3>
+
+        <div class="callout warn">
+          <strong>Problem: Web API needs tool access</strong>
+          <div>
+            <p><strong>Solution</strong>: Use PreparedBundle.create_session() to get properly initialized tools:</p>
+            <pre><code class="language-python"># In app startup
+bundle = await load_bundle("./bundle.md")
+prepared = await bundle.prepare()  # Loads all modules
+
+# Create temp session with prepared bundle
+temp_session = await prepared.create_session(
+    session_id="temp-for-tool-access"
+)
+
+# Get tool from coordinator using .get()
+my_tool = temp_session.coordinator.get("tools", "my-tool-name")
+
+# Store globally for API endpoints
+app.state.my_tool = my_tool
+
+# Use in API endpoints
+@app.post("/api/endpoint")
+async def endpoint():
+    result = await app.state.my_tool.execute({...})
+    return result.data
+</code></pre>
+            <p><strong>Why this works</strong>: <code>prepare()</code> actually loads the modules from their sources (git/local), validates them, and <code>create_session()</code> mounts them properly.</p>
+          </div>
+        </div>
+
+        <h2>Module Configuration in Bundle</h2>
+
+        <h3>Local Module (Development)</h3>
+
+        <pre><code class="language-yaml">tools:
+  - module: tool-email
+    source: file://./modules/tool-email
+    config:
+      db_path: data/emails.db
+</code></pre>
+
+        <h3>Git Module (Distribution)</h3>
+
+        <pre><code class="language-yaml">tools:
+  - module: tool-email
+    source: git+https://github.com/you/amplifier-module-tool-email@main
+    config:
+      db_path: data/emails.db
+</code></pre>
+
+        <h2>Testing Your Module</h2>
+
+        <h3>Unit Test the Manager</h3>
+
+        <pre><code class="language-python"># test_manager.py
+from amplifier_module_tool_email.manager import EmailManager
+
+def test_email_manager():
+    mgr = EmailManager(":memory:")  # SQLite in-memory
+    mgr.connect_imap("imap.gmail.com", "test@test.com", "pass")
+    assert mgr.imap is not None
+</code></pre>
+
+        <h3>Integration Test the Tool</h3>
+
+        <pre><code class="language-python"># test_tool.py
+from amplifier_module_tool_email import mount
+from amplifier_core import ModuleCoordinator
+
+async def test_email_tool():
+    coordinator = ModuleCoordinator()
+    await mount(coordinator, {"db_path": ":memory:"})
+
+    email_tool = coordinator.tools.get("email")
+    assert email_tool is not None
+
+    result = await email_tool.execute({
+        "operation": "list",
+        "params": {"limit": 10}
+    })
+    assert result.success
+</code></pre>
+
+        <h3>End-to-End Test with Session</h3>
+
+        <pre><code class="language-python">async def test_with_session():
+    from amplifier_foundation.registry import load_bundle
+
+    # Load and prepare your bundle
+    bundle = await load_bundle("./bundle.md")
+    prepared = await bundle.prepare()
+
+    # Create session (modules are loaded and mounted)
+    session = await prepared.create_session(session_id="test")
+
+    # AI can now use your tool!
+    response = await session.execute("Fetch my emails")
+    print(response)
+
+    # Check that your tool was mounted
+    my_tool = session.coordinator.get("tools", "email")
+    assert my_tool is not None
+</code></pre>
+
+        <h2>Distributing Your Module</h2>
+
+        <h3>Option 1: Local Development</h3>
+
+        <pre><code class="language-bash"># In bundle.md, reference local path
+source: file://./modules/tool-email
+</code></pre>
+
+        <h3>Option 2: Git Repository</h3>
+
+        <pre><code class="language-bash"># Push to GitHub
+git init
+git add .
+git commit -m "Initial module"
+git push origin main
+
+# In bundle.md
+source: git+https://github.com/you/amplifier-module-tool-email@main
+</code></pre>
+
+        <h3>Option 3: PyPI Package</h3>
+
+        <pre><code class="language-bash"># Build and publish
+uv build
+uv publish
+
+# In bundle.md (no source needed, just module name)
+tools:
+  - module: tool-email
+</code></pre>
+
+        <h2>Real-World Learnings</h2>
+
+        <h3>Lesson 1: Start Simple, Then Modularize</h3>
+
+        <p>
+          When building the email assistant, we initially created inline tools (EmailReplyTool, EmailArchiveTool as separate classes).
+          This was faster for prototyping. Once the pattern was clear, we refactored into a proper module with an operation-based tool.
+        </p>
+
+        <p><strong>Recommendation</strong>: Build inline first, extract to module when stable.</p>
+
+        <h3>Lesson 2: Operation-Based > Multiple Tools</h3>
+
+        <p>
+          Initially designed as 3 separate tools (email_reply, email_archive, email_label). Refactored to 1 tool with operations.
+        </p>
+
+        <p><strong>Why better</strong>:</p>
+        <ul>
+          <li>Single shared state (EmailManager)</li>
+          <li>Consistent error handling</li>
+          <li>Easier to extend (add new operations)</li>
+          <li>Follows ecosystem pattern (tool-issue works this way)</li>
+        </ul>
+
+        <h3>Lesson 3: Test with Real Amplifier, Not Mocks</h3>
+
+        <div class="callout warn">
+          <strong>Critical Mistake Made</strong>
+          <div>
+            <p>
+              Initially implemented with mock/fake responses instead of real AmplifierSession. This seemed faster but was fundamentally broken.
+              The "working" demo wasn't actually working.
+            </p>
+            <p><strong>Lesson</strong>: Always use real AmplifierSession from the start. Mocks hide integration issues.</p>
+          </div>
+        </div>
+
+        <h3>Lesson 4: Bundle Configuration Matters</h3>
+
+        <p>The bundle must include your module with correct source path:</p>
+
+        <pre><code class="language-yaml"># Relative path from bundle.md location
+source: file://./modules/tool-email
+
+# Absolute path
+source: file:///home/user/project/modules/tool-email
+
+# Git URL
+source: git+https://github.com/owner/repo@main
+</code></pre>
+
+        <h3>Lesson 5: Coordinator is the Source of Truth</h3>
+
+        <p>
+          Don't create parallel instances. If your app needs access to a tool's state:
+        </p>
+
+        <ol>
+          <li>Load bundle: <code>bundle = await load_bundle("./bundle.md")</code></li>
+          <li>Prepare it: <code>prepared = await bundle.prepare()</code></li>
+          <li>Create session: <code>session = await prepared.create_session(...)</code></li>
+          <li>Get tool: <code>tool = session.coordinator.get("tools", "tool-name")</code></li>
+          <li>Store reference and use throughout your app</li>
+        </ol>
+
+        <p><strong>Critical</strong>: <code>prepare()</code> is what actually loads modules from their sources. Without it, you just have config.</p>
+
+        <h2>Module Patterns in the Ecosystem</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Pattern</th>
+              <th>Study For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>tool-filesystem</code></td>
+              <td>Stateless tool</td>
+              <td>Simple operations, no embedded state</td>
+            </tr>
+            <tr>
+              <td><code>tool-bash</code></td>
+              <td>Stateless with config</td>
+              <td>Configuration-driven behavior</td>
+            </tr>
+            <tr>
+              <td><code>tool-issue</code></td>
+              <td>Operation-based with state</td>
+              <td>Embedded manager, multiple operations</td>
+            </tr>
+            <tr>
+              <td><code>tool-web</code></td>
+              <td>Stateless with HTTP client</td>
+              <td>External API integration</td>
+            </tr>
+            <tr>
+              <td><code>hooks-logging</code></td>
+              <td>Hook with file I/O</td>
+              <td>Event-driven, persistent state</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Next Steps</h2>
+
+        <ul>
+          <li><a href="/core/building-other-apps.html">See complete email assistant code</a></li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-core/tree/main/examples" target="_blank" rel="noreferrer">
+              amplifier-core examples
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-foundation/tree/main/examples" target="_blank" rel="noreferrer">
+              amplifier-foundation examples
+            </a>
+          </li>
+          <li>Study existing modules in the ecosystem for patterns</li>
+        </ul>
+
+        <div class="callout">
+          <strong>The Email Assistant Example</strong>
+          <div>
+            <p>Located at <code>examples/email-assistant/</code> in the Amplifier repository.</p>
+            <p>Shows: FastAPI + React + Amplifier with custom tool-email module, real AI integration, and proper architecture.</p>
+            <p>Run it: <code>cd examples/email-assistant && ./start.sh</code></p>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

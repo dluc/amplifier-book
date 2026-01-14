@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AGENTS.md: is it special?</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1><code class="inline">AGENTS.md</code>: is it special?</h1>
+
+        <p>
+          <strong>Short answer</strong>: <code class="inline">AGENTS.md</code> is <em>not</em> a kernel-level "magic file" in Amplifier. It becomes
+          <em>effectively special</em> because the <code class="inline">foundation</code> bundle includes instructions that reference it via the <code class="inline">@mention</code>
+          mechanism, and the bundle system automatically expands <code class="inline">@mentions</code> when loading bundle content.
+        </p>
+
+        <h2>What “special” would mean (and what it doesn’t)</h2>
+        <p>
+          There is no code in <code class="inline">amplifier-core</code> that says “always load AGENTS.md”. The kernel has no file-name
+          constant for it and no dedicated loader. The core contract is: apps can inject system/developer messages any way they want.
+        </p>
+
+        <div class="callout">
+          <strong>What is special (in practice)</strong>
+          <div>
+            The <code class="inline">foundation</code> bundle's instruction set tells the model that <code class="inline">AGENTS.md</code> is an anchor for behavioral rules, and it
+            includes <code class="inline">@mentions</code> that point at likely locations for that file. When those mentions resolve, the bundle system includes the file's
+            content in the system message.
+          </div>
+        </div>
+
+        <h2>The Complete Loading Chain</h2>
+
+        <p>Here's exactly how AGENTS.md gets loaded when you use the foundation bundle:</p>
+
+        <ol>
+          <li>
+            <strong>Foundation bundle</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/bundle.md" target="_blank" rel="noreferrer">bundle.md</a>)
+            includes <code class="inline">@foundation:context/shared/common-system-base.md</code>
+          </li>
+          <li>
+            <strong>common-system-base.md</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/context/shared/common-system-base.md" target="_blank" rel="noreferrer">source</a>)
+            includes <code class="inline">@foundation:context/shared/common-agent-base.md</code>
+          </li>
+          <li>
+            <strong>common-agent-base.md</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/context/shared/common-agent-base.md" target="_blank" rel="noreferrer">source</a>)
+            contains the AGENTS.md references:
+            <ul>
+              <li><code class="inline">@~/.amplifier/AGENTS.md</code> (global user config)</li>
+              <li><code class="inline">@.amplifier/AGENTS.md</code> (project config)</li>
+              <li><code class="inline">@AGENTS.md</code> (root of working directory)</li>
+            </ul>
+          </li>
+          <li>
+            <strong>@mention resolver</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/resolver.py" target="_blank" rel="noreferrer">resolver.py</a>)
+            resolves these to actual file paths
+          </li>
+          <li>
+            <strong>MentionLoader</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/loader.py" target="_blank" rel="noreferrer">loader.py</a>)
+            loads the files recursively
+          </li>
+          <li>
+            <strong>Bundle system</strong>
+            (<a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/bundle.py" target="_blank" rel="noreferrer">bundle.py</a>)
+            assembles all content into the system message
+          </li>
+        </ol>
+
+        <h2>Where AGENTS.md is Referenced</h2>
+
+        <p>The exact location in the source code (line 112-114 of common-agent-base.md):</p>
+
+        <pre><code># AGENTS files
+
+There may be any of the following files that are accessible to be loaded into your context:
+
+- @~/.amplifier/AGENTS.md
+- @.amplifier/AGENTS.md
+- @AGENTS.md
+</code></pre>
+
+        <p>
+          This appears in
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/context/shared/common-agent-base.md#L112-L114" target="_blank" rel="noreferrer">
+            <code class="inline">amplifier-foundation/context/shared/common-agent-base.md</code>
+          </a>
+        </p>
+
+        <h3>What Each Reference Means</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Resolves To</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">@~/.amplifier/AGENTS.md</code></td>
+              <td><code>~/.amplifier/AGENTS.md</code></td>
+              <td>Global user configuration (applies to all projects)</td>
+            </tr>
+            <tr>
+              <td><code class="inline">@.amplifier/AGENTS.md</code></td>
+              <td><code>./amplifier/AGENTS.md</code> (relative to CWD)</td>
+              <td>Project-specific configuration</td>
+            </tr>
+            <tr>
+              <td><code class="inline">@AGENTS.md</code></td>
+              <td><code>./AGENTS.md</code> (relative to CWD)</td>
+              <td>Root-level project file (alternative location)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <strong>Resolution behavior</strong>: The @mention loader tries each path. If a file doesn't exist, it's skipped (no error). If multiple exist, all are loaded.
+        </p>
+
+        <h2>Why Use the foundation Bundle?</h2>
+
+        <p>
+          Because most bundles include <code class="inline">foundation</code> (either directly or indirectly), most sessions end up including
+          <code class="inline">common-agent-base.md</code> and therefore the <code class="inline">AGENTS.md</code> references - unless you deliberately create a bundle that
+          omits foundation's shared instructions.
+        </p>
+
+        <h2>How @mentions are Resolved (Technical Details)</h2>
+
+        <p>The bundle system in <code class="inline">amplifier-foundation</code> handles @mention resolution:</p>
+
+        <h3>Resolution Patterns</h3>
+
+        <p><strong>1. Namespaced mentions</strong> (<code class="inline">@bundle-name:path</code>)</p>
+        <pre><code>@foundation:context/shared/common-agent-base.md
+@lsp:agents/code-navigator.md
+</code></pre>
+        <p>
+          Resolved by looking up the bundle in the registry and finding the path within that bundle's context. See
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/resolver.py#L52-L56" target="_blank" rel="noreferrer">
+            resolver.py#L52-L56
+          </a>
+        </p>
+
+        <p><strong>2. Relative path mentions</strong> (<code class="inline">@path</code>)</p>
+        <pre><code>@AGENTS.md
+@.amplifier/AGENTS.md
+</code></pre>
+        <p>
+          Resolved relative to current working directory. The resolver tries the path as-is, then with <code>.md</code> extension. See
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/resolver.py#L58-L69" target="_blank" rel="noreferrer">
+            resolver.py#L58-L69
+          </a>
+        </p>
+
+        <p><strong>3. Home shortcut mentions</strong> (<code class="inline">@~/path</code>)</p>
+        <pre><code>@~/.amplifier/AGENTS.md
+</code></pre>
+        <p>
+          The <code>@~/</code> prefix is expanded to the user's home directory. This is handled by apps (like the CLI) that extend
+          <code class="inline">BaseMentionResolver</code> with additional shortcuts.
+        </p>
+
+        <h3>Loading Process</h3>
+
+        <p>When @mentions are encountered:</p>
+
+        <ol>
+          <li><strong>Resolver.resolve(mention)</strong> - Converts @mention to file path</li>
+          <li><strong>MentionLoader.load_file(path)</strong> - Reads file content</li>
+          <li><strong>Recursive expansion</strong> - If loaded file contains @mentions, they're resolved too</li>
+          <li><strong>Content assembly</strong> - All content assembled into system message</li>
+        </ol>
+
+        <p>
+          Key code references:
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/resolver.py" target="_blank" rel="noreferrer">
+            mentions/resolver.py
+          </a>,
+          <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/mentions/loader.py" target="_blank" rel="noreferrer">
+            mentions/loader.py
+          </a>
+        </p>
+
+        <div class="mermaid">
+flowchart TB
+  B["foundation bundle.md"] -->|includes| S["@foundation:context/shared/common-system-base.md"]
+  S -->|includes| A["@foundation:context/shared/common-agent-base.md"]
+  A -->|contains| M1["@~/.amplifier/AGENTS.md"]
+  A -->|contains| M2["@.amplifier/AGENTS.md"]
+  A -->|contains| M3["@AGENTS.md"]
+
+  M1 --> R["MentionResolver"]
+  M2 --> R
+  M3 --> R
+  R --> L["MentionLoader loads files"]
+  L --> SM["System message assembly"]
+        </div>
+
+        <h2>Resolution Details: Which Files Load?</h2>
+
+        <p>The resolver tries each @mention in sequence:</p>
+
+        <div class="callout">
+          <strong>All found files are loaded</strong>
+          <div>
+            Unlike traditional config where only one file wins, the @mention system loads ALL files that exist. If you have both
+            <code>~/.amplifier/AGENTS.md</code> AND <code>.amplifier/AGENTS.md</code>, both are included.
+          </div>
+        </div>
+
+        <p><strong>Resolution order</strong> (from common-agent-base.md line 112-114):</p>
+
+        <ol>
+          <li><code>@~/.amplifier/AGENTS.md</code> - Global file (if exists)</li>
+          <li><code>@.amplifier/AGENTS.md</code> - Project file (if exists)</li>
+          <li><code>@AGENTS.md</code> - Root file (if exists)</li>
+        </ol>
+
+        <p><strong>No error if missing</strong>: If none of these files exist, execution continues normally. AGENTS.md is optional.</p>
+
+        <h2>What AGENTS.md is For</h2>
+
+        <p>From common-agent-base.md lines 212+:</p>
+
+        <blockquote>
+          <p>
+            The AGENTS.md file is the <strong>anchor point</strong> that appears at every turn of every AI conversation.
+          </p>
+        </blockquote>
+
+        <p>The file provides persistent instructions that:</p>
+        <ul>
+          <li>Guide agent behavior across sessions</li>
+          <li>Store project-specific conventions</li>
+          <li>Define custom rules and preferences</li>
+          <li>Get automatically updated by the agent as it learns your workflow</li>
+        </ul>
+
+        <p>See lines 128-131 of common-agent-base.md for the agent's instructions about when/how to modify AGENTS.md files.</p>
+
+        <h2>Using AGENTS.md in Your Own Bundle</h2>
+
+        <p>
+          If you create a custom bundle, you can include AGENTS.md support:
+        </p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-bundle
+  version: 1.0.0
+
+includes:
+  - bundle: foundation  # Gets common-agent-base.md → AGENTS.md references
+---
+
+# My custom instructions
+
+@foundation:context/shared/common-system-base.md
+</code></pre>
+
+        <p>
+          Or reference AGENTS.md directly in your bundle without foundation:
+        </p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-minimal-bundle
+---
+
+# Instructions
+
+Project guidance:
+@.amplifier/AGENTS.md
+
+Global guidance:
+@~/.amplifier/AGENTS.md
+</code></pre>
+
+        <h2>For Application Developers</h2>
+
+        <p>
+          If you're building an app (not just using bundles), you can add custom @mention shortcuts by extending
+          <code class="inline">BaseMentionResolver</code>. The CLI adds shortcuts like:
+        </p>
+
+        <ul>
+          <li><code>@user:</code> - Maps to <code>~/.amplifier/</code></li>
+          <li><code>@project:</code> - Maps to <code>.amplifier/</code></li>
+          <li><code>@~/</code> - Home directory expansion</li>
+        </ul>
+
+        <p>
+          This is app-level functionality, not bundle-level. See the CLI's implementation for examples.
+        </p>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>

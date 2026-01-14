@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CLI Uses Collections</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How the CLI uses collections</h1>
+        <p>
+          Collections extend the “configuration surface” of the CLI: they add profiles and agents (and sometimes domain context) that
+          the CLI can discover and load. After a collection is installed, its profiles can be selected just like bundled profiles.
+        </p>
+
+        <h2>What changes after installing a collection</h2>
+        <ul>
+          <li><strong>More profiles</strong> show up in <code class="inline">amplifier profile list</code>.</li>
+          <li><strong>More agents</strong> show up in chat (often with a collection prefix).</li>
+          <li>The new profiles may reference additional modules/sources.</li>
+        </ul>
+
+        <h2>What does not change automatically</h2>
+        <ul>
+          <li>Your active profile stays the same until you switch.</li>
+          <li>Installed collections don’t “run”; they provide content/config to be selected.</li>
+        </ul>
+
+        <h2>Practical workflow</h2>
+        <pre><code># install
+amplifier collection add git+https://github.com/microsoft/amplifier-collection-toolkit@main
+
+# see what it added
+amplifier profile list
+
+# use it
+amplifier profile use toolkit-dev
+</code></pre>
+
+        <h2>Concrete implementation points (amplifier-app-cli)</h2>
+        <ul>
+          <li>
+            Collection install/list/update commands:
+            <code class="inline">amplifier_app_cli/commands/collection.py</code>
+          </li>
+          <li>
+            Collection discovery/paths resolver:
+            <code class="inline">amplifier_app_cli/paths.py</code>
+          </li>
+          <li>
+            Bundled collections shipped inside the app:
+            <code class="inline">amplifier_app_cli/data/collections/</code>
+          </li>
+        </ul>
+
+        <p><a href="/platform/collections-discovery.html">Collections discovery (verified)</a></p>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

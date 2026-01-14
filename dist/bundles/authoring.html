@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Creating Bundles</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Creating Your Own Bundle</h1>
+
+        <p>
+          Creating a bundle is straightforward - it's just a markdown file with YAML frontmatter. This guide walks you through
+          creating your first bundle.
+        </p>
+
+        <h2>Quick Start: Minimal Bundle</h2>
+
+        <p>Create a file called <code class="inline">bundle.md</code>:</p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-first-bundle
+  version: 1.0.0
+  description: My custom Amplifier configuration
+
+includes:
+  - bundle: foundation
+---
+
+# My Custom Bundle
+
+You are a helpful AI assistant customized for my workflow.
+</code></pre>
+
+        <p>Run it:</p>
+
+        <pre><code class="language-bash">amplifier run --bundle ./bundle.md "Hello!"
+</code></pre>
+
+        <p>That's it! You've created a bundle that includes all foundation capabilities plus your custom instructions.</p>
+
+        <h2>Step-by-Step: Building a Custom Bundle</h2>
+
+        <h3>1. Start with Foundation</h3>
+
+        <p>Most bundles build on <code class="inline">foundation</code>:</p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-bundle
+  version: 1.0.0
+
+includes:
+  - bundle: foundation
+---
+</code></pre>
+
+        <p>
+          This gives you all core tools (filesystem, bash, web, search), standard hooks (logging, streaming UI), and the basic
+          orchestrator.
+        </p>
+
+        <h3>2. Add Custom Modules</h3>
+
+        <p>Add your own tools, hooks, or providers:</p>
+
+        <pre><code class="language-yaml">tools:
+  - module: tool-my-custom
+    source: git+https://github.com/you/amplifier-module-tool-my-custom@main
+    config:
+      api_key: ${MY_API_KEY}  # Environment variable
+
+hooks:
+  - module: hooks-my-notifications
+    source: file:///absolute/path/to/local/module
+</code></pre>
+
+        <h3>3. Override Provider</h3>
+
+        <p>Change which AI provider to use:</p>
+
+        <pre><code class="language-yaml">providers:
+  - module: provider-openai
+    source: git+https://github.com/microsoft/amplifier-module-provider-openai@main
+    config:
+      default_model: gpt-5.1
+      priority: 1
+</code></pre>
+
+        <h3>4. Add Custom Agents</h3>
+
+        <p>Define specialized agents for your domain:</p>
+
+        <pre><code class="language-yaml">agents:
+  - agent: my-domain-expert
+    file: agents/domain-expert.md
+</code></pre>
+
+        <p>Create <code class="inline">agents/domain-expert.md</code>:</p>
+
+        <pre><code class="language-yaml">---
+meta:
+  name: my-domain-expert
+  description: Expert in my specific domain
+---
+
+You are a domain expert specializing in...
+</code></pre>
+
+        <h3>5. Add Context Resources</h3>
+
+        <p>Include domain knowledge and instructions:</p>
+
+        <pre><code class="language-yaml">context:
+  - file: context/domain-knowledge.md
+  - file: context/coding-standards.md
+</code></pre>
+
+        <p>Reference them in your system prompt with @mentions:</p>
+
+        <pre><code class="language-markdown">---
+# (frontmatter above)
+---
+
+# My Bundle
+
+@my-bundle:context/domain-knowledge.md
+
+Follow these coding standards:
+@my-bundle:context/coding-standards.md
+</code></pre>
+
+        <h2>Complete Example</h2>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: data-science-bundle
+  version: 2.1.0
+  description: Data science workflow with Jupyter and plotting support
+
+includes:
+  - bundle: foundation
+
+tools:
+  - module: tool-jupyter
+    source: git+https://github.com/microsoft/amplifier-module-tool-jupyter@main
+  - module: tool-plotting
+    source: git+https://github.com/you/amplifier-module-tool-plotting@main
+
+providers:
+  - module: provider-anthropic
+    source: git+https://github.com/microsoft/amplifier-module-provider-anthropic@main
+    config:
+      default_model: claude-sonnet-4-5
+      priority: 1
+
+agents:
+  - agent: data-analyst
+    file: agents/data-analyst.md
+  - agent: visualization-expert
+    file: agents/viz-expert.md
+
+context:
+  - file: context/pandas-best-practices.md
+  - file: context/visualization-guidelines.md
+---
+
+# Data Science Assistant
+
+You are an expert data science assistant specializing in Python, pandas, and data visualization.
+
+## Your Capabilities
+
+@data-science-bundle:context/pandas-best-practices.md
+
+@data-science-bundle:context/visualization-guidelines.md
+
+## Your Approach
+
+1. Understand the data first
+2. Clean and validate
+3. Analyze with clear explanations
+4. Visualize insights effectively
+</code></pre>
+
+        <h2>Best Practices</h2>
+
+        <div class="callout">
+          <strong>Module Sources</strong>
+          <div>
+            Always specify explicit <code class="inline">source:</code> URLs for modules. This makes bundles self-contained and
+            reproducible.
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Versioning</strong>
+          <div>
+            Use semantic versioning (1.0.0) for your bundles. Increment when you make changes that might affect users.
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Documentation</strong>
+          <div>
+            The markdown body is documentation for <em>you</em> (the bundle author) and system instructions for the
+            <em>agent</em>. Write clearly for both audiences.
+          </div>
+        </div>
+
+        <h2>Testing Your Bundle</h2>
+
+        <pre><code class="language-bash"># Run locally
+amplifier run --bundle ./bundle.md "Test prompt"
+
+# Or add to registry
+amplifier bundle add ./bundle.md
+amplifier bundle use my-bundle
+amplifier run "Test prompt"
+</code></pre>
+
+        <h2>Sharing Your Bundle</h2>
+
+        <p>Once your bundle works, share it via Git:</p>
+
+        <pre><code class="language-bash"># Push to GitHub
+git init
+git add bundle.md agents/ context/
+git commit -m "Initial bundle"
+git remote add origin https://github.com/you/my-amplifier-bundle
+git push -u origin main
+
+# Others can use it:
+amplifier run --bundle git+https://github.com/you/my-amplifier-bundle@main
+</code></pre>
+
+        <h2>Advanced Topics</h2>
+
+        <ul>
+          <li><a href="/bundles/composition.html">Bundle composition patterns</a></li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md" target="_blank" rel="noreferrer"
+              >Official Bundle Guide (amplifier-foundation)</a
+            >
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/AGENT_AUTHORING.md" target="_blank" rel="noreferrer"
+              >Agent Authoring Guide</a
+            >
+          </li>
+        </ul>
+
+        <h2>Examples to Study</h2>
+
+        <ul>
+          <li><a href="https://github.com/microsoft/amplifier-bundle-recipes" target="_blank" rel="noreferrer">amplifier-bundle-recipes</a> - Multi-step orchestration</li>
+          <li><a href="https://github.com/microsoft/amplifier-bundle-lsp" target="_blank" rel="noreferrer">amplifier-bundle-lsp</a> - Code intelligence</li>
+          <li><a href="https://github.com/microsoft/amplifier-bundle-design-intelligence" target="_blank" rel="noreferrer">amplifier-bundle-design-intelligence</a> - Design systems</li>
+          <li><a href="https://github.com/microsoft/amplifier-foundation/blob/main/bundle.md" target="_blank" rel="noreferrer">foundation bundle.md</a> - The foundation itself</li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

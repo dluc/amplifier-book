@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Creating Profiles</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Creating profiles</h1>
+        <p>
+          Profiles are how you turn “how I like Amplifier to behave” into something repeatable. A profile is a declarative mount plan:
+          which orchestrator loop to use, which context manager, which tools/hooks/providers are available, and which agents can be
+          delegated to.
+        </p>
+
+        <h2>Why create a profile</h2>
+        <ul>
+          <li><strong>Consistency</strong>: stop re-prompting “always do X, never do Y”.</li>
+          <li><strong>Safety</strong>: make a low-permission profile (few tools, strict approvals) your default.</li>
+          <li><strong>Task modes</strong>: “refactor mode”, “test mode”, “design review mode”, “docs mode”.</li>
+          <li><strong>Team alignment</strong>: share a profile via a collection so everyone runs the same capability set.</li>
+        </ul>
+
+        <h2>When not to</h2>
+        <ul>
+          <li>If you only need one-off behavior changes, prefer a single command with explicit constraints.</li>
+          <li>If you’re changing code, a tool module is usually the right unit—not a profile.</li>
+        </ul>
+
+        <h2>What a profile file looks like</h2>
+        <p>
+          In practice, profiles are Markdown files with YAML frontmatter. The frontmatter is the machine-readable mount plan; the body
+          is the instruction text the model sees (and can include @mentions resolved by the app layer).
+        </p>
+
+        <div class="callout">
+          <strong>Verified mechanics</strong>
+          <div>
+            Profiles are discovered and loaded by <code class="inline">ProfileLoader</code> and compiled by
+            <code class="inline">compile_profile_to_mount_plan</code>.
+            <a href="/platform/profile-loading.html">Profile loading (verified)</a>.
+          </div>
+        </div>
+
+        <h2>Minimal example: “safe-readonly”</h2>
+        <p>
+          A profile that prioritizes safety: minimal tools, no web, simple context, and a basic orchestrator. This is useful for
+          planning, explanation, and design discussions where you don’t want the model to execute code or browse.
+        </p>
+        <pre><code>---
+profile:
+  name: safe-readonly
+  version: 0.1.0
+  description: Minimal profile for explanation and planning (no tools)
+  extends: foundation:profiles/foundation.md
+
+session:
+  orchestrator:
+    module: loop-basic
+  context:
+    module: context-simple
+
+# No tools/hooks declared (inherits only essentials from foundation)
+agents: none
+---
+
+You are an assistant in read-only advisory mode.
+Do not propose running commands. Focus on reasoning and clear next steps.</code></pre>
+
+        <h2>Example: “repo-auditor” (grounded workflow profile)</h2>
+        <p>
+          A profile for auditing a codebase: enable search + filesystem + bash, keep logging/redaction on, and bias instructions toward
+          evidence gathering and traceability.
+        </p>
+        <pre><code>---
+profile:
+  name: repo-auditor
+  version: 0.1.0
+  description: Audit a codebase with traceable evidence and minimal risk
+  extends: foundation:profiles/base.md
+
+session:
+  orchestrator:
+    module: loop-streaming
+    config:
+      extended_thinking: true
+
+tools:
+  - module: tool-filesystem
+    source: git+https://github.com/microsoft/amplifier-module-tool-filesystem@main
+  - module: tool-bash
+    source: git+https://github.com/microsoft/amplifier-module-tool-bash@main
+  - module: tool-search
+    source: git+https://github.com/microsoft/amplifier-module-tool-search@main
+
+hooks:
+  - module: hooks-redaction
+    source: git+https://github.com/microsoft/amplifier-module-hooks-redaction@main
+  - module: hooks-logging
+    source: git+https://github.com/microsoft/amplifier-module-hooks-logging@main
+    config:
+      mode: session-only
+      session_log_template: ~/.amplifier/projects/{project}/sessions/{session_id}/events.jsonl
+
+agents:
+  - researcher
+---
+
+You are auditing a codebase. Prefer evidence:
+- Quote exact file paths and symbols.
+- When uncertain, inspect with tools instead of guessing.
+- Summarize risks and follow-up checks.</code></pre>
+
+        <h2>Where to put profiles</h2>
+        <ul>
+          <li><strong>Personal</strong>: keep a profile in your user profile directory (app-specific).</li>
+          <li><strong>Project</strong>: add it to your repo’s project configuration area (app-specific).</li>
+          <li><strong>Share it</strong>: publish a collection repo containing <code class="inline">profiles/*.md</code>.</li>
+        </ul>
+
+        <h2>CLI workflow (practical)</h2>
+        <pre><code># create a new profile by extending an existing one
+amplifier profile create repo-auditor --extend base
+
+# edit the generated file (path is shown by the CLI)
+amplifier profile use repo-auditor
+</code></pre>
+
+        <h2>How the loader finds it</h2>
+        <div class="mermaid">
+flowchart TB
+  file["Your profile file (.md + YAML frontmatter)"] --> loader["ProfileLoader discovers + loads (inheritance)"]
+  loader --> plan["compile_profile_to_mount_plan()"]
+  plan --> session["Session mounts modules and runs turns"]
+        </div>
+
+        <h2>References</h2>
+        <ul>
+          <li>
+            Profile authoring guide:
+            <a href="https://github.com/microsoft/amplifier-profiles/blob/main/docs/PROFILE_AUTHORING.md" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-profiles/docs/PROFILE_AUTHORING.md</a
+            >
+          </li>
+          <li>
+            Profile loader source:
+            <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/loader.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-profiles/src/amplifier_profiles/loader.py</a
+            >
+          </li>
+          <li>
+            Compiler source:
+            <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/compiler.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-profiles/src/amplifier_profiles/compiler.py</a
+            >
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>
+

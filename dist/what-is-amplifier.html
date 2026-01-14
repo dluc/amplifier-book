@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>What Amplifier Is</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>What Amplifier Is</h1>
+        <p>
+          Amplifier is a modular platform for AI-assisted development. The CLI you run is a reference application built on top of a
+          small kernel (<code class="inline">amplifier-core</code>) plus swappable runtime modules (providers, tools, hooks, and
+          orchestrators).
+        </p>
+
+        <h2>The mental picture</h2>
+        <div class="mermaid">
+flowchart TB
+  app["Your app (CLI, web app, IDE plugin, service)"] --> cfg["Load config + select bundle"]
+  cfg --> mount["Mount plan: orchestrator + provider + tools + hooks"]
+  mount --> loop["Orchestrator loop runs turns"]
+
+  core["amplifier-core (kernel contracts)"] --> mount
+  foundation["amplifier-foundation (bundle system)"] --> cfg
+  modules["Runtime modules (plugins)"] --> mount
+
+  subgraph Modules
+    providers["Providers"]
+    tools["Tools"]
+    hooks["Hooks"]
+    orchestrators["Orchestrators (loops)"]
+    contexts["Context managers"]
+  end
+  modules --> providers
+  modules --> tools
+  modules --> hooks
+  modules --> orchestrators
+  modules --> contexts
+        </div>
+
+        <h2>Why it feels like "Claude Code"</h2>
+        <p>
+          The CLI can feel similar because it includes the same genre of parts: a streaming terminal UI, a tool-calling loop, local
+          filesystem and shell tools, session persistence, etc. The key difference is that Amplifier is designed so those behaviors
+          are assembled from modules and bundles rather than being one fixed monolith.
+        </p>
+
+        <div class="callout ok">
+          <strong>Useful rule of thumb</strong>
+          <div>
+            If something "mysteriously appears" (an agent, a tool, a different streaming behavior), it's almost always because your
+            active bundle mounted a different set of modules.
+          </div>
+        </div>
+
+        <h2>Configuration: Bundles are the new standard</h2>
+        <p>
+          Amplifier uses <strong>bundles</strong> as the primary way to configure and compose capabilities. A bundle is a markdown file with YAML frontmatter that specifies:
+        </p>
+        <ul>
+          <li>Which modules to load (providers, tools, hooks, orchestrators)</li>
+          <li>System prompts and agent definitions</li>
+          <li>Context files and resources</li>
+          <li>Other bundles to include (composition)</li>
+        </ul>
+        <p>
+          This replaces the older profile/collection system, providing better composability and reproducibility. See the <a href="/bundles/index.html">Bundles page</a> for details.
+        </p>
+
+        <h2>Entry point vs. ecosystem</h2>
+        <ul>
+          <li>
+            The <code class="inline">amplifier</code> GitHub repo is the entry point and documentation hub; it depends on
+            <code class="inline">amplifier-app-cli</code> and exposes the <code class="inline">amplifier</code> command.
+          </li>
+          <li>
+            The "real" platform includes many other repos:
+            <ul>
+              <li><strong>amplifier-core</strong>: Kernel contracts</li>
+              <li><strong>amplifier-foundation</strong>: Bundle system and foundational library</li>
+              <li><strong>Runtime modules</strong>: Providers, tools, hooks, orchestrators, context managers</li>
+              <li><strong>Bundles</strong>: Pre-configured capability packages</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="callout">
+          <strong>Why that matters</strong>
+          <div>
+            If you want a different UX (web UI, background service, multi-task runner), you build a different application that hosts
+            the same core contracts and mounts the same kinds of modules.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>

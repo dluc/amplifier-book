@@ -1,0 +1,3453 @@
+{
+  "generated_at": "2026-01-14T19:52:44.787763+00:00",
+  "repos_scanned": [
+    "DavidKoleczek/amplifier-app-benchmarks",
+    "brycecutt-msft/amplifier-module-provider-bedrock",
+    "michaeljabbour/amplifier-module-hooks-event-broadcast",
+    "michaeljabbour/amplifier-module-tool-memory",
+    "microsoft/amplifier",
+    "microsoft/amplifier-app-cli",
+    "microsoft/amplifier-app-log-viewer",
+    "microsoft/amplifier-bundle-design-intelligence",
+    "microsoft/amplifier-bundle-lsp",
+    "microsoft/amplifier-bundle-lsp-python",
+    "microsoft/amplifier-bundle-lsp-typescript",
+    "microsoft/amplifier-bundle-recipes",
+    "microsoft/amplifier-bundle-shadow",
+    "microsoft/amplifier-collection-design-intelligence",
+    "microsoft/amplifier-collection-issues",
+    "microsoft/amplifier-collection-recipes",
+    "microsoft/amplifier-collection-toolkit",
+    "microsoft/amplifier-collections",
+    "microsoft/amplifier-config",
+    "microsoft/amplifier-core",
+    "microsoft/amplifier-dev",
+    "microsoft/amplifier-foundation",
+    "microsoft/amplifier-module-context-persistent",
+    "microsoft/amplifier-module-context-simple",
+    "microsoft/amplifier-module-hooks-approval",
+    "microsoft/amplifier-module-hooks-backup",
+    "microsoft/amplifier-module-hooks-logging",
+    "microsoft/amplifier-module-hooks-redaction",
+    "microsoft/amplifier-module-hooks-scheduler-cost-aware",
+    "microsoft/amplifier-module-hooks-scheduler-heuristic",
+    "microsoft/amplifier-module-hooks-status-context",
+    "microsoft/amplifier-module-hooks-streaming-ui",
+    "microsoft/amplifier-module-hooks-todo-reminder",
+    "microsoft/amplifier-module-loop-basic",
+    "microsoft/amplifier-module-loop-events",
+    "microsoft/amplifier-module-loop-streaming",
+    "microsoft/amplifier-module-provider-anthropic",
+    "microsoft/amplifier-module-provider-azure-openai",
+    "microsoft/amplifier-module-provider-gemini",
+    "microsoft/amplifier-module-provider-mock",
+    "microsoft/amplifier-module-provider-ollama",
+    "microsoft/amplifier-module-provider-openai",
+    "microsoft/amplifier-module-provider-vllm",
+    "microsoft/amplifier-module-resolution",
+    "microsoft/amplifier-module-tool-bash",
+    "microsoft/amplifier-module-tool-filesystem",
+    "microsoft/amplifier-module-tool-search",
+    "microsoft/amplifier-module-tool-skills",
+    "microsoft/amplifier-module-tool-task",
+    "microsoft/amplifier-module-tool-todo",
+    "microsoft/amplifier-module-tool-web",
+    "microsoft/amplifier-profiles",
+    "payneio/lakehouse",
+    "robotdad/amplifier-app-blog-creator",
+    "robotdad/amplifier-app-transcribe",
+    "robotdad/amplifier-app-voice",
+    "robotdad/amplifier-collection-ddd",
+    "robotdad/amplifier-collection-spec-kit",
+    "robotdad/amplifier-module-image-generation",
+    "robotdad/amplifier-module-markdown-utils",
+    "robotdad/amplifier-module-provider-openai-realtime",
+    "robotdad/amplifier-module-style-extraction",
+    "robotdad/amplifier-module-tool-mcp",
+    "robotdad/amplifier-module-tool-whisper",
+    "robotdad/amplifier-module-tool-youtube-dl",
+    "samueljklee/amplifier-app-tool-generator",
+    "samueljklee/amplifier-playground"
+  ],
+  "modules": [
+    {
+      "id": "context-persistent",
+      "type": "context",
+      "repo": "microsoft/amplifier-module-context-persistent",
+      "repo_url": "https://github.com/microsoft/amplifier-module-context-persistent",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_context_persistent:mount",
+      "readme_summary": "A context manager that extends SimpleContextManager with persistent file loading capabilities for cross-session memory."
+    },
+    {
+      "id": "context-simple",
+      "type": "context",
+      "repo": "microsoft/amplifier-module-context-simple",
+      "repo_url": "https://github.com/microsoft/amplifier-module-context-simple",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_context_simple:mount",
+      "readme_summary": "Basic message list context manager for conversation state."
+    },
+    {
+      "id": "hooks-approval",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-approval",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-approval",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_approval:mount",
+      "readme_summary": "Intercepts tool execution requests and coordinates user approval before dangerous operations."
+    },
+    {
+      "id": "hooks-backup",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-backup",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-backup",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_backup:mount",
+      "readme_summary": "Transcript backup and preservation hook for Amplifier sessions."
+    },
+    {
+      "id": "hooks-event-broadcast",
+      "type": "hook",
+      "repo": "michaeljabbour/amplifier-module-hooks-event-broadcast",
+      "repo_url": "https://github.com/michaeljabbour/amplifier-module-hooks-event-broadcast",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_event_broadcast:mount",
+      "readme_summary": "Transport-agnostic event broadcast hook for Amplifier - enables real-time UI updates via capability injection."
+    },
+    {
+      "id": "hooks-logging",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-logging",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-logging",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_logging:mount",
+      "readme_summary": "Provides visibility into agent execution through lifecycle event logging."
+    },
+    {
+      "id": "hooks-redaction",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-redaction",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-redaction",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_redaction:mount",
+      "readme_summary": "Masks secrets/PII before logging."
+    },
+    {
+      "id": "hooks-scheduler-cost-aware",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-scheduler-cost-aware",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-scheduler-cost-aware",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_scheduler_cost_aware:mount",
+      "readme_summary": "Cost and latency aware scheduling for tool and agent selection in Amplifier."
+    },
+    {
+      "id": "hooks-scheduler-heuristic",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-scheduler-heuristic",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-scheduler-heuristic",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_scheduler_heuristic:mount",
+      "readme_summary": "Simple heuristic-based scheduling for tool and agent selection in Amplifier."
+    },
+    {
+      "id": "hooks-status-context",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-status-context",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-status-context",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_status_context:mount",
+      "readme_summary": "Injects environment info (working directory, platform, OS, date), session context, and optional git status into agent context before each prompt. Ensures agent has fresh contextual information for decisions."
+    },
+    {
+      "id": "hooks-streaming-ui",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-streaming-ui",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-streaming-ui",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_streaming_ui:mount",
+      "readme_summary": "Progressive display for thinking blocks, tool invocations, and token usage in the Amplifier console."
+    },
+    {
+      "id": "hooks-todo-reminder",
+      "type": "hook",
+      "repo": "microsoft/amplifier-module-hooks-todo-reminder",
+      "repo_url": "https://github.com/microsoft/amplifier-module-hooks-todo-reminder",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_hooks_todo_reminder:mount",
+      "readme_summary": "Hook that injects todo list reminders into AI context before each LLM request."
+    },
+    {
+      "id": "loop-basic",
+      "type": "orchestrator",
+      "repo": "microsoft/amplifier-module-loop-basic",
+      "repo_url": "https://github.com/microsoft/amplifier-module-loop-basic",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_loop_basic:mount",
+      "readme_summary": "Reference implementation of sequential agent loop orchestration."
+    },
+    {
+      "id": "loop-events",
+      "type": "orchestrator",
+      "repo": "microsoft/amplifier-module-loop-events",
+      "repo_url": "https://github.com/microsoft/amplifier-module-loop-events",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_loop_events:mount",
+      "readme_summary": "Event-driven agent loop orchestrator for Amplifier with scheduler integration."
+    },
+    {
+      "id": "loop-streaming",
+      "type": "orchestrator",
+      "repo": "microsoft/amplifier-module-loop-streaming",
+      "repo_url": "https://github.com/microsoft/amplifier-module-loop-streaming",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_loop_streaming:mount",
+      "readme_summary": "Token-level streaming orchestration for real-time response delivery."
+    },
+    {
+      "id": "provider-anthropic",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-anthropic",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-anthropic",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_anthropic:mount",
+      "readme_summary": "Claude model integration for Amplifier via Anthropic API."
+    },
+    {
+      "id": "provider-azure-openai",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-azure-openai",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-azure-openai",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_azure_openai:mount",
+      "readme_summary": "A provider module that integrates Azure OpenAI Service with the Amplifier AI agent platform."
+    },
+    {
+      "id": "provider-bedrock",
+      "type": "provider",
+      "repo": "brycecutt-msft/amplifier-module-provider-bedrock",
+      "repo_url": "https://github.com/brycecutt-msft/amplifier-module-provider-bedrock",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_bedrock:mount",
+      "readme_summary": "Access Anthropic's Claude models via AWS Bedrock as an AI provider for Amplifier."
+    },
+    {
+      "id": "provider-gemini",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-gemini",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-gemini",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_gemini:mount",
+      "readme_summary": "Google Gemini model integration for Amplifier via Google AI API."
+    },
+    {
+      "id": "provider-mock",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-mock",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-mock",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_mock:mount",
+      "readme_summary": "> **Note**: This is a **reference provider module** for Amplifier. It demonstrates how to implement a provider and is useful for testing and development without API calls."
+    },
+    {
+      "id": "provider-ollama",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-ollama",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-ollama",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_ollama:mount",
+      "readme_summary": "Local LLM provider integration for Amplifier using Ollama."
+    },
+    {
+      "id": "provider-openai",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-openai",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-openai",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_openai:mount",
+      "readme_summary": "GPT model integration for Amplifier via OpenAI's Responses API."
+    },
+    {
+      "id": "provider-openai-realtime",
+      "type": "provider",
+      "repo": "robotdad/amplifier-module-provider-openai-realtime",
+      "repo_url": "https://github.com/robotdad/amplifier-module-provider-openai-realtime",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_openai_realtime:mount",
+      "readme_summary": "OpenAI Realtime API provider module for Amplifier - native speech-to-speech interactions."
+    },
+    {
+      "id": "provider-vllm",
+      "type": "provider",
+      "repo": "microsoft/amplifier-module-provider-vllm",
+      "repo_url": "https://github.com/microsoft/amplifier-module-provider-vllm",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_provider_vllm:mount",
+      "readme_summary": "vLLM provider module for Amplifier - Responses API integration for local/self-hosted LLMs."
+    },
+    {
+      "id": "tool-bash",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-bash",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-bash",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_bash:mount",
+      "readme_summary": "Shell command execution for Amplifier agents."
+    },
+    {
+      "id": "tool-filesystem",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-filesystem",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-filesystem",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_filesystem:mount",
+      "readme_summary": "Provides basic file operations for Amplifier agents."
+    },
+    {
+      "id": "tool-mcp",
+      "type": "tool",
+      "repo": "robotdad/amplifier-module-tool-mcp",
+      "repo_url": "https://github.com/robotdad/amplifier-module-tool-mcp",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_mcp:mount",
+      "readme_summary": "Modular capability that adds Model Context Protocol (MCP) server integration to Amplifier bundles."
+    },
+    {
+      "id": "tool-memory",
+      "type": "tool",
+      "repo": "michaeljabbour/amplifier-module-tool-memory",
+      "repo_url": "https://github.com/michaeljabbour/amplifier-module-tool-memory",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_memory:mount",
+      "readme_summary": "Persistent memory tool module for Amplifier - enables AI agents to remember facts, observations, and session context across sessions."
+    },
+    {
+      "id": "tool-search",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-search",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-search",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_search:mount",
+      "readme_summary": "Self-contained search tools module for Amplifier, providing grep and glob functionality for file searching and content searching."
+    },
+    {
+      "id": "tool-skills",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-skills",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-skills",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_skills:mount",
+      "readme_summary": "Modular capability that adds skill-based domain knowledge loading to Amplifier bundles."
+    },
+    {
+      "id": "tool-task",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-task",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-task",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_task:mount",
+      "readme_summary": "Task delegation tool for Amplifier that enables AI agents to spawn sub-sessions for complex subtasks."
+    },
+    {
+      "id": "tool-todo",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-todo",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-todo",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_todo:mount",
+      "readme_summary": "AI self-accountability tool for managing todo lists during complex multi-step tasks."
+    },
+    {
+      "id": "tool-web",
+      "type": "tool",
+      "repo": "microsoft/amplifier-module-tool-web",
+      "repo_url": "https://github.com/microsoft/amplifier-module-tool-web",
+      "package_name": null,
+      "package_description": null,
+      "entrypoint": "amplifier_module_tool_web:mount",
+      "readme_summary": "Web tools for searching and fetching content from the internet."
+    }
+  ],
+  "profiles": [
+    {
+      "name": "base",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation/profiles/base.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation/profiles/base.md",
+      "frontmatter": {
+        "profile": {
+          "name": "base",
+          "version": "1.1.0",
+          "description": "Base configuration with core functionality, tools, and hooks",
+          "extends": "foundation:profiles/foundation.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 400000,
+              "compact_threshold": 0.8,
+              "auto_compact": true
+            }
+          },
+          "injection_budget_per_turn": null,
+          "injection_size_limit": null
+        },
+        "task": {
+          "max_recursion_depth": 1
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          },
+          {
+            "module": "tool-todo",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-todo@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-status-context",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-status-context@main",
+            "config": {
+              "include_datetime": true,
+              "datetime_include_timezone": false
+            }
+          },
+          {
+            "module": "hooks-redaction",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-redaction@main",
+            "config": {
+              "allowlist": [
+                "session_id",
+                "turn_id",
+                "span_id",
+                "parent_span_id"
+              ]
+            }
+          },
+          {
+            "module": "hooks-logging",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-logging@main",
+            "config": {
+              "mode": "session-only",
+              "session_log_template": "~/.amplifier/projects/{project}/sessions/{session_id}/events.jsonl"
+            }
+          },
+          {
+            "module": "hooks-todo-reminder",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-todo-reminder@main",
+            "config": {
+              "inject_role": "user",
+              "priority": 10
+            }
+          },
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": "all"
+      }
+    },
+    {
+      "name": "base",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/foundation/profiles/base.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/foundation/profiles/base.md",
+      "frontmatter": {
+        "profile": {
+          "name": "base",
+          "version": "1.1.0",
+          "description": "Base configuration with core functionality, tools, and hooks",
+          "extends": "foundation:profiles/foundation.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 400000,
+              "compact_threshold": 0.8,
+              "auto_compact": true
+            }
+          },
+          "injection_budget_per_turn": null,
+          "injection_size_limit": null
+        },
+        "task": {
+          "max_recursion_depth": 1
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          },
+          {
+            "module": "tool-todo",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-todo@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-status-context",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-status-context@main",
+            "config": {
+              "include_datetime": true,
+              "datetime_include_timezone": false
+            }
+          },
+          {
+            "module": "hooks-redaction",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-redaction@main",
+            "config": {
+              "allowlist": [
+                "session_id",
+                "turn_id",
+                "span_id",
+                "parent_span_id"
+              ]
+            }
+          },
+          {
+            "module": "hooks-logging",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-logging@main",
+            "config": {
+              "mode": "session-only",
+              "session_log_template": "~/.amplifier/projects/{project}/sessions/{session_id}/events.jsonl"
+            }
+          },
+          {
+            "module": "hooks-todo-reminder",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-todo-reminder@main",
+            "config": {
+              "inject_role": "user",
+              "priority": 10
+            }
+          },
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": "all"
+      }
+    },
+    {
+      "name": "blog-creator",
+      "repo": "robotdad/amplifier-app-blog-creator",
+      "path": ".amplifier/profiles/blog-creator.md",
+      "github_url": "https://github.com/robotdad/amplifier-app-blog-creator/blob/main/.amplifier/profiles/blog-creator.md",
+      "frontmatter": {
+        "profile": {
+          "name": "blog-creator",
+          "version": "1.0.0",
+          "extends": "base"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic"
+          },
+          "context": {
+            "module": "context-simple",
+            "config": {
+              "data_dir": "~/.amplifier-data/blog-creator",
+              "writings_dir": "~/writings"
+            }
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem"
+          },
+          {
+            "module": "tool-bash"
+          },
+          {
+            "module": "style-extraction",
+            "source": "git+https://github.com/robotdad/amplifier-dev@main#subdirectory=amplifier-module-style-extraction"
+          },
+          {
+            "module": "image-generation",
+            "source": "git+https://github.com/robotdad/amplifier-dev@main#subdirectory=amplifier-module-image-generation"
+          },
+          {
+            "module": "markdown-utils",
+            "source": "git+https://github.com/robotdad/amplifier-dev@main#subdirectory=amplifier-module-markdown-utils"
+          }
+        ],
+        "providers": [
+          {
+            "module": "provider-anthropic"
+          }
+        ]
+      }
+    },
+    {
+      "name": "designer",
+      "repo": "microsoft/amplifier-collection-design-intelligence",
+      "path": "profiles/designer.md",
+      "github_url": "https://github.com/microsoft/amplifier-collection-design-intelligence/blob/main/profiles/designer.md",
+      "frontmatter": {
+        "profile": {
+          "name": "designer",
+          "version": "1.0.0",
+          "description": "Design Intelligence configuration with full design specialist team",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "task": {
+          "max_recursion_depth": 1
+        },
+        "ui": {
+          "show_thinking_stream": true,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": "all"
+      }
+    },
+    {
+      "name": "dev",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/profiles/dev.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/profiles/dev.md",
+      "frontmatter": {
+        "profile": {
+          "name": "dev",
+          "version": "1.2.0",
+          "description": "Development configuration with full toolset",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "config": {
+              "extended_thinking": true,
+              "default_provider": "provider-openai"
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "config": {
+              "debug": true,
+              "raw_debug": true,
+              "priority": 100
+            }
+          },
+          {
+            "module": "provider-openai",
+            "config": {
+              "debug": true,
+              "raw_debug": true,
+              "priority": 200
+            }
+          }
+        ],
+        "ui": {
+          "show_thinking_stream": true,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-status-context",
+            "config": {
+              "include_git": true,
+              "git_include_status": true,
+              "git_include_commits": 5,
+              "git_include_branch": true,
+              "git_include_main_branch": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "dev",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/developer-expertise/profiles/dev.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/developer-expertise/profiles/dev.md",
+      "frontmatter": {
+        "profile": {
+          "name": "dev",
+          "version": "1.2.0",
+          "description": "Development configuration with full toolset",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true,
+              "default_provider": "provider-openai"
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "debug": true,
+              "raw_debug": true,
+              "priority": 100
+            }
+          },
+          {
+            "module": "provider-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-openai@main",
+            "config": {
+              "debug": true,
+              "raw_debug": true,
+              "priority": 200
+            }
+          }
+        ],
+        "ui": {
+          "show_thinking_stream": true,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-status-context",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-status-context@main",
+            "config": {
+              "include_git": true,
+              "git_include_status": true,
+              "git_include_commits": 5,
+              "git_include_branch": true,
+              "git_include_main_branch": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "documentation",
+      "repo": "robotdad/amplifier-collection-ddd",
+      "path": "profiles/documentation.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-ddd/blob/main/profiles/documentation.md",
+      "frontmatter": {
+        "profile": {
+          "name": "documentation",
+          "version": "1.0.0",
+          "description": "DDD documentation mode for Phases 0-2 (Planning, Docs, Approval)",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4",
+              "temperature": 0.3,
+              "debug": false
+            }
+          }
+        ],
+        "task": {
+          "max_recursion_depth": 2
+        },
+        "ui": {
+          "show_thinking_stream": false,
+          "show_tool_lines": 3
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ],
+          "active": [
+            "planning-architect",
+            "documentation-retroner"
+          ]
+        }
+      }
+    },
+    {
+      "name": "example-basic",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-basic.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-basic.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-basic",
+          "version": "1.0.0",
+          "description": "Minimal standalone profile - no extends, no agents"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 50000
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4-20250514"
+            }
+          }
+        ],
+        "tools": []
+      }
+    },
+    {
+      "name": "example-extends",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-extends.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-extends.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-extends",
+          "version": "1.0.0",
+          "description": "Profile that extends a collection profile",
+          "extends": "foundation:profiles/base.md"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "example-full",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-full.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-full.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-full",
+          "version": "1.0.0",
+          "description": "Complete example combining extends, context, and agents",
+          "extends": "foundation:base"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ],
+        "agents": [
+          "code-reviewer"
+        ]
+      }
+    },
+    {
+      "name": "example-local-module",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-local-module.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-local-module.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-local-module",
+          "version": "1.0.0",
+          "description": "Example profile using a locally-developed module (tool-echo)"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 50000
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4-20250514"
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-echo",
+            "config": {
+              "prefix": "[Echo] "
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "example-with-agents",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-with-agents.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-with-agents.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-with-agents",
+          "version": "1.0.0",
+          "description": "Profile with agent definitions for specialized tasks"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 100000
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4-20250514"
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ],
+        "agents": [
+          "bug-hunter",
+          "test-coverage",
+          "researcher"
+        ]
+      }
+    },
+    {
+      "name": "example-with-context",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/playground/profiles/example-with-context.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/playground/profiles/example-with-context.md",
+      "frontmatter": {
+        "profile": {
+          "name": "example-with-context",
+          "version": "1.0.0",
+          "description": "Profile that references local context files"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 50000
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4-20250514"
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "foundation",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation/profiles/foundation.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation/profiles/foundation.md",
+      "frontmatter": {
+        "profile": {
+          "name": "foundation",
+          "version": "1.0.0",
+          "description": "Foundation configuration with only essential components"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-basic@main"
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "default_model": "claude-sonnet-4-5"
+            }
+          },
+          {
+            "module": "provider-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-openai@main",
+            "config": {
+              "default_model": "gpt-5.1-codex"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "foundation",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/foundation/profiles/foundation.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/foundation/profiles/foundation.md",
+      "frontmatter": {
+        "profile": {
+          "name": "foundation",
+          "version": "1.0.0",
+          "description": "Foundation configuration with only essential components"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-basic@main"
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "default_model": "claude-sonnet-4-5"
+            }
+          },
+          {
+            "module": "provider-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-openai@main",
+            "config": {
+              "default_model": "gpt-5.1-codex"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "full",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/profiles/full.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/profiles/full.md",
+      "frontmatter": {
+        "profile": {
+          "name": "full",
+          "version": "1.0.0",
+          "description": "Full configuration with all available tools, hooks, and agents",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-persistent",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-persistent@main",
+            "config": {
+              "max_tokens": 200000,
+              "compact_threshold": 0.9,
+              "auto_compact": true
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-openai@main",
+            "config": {
+              "default_model": "gpt-5-mini"
+            }
+          },
+          {
+            "module": "provider-azure-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-azure-openai@main",
+            "config": {
+              "default_model": "gpt-5-mini"
+            }
+          },
+          {
+            "module": "provider-ollama",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-ollama@main",
+            "config": {
+              "default_model": "llama3.2:3b"
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "agents": "all",
+        "hooks": [
+          {
+            "module": "hooks-approval",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-approval@main",
+            "config": {
+              "patterns": [
+                "rm -rf",
+                "sudo",
+                "DELETE",
+                "DROP"
+              ],
+              "auto_approve": false
+            }
+          },
+          {
+            "module": "hooks-backup",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-backup@main",
+            "config": {
+              "backup_dir": ".amplifier/local/backups",
+              "max_backups": 10
+            }
+          },
+          {
+            "module": "hooks-scheduler-cost-aware",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-scheduler-cost-aware@main",
+            "config": {
+              "budget_limit": 10.0,
+              "warn_threshold": 0.8
+            }
+          },
+          {
+            "module": "hooks-scheduler-heuristic",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-scheduler-heuristic@main",
+            "config": {
+              "max_concurrent": 5,
+              "batch_size": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "full",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/developer-expertise/profiles/full.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/developer-expertise/profiles/full.md",
+      "frontmatter": {
+        "profile": {
+          "name": "full",
+          "version": "1.0.0",
+          "description": "Full configuration with all available tools, hooks, and agents",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-persistent",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-persistent@main",
+            "config": {
+              "max_tokens": 200000,
+              "compact_threshold": 0.9,
+              "auto_compact": true
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-openai@main",
+            "config": {
+              "default_model": "gpt-5-mini"
+            }
+          },
+          {
+            "module": "provider-azure-openai",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-azure-openai@main",
+            "config": {
+              "default_model": "gpt-5-mini"
+            }
+          },
+          {
+            "module": "provider-ollama",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-ollama@main",
+            "config": {
+              "default_model": "llama3.2:3b"
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "agents": "all",
+        "hooks": [
+          {
+            "module": "hooks-approval",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-approval@main",
+            "config": {
+              "patterns": [
+                "rm -rf",
+                "sudo",
+                "DELETE",
+                "DROP"
+              ],
+              "auto_approve": false
+            }
+          },
+          {
+            "module": "hooks-backup",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-backup@main",
+            "config": {
+              "backup_dir": ".amplifier/local/backups",
+              "max_backups": 10
+            }
+          },
+          {
+            "module": "hooks-scheduler-cost-aware",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-scheduler-cost-aware@main",
+            "config": {
+              "budget_limit": 10.0,
+              "warn_threshold": 0.8
+            }
+          },
+          {
+            "module": "hooks-scheduler-heuristic",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-scheduler-heuristic@main",
+            "config": {
+              "max_concurrent": 5,
+              "batch_size": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "general",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation/profiles/general.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation/profiles/general.md",
+      "frontmatter": {
+        "profile": {
+          "name": "general",
+          "version": "1.1.0",
+          "description": "General-purpose configuration optimized for reliability",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-persistent",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-persistent@main",
+            "config": {
+              "max_tokens": 150000,
+              "compact_threshold": 0.9,
+              "auto_compact": true
+            }
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          }
+        ],
+        "agents": [
+          "researcher"
+        ]
+      }
+    },
+    {
+      "name": "general",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/foundation/profiles/general.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/foundation/profiles/general.md",
+      "frontmatter": {
+        "profile": {
+          "name": "general",
+          "version": "1.1.0",
+          "description": "General-purpose configuration optimized for reliability",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-persistent",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-persistent@main",
+            "config": {
+              "max_tokens": 150000,
+              "compact_threshold": 0.9,
+              "auto_compact": true
+            }
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          }
+        ],
+        "agents": [
+          "researcher"
+        ]
+      }
+    },
+    {
+      "name": "implementation",
+      "repo": "robotdad/amplifier-collection-ddd",
+      "path": "profiles/implementation.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-ddd/blob/main/profiles/implementation.md",
+      "frontmatter": {
+        "profile": {
+          "name": "implementation",
+          "version": "1.0.0",
+          "description": "DDD implementation mode for Phases 3-6 (Code Plan, Implementation, Testing, Cleanup)",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4",
+              "temperature": 0.4,
+              "debug": false
+            }
+          }
+        ],
+        "task": {
+          "max_recursion_depth": 2
+        },
+        "ui": {
+          "show_thinking_stream": false,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ],
+          "active": [
+            "code-planner",
+            "implementation-verifier",
+            "finalization-specialist"
+          ]
+        }
+      }
+    },
+    {
+      "name": "implementer",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "profiles/implementer.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/profiles/implementer.md",
+      "frontmatter": {
+        "profile": {
+          "name": "implementer",
+          "version": "1.0.0",
+          "description": "Spec-Kit implementation mode for executing tasks and verifying against specifications",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4",
+              "temperature": 0.4,
+              "debug": false
+            }
+          }
+        ],
+        "task": {
+          "max_recursion_depth": 2
+        },
+        "ui": {
+          "show_thinking_stream": false,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ],
+          "active": [
+            "constitutional-guardian",
+            "implementation-guide"
+          ]
+        }
+      }
+    },
+    {
+      "name": "issue-aware",
+      "repo": "microsoft/amplifier-collection-issues",
+      "path": "profiles/issue-aware.md",
+      "github_url": "https://github.com/microsoft/amplifier-collection-issues/blob/main/profiles/issue-aware.md",
+      "frontmatter": {
+        "profile": {
+          "name": "issue-aware",
+          "version": "1.2.0",
+          "description": "Issue-aware profile with autonomous issue management",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          },
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          },
+          {
+            "module": "tool-issue",
+            "source": "git+https://github.com/microsoft/amplifier-collection-issues@main#subdirectory=modules/tool-issue",
+            "config": {
+              "data_dir": ".amplifier/issues",
+              "auto_create_dir": true,
+              "actor": "assistant"
+            }
+          }
+        ],
+        "ui": {
+          "show_thinking_stream": true,
+          "show_tool_lines": 5
+        },
+        "hooks": [
+          {
+            "module": "hooks-logging",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-logging@main"
+          },
+          {
+            "module": "hook-issue-auto-work",
+            "source": "git+https://github.com/microsoft/amplifier-collection-issues@main#subdirectory=modules/hook-issue-auto-work",
+            "config": {
+              "priority": 100,
+              "max_auto_iterations": 10,
+              "inject_role": "system"
+            }
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ]
+        }
+      }
+    },
+    {
+      "name": "planner",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "profiles/planner.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/profiles/planner.md",
+      "frontmatter": {
+        "profile": {
+          "name": "planner",
+          "version": "1.0.0",
+          "description": "Spec-Kit planning mode for implementation planning and task breakdown",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4",
+              "temperature": 0.4,
+              "debug": false
+            }
+          }
+        ],
+        "task": {
+          "max_recursion_depth": 2
+        },
+        "ui": {
+          "show_thinking_stream": false,
+          "show_tool_lines": 5
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ],
+          "active": [
+            "constitutional-guardian",
+            "research-architect",
+            "plan-architect",
+            "task-decomposer"
+          ]
+        }
+      }
+    },
+    {
+      "name": "recipe-dev",
+      "repo": "microsoft/amplifier-collection-recipes",
+      "path": "profiles/recipe-dev.md",
+      "github_url": "https://github.com/microsoft/amplifier-collection-recipes/blob/main/profiles/recipe-dev.md",
+      "frontmatter": {
+        "profile": {
+          "name": "recipe-dev",
+          "version": "0.1.0",
+          "description": "Development profile with recipe execution capabilities",
+          "extends": "developer-expertise:dev"
+        },
+        "tools": [
+          {
+            "module": "tool-recipes",
+            "config": {
+              "session_dir": "~/.amplifier/projects",
+              "auto_cleanup_days": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "spec-writer",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "profiles/spec-writer.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/profiles/spec-writer.md",
+      "frontmatter": {
+        "profile": {
+          "name": "spec-writer",
+          "version": "1.0.0",
+          "description": "Spec-Kit specification mode for creating and refining formal specifications",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": false
+            }
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main",
+            "config": {
+              "model": "claude-sonnet-4",
+              "temperature": 0.3,
+              "debug": false
+            }
+          }
+        ],
+        "task": {
+          "max_recursion_depth": 2
+        },
+        "ui": {
+          "show_thinking_stream": false,
+          "show_tool_lines": 3
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-streaming-ui",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-streaming-ui@main"
+          }
+        ],
+        "agents": {
+          "dirs": [
+            "./agents"
+          ],
+          "active": [
+            "constitutional-guardian",
+            "spec-smith",
+            "spec-critic",
+            "requirement-clarifier"
+          ]
+        }
+      }
+    },
+    {
+      "name": "test",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation/profiles/test.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation/profiles/test.md",
+      "frontmatter": {
+        "profile": {
+          "name": "test",
+          "version": "1.0.0",
+          "description": "Test configuration with mock provider for testing scenarios",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic"
+          },
+          "context": {
+            "module": "context-simple",
+            "config": {
+              "max_tokens": 50000,
+              "compact_threshold": 0.7,
+              "auto_compact": true
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-mock",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-mock@main",
+            "config": {
+              "default_response": "This is a mock response for testing",
+              "response_delay": 0.1,
+              "fail_probability": 0.0
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "agents": {
+          "inline": {
+            "test-agent": {
+              "name": "test-agent",
+              "description": "Simple test agent for validation",
+              "tools": [
+                {
+                  "module": "tool-filesystem"
+                }
+              ],
+              "system": {
+                "instruction": "You are a test agent. Respond with 'Test successful' to any query."
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "test",
+      "repo": "samueljklee/amplifier-playground",
+      "path": "src/amplifier_playground/data/collections/foundation/profiles/test.md",
+      "github_url": "https://github.com/samueljklee/amplifier-playground/blob/main/src/amplifier_playground/data/collections/foundation/profiles/test.md",
+      "frontmatter": {
+        "profile": {
+          "name": "test",
+          "version": "1.0.0",
+          "description": "Test configuration with mock provider for testing scenarios",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-basic@main"
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 50000,
+              "compact_threshold": 0.7,
+              "auto_compact": true
+            }
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-mock",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-mock@main",
+            "config": {
+              "default_response": "This is a mock response for testing",
+              "response_delay": 0.1,
+              "fail_probability": 0.0
+            }
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          }
+        ],
+        "agents": {
+          "inline": {
+            "test-agent": {
+              "name": "test-agent",
+              "description": "Simple test agent for validation",
+              "tools": [
+                {
+                  "module": "tool-filesystem",
+                  "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+                }
+              ],
+              "system": {
+                "instruction": "You are a test agent. Respond with 'Test successful' to any query."
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "test-status",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/test/status-test.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/test/status-test.md",
+      "frontmatter": {
+        "profile": {
+          "name": "test-status",
+          "extends": "foundation:profiles/base.md"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic"
+          },
+          "context": {
+            "module": "context-simple"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-anthropic",
+            "source": "git+https://github.com/microsoft/amplifier-module-provider-anthropic@main"
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-status-context",
+            "config": {
+              "include_git": true,
+              "git_include_status": true,
+              "git_include_commits": 3,
+              "git_include_branch": true,
+              "git_include_main_branch": true,
+              "include_datetime": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "toolkit-dev",
+      "repo": "microsoft/amplifier-collection-toolkit",
+      "path": "profiles/toolkit-dev.md",
+      "github_url": "https://github.com/microsoft/amplifier-collection-toolkit/blob/main/profiles/toolkit-dev.md",
+      "frontmatter": {
+        "profile": {
+          "name": "toolkit-dev",
+          "version": "1.0.0",
+          "description": "Toolkit development configuration with metacognitive recipe helpers",
+          "extends": "developer-expertise:dev"
+        }
+      }
+    },
+    {
+      "name": "voice",
+      "repo": "robotdad/amplifier-app-voice",
+      "path": "profiles/voice.md",
+      "github_url": "https://github.com/robotdad/amplifier-app-voice/blob/main/profiles/voice.md",
+      "frontmatter": {
+        "profile": {
+          "name": "voice",
+          "version": "1.0.0",
+          "description": "Voice assistant configuration for OpenAI Realtime API"
+        },
+        "session": {
+          "orchestrator": {
+            "module": "loop-basic",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-basic@main"
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main"
+          }
+        },
+        "providers": [
+          {
+            "module": "provider-openai-realtime",
+            "source": "git+https://github.com/robotdad/amplifier-module-provider-openai-realtime@main",
+            "config": {
+              "api_key": "${OPENAI_API_KEY}",
+              "model": "gpt-4o-realtime-preview-2024-12-17",
+              "voice": "alloy",
+              "temperature": 0.7
+            }
+          }
+        ],
+        "hooks": [
+          {
+            "module": "hooks-logging",
+            "source": "git+https://github.com/microsoft/amplifier-module-hooks-logging@main",
+            "config": {
+              "priority": 100
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "whisper-transcription",
+      "repo": "robotdad/amplifier-module-tool-whisper",
+      "path": "examples/whisper.md",
+      "github_url": "https://github.com/robotdad/amplifier-module-tool-whisper/blob/main/examples/whisper.md",
+      "frontmatter": {
+        "profile": {
+          "name": "whisper-transcription",
+          "extends": "base"
+        },
+        "tools": [
+          {
+            "module": "tool-whisper",
+            "source": "git+https://github.com/robotdad/amplifier-module-tool-whisper@main",
+            "config": {
+              "output_dir": "~/transcripts",
+              "model": "whisper-1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "youtube-downloader",
+      "repo": "robotdad/amplifier-module-tool-youtube-dl",
+      "path": "examples/youtube-dl.md",
+      "github_url": "https://github.com/robotdad/amplifier-module-tool-youtube-dl/blob/main/examples/youtube-dl.md",
+      "frontmatter": {
+        "profile": {
+          "name": "youtube-downloader",
+          "extends": "base"
+        },
+        "tools": [
+          {
+            "module": "tool-youtube-dl",
+            "source": "git+https://github.com/robotdad/amplifier-module-tool-youtube-dl@main",
+            "config": {
+              "output_dir": "~/downloads",
+              "audio_only": true
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "agents": [
+    {
+      "name": "amplifier-expert",
+      "repo": "microsoft/amplifier",
+      "path": "agents/amplifier-expert.md",
+      "github_url": "https://github.com/microsoft/amplifier/blob/main/agents/amplifier-expert.md",
+      "frontmatter": {
+        "meta": {
+          "name": "amplifier-expert",
+          "description": "**THE authoritative consultant for ALL Amplifier ecosystem knowledge.** Use PROACTIVELY throughout the entire lifecycle: for initial research to understand what's possible, for guidance on how to build, and for validation of ideas/plans/implementations. This agent is the source of truth for amplifier-core, modules, amplifier-foundation, bundles, patterns, and best practices.\n\n**CRITICAL: Use this agent BEFORE implementation** to get accurate context. Use it DURING work to validate approaches. Use it AFTER to verify alignment with Amplifier philosophy.\n\nExamples:\n\n<example>\nContext: Starting any Amplifier-related work\nuser: 'I need to understand how sessions work before implementing'\nassistant: 'I'll consult amplifier:amplifier-expert first to get authoritative information on session lifecycle and patterns.'\n<commentary>\nALWAYS consult amplifier:amplifier-expert when starting Amplifier-related work for accurate context.\n</commentary>\n</example>\n\n<example>\nContext: Validating an approach\nuser: 'Is this the right pattern for adding a custom provider?'\nassistant: 'Let me use amplifier:amplifier-expert to validate this approach against Amplifier's design principles.'\n<commentary>\nUse amplifier:amplifier-expert to validate ideas/plans before implementation.\n</commentary>\n</example>\n\n<example>\nContext: Understanding what's possible\nuser: 'What multi-agent patterns does Amplifier support?'\nassistant: 'I'll delegate to amplifier:amplifier-expert to explain available patterns and point to relevant examples.'\n<commentary>\namplifier:amplifier-expert knows the full ecosystem and can recommend appropriate patterns.\n</commentary>\n</example>\n\n<example>\nContext: Quick reference lookup\nuser: 'What module types exist in Amplifier?'\nassistant: 'I'll ask amplifier:amplifier-expert for the authoritative list of module types and their contracts.'\n<commentary>\nEven simple lookups should go through amplifier:amplifier-expert to ensure accuracy.\n</commentary>\n</example>"
+        }
+      }
+    },
+    {
+      "name": "animation-choreographer",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/animation-choreographer.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/animation-choreographer.md",
+      "frontmatter": {
+        "meta": {
+          "name": "animation-choreographer",
+          "description": "Use this agent when designing motion, animations, and transitions for UI elements.\nTransforms user's motion vision into purposeful animations that communicate system\nstate and provide feedback, following Amplified Design's motion timing protocol.\n\nDeploy for:\n- Icon animations and micro-interactions\n- Page transitions and choreography\n- Loading states and progress indicators\n- State change animations\n- Motion timing and easing decisions\n- Accessibility considerations for motion\n\nRemember: Animation is communication, not decoration.\n"
+        }
+      }
+    },
+    {
+      "name": "art-director",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/art-director.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/art-director.md",
+      "frontmatter": {
+        "meta": {
+          "name": "art-director",
+          "description": "Use this agent for aesthetic direction, visual strategy, and cohesive visual expression.\nTransforms user's aesthetic vision into systematic design principles that guide all\nvisual decisions across the system.\n\nDeploy for:\n- Defining aesthetic direction and visual strategy\n- Creating/maintaining .design/AESTHETIC-GUIDE.md\n- Ensuring visual coherence across the system\n- Translating \"vibes\" and feelings into design principles\n- Brand expression in design\n\nOwns the Style dimension (Nine Dimensions #1) at the strategic level.\n"
+        }
+      }
+    },
+    {
+      "name": "bug-hunter",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/bug-hunter.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/bug-hunter.md",
+      "frontmatter": {
+        "meta": {
+          "name": "bug-hunter",
+          "description": "Specialized debugging expert focused on finding and fixing bugs systematically. Use PROACTIVELY. It MUST BE USED when user has reported or you are encountering errors, unexpected behavior, or test failures. Examples: <example>user: 'The synthesis pipeline is throwing a KeyError somewhere' assistant: 'I'll use the bug-hunter agent to systematically track down and fix this KeyError.' <commentary>The bug-hunter uses hypothesis-driven debugging to efficiently locate and resolve issues.</commentary></example> <example>user: 'Tests are failing after the recent changes' assistant: 'Let me use the bug-hunter agent to investigate and fix the test failures.' <commentary>Perfect for methodical debugging without adding unnecessary complexity.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "code-navigator",
+      "repo": "microsoft/amplifier-bundle-lsp",
+      "path": "agents/code-navigator.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-lsp/blob/main/agents/code-navigator.md",
+      "frontmatter": {
+        "meta": {
+          "name": "code-navigator",
+          "description": "Semantic code navigation expert using Language Server Protocol. For complex multi-step code navigation (tracing call hierarchies, mapping dependencies, understanding type flows across files), delegate to this agent. For simple single-operation lookups (quick hover, single goToDefinition), agents with tool-lsp can use it directly. LSP provides SEMANTIC results (actual code relationships) while grep provides TEXT matches (including comments, strings, false positives). Requires language-specific bundle (like lsp-python) to be configured. Examples: <example>user: 'Refactor the authentication module' assistant: 'I'll first use code-navigator to map the auth module structure, find all usages, and trace the call hierarchy - then pass this context to zen-architect for refactoring design.' <commentary>Complex multi-step navigation benefits from the specialist agent.</commentary></example> <example>user: 'Where is the Session class defined and what uses it?' assistant: 'I'll delegate to code-navigator to find the definition and trace all semantic references.' <commentary>LSP goToDefinition finds the exact location; findReferences returns actual usages, not text matches.</commentary></example> <example>user: 'What functions call handle_request() and what does it call internally?' assistant: 'I'll use code-navigator to trace the call hierarchy in both directions.' <commentary>LSP incomingCalls/outgoingCalls map the complete call graph - something grep cannot do reliably.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "component-designer",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/component-designer.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/component-designer.md",
+      "frontmatter": {
+        "meta": {
+          "name": "component-designer",
+          "description": "Use this agent when designing or implementing individual UI components. Transforms\nuser's component vision into refined UI elements that embody the Nine Dimensions\nand Five Pillars while maintaining the 9.5/10 quality baseline.\n\nDeploy for:\n- Designing new UI components\n- Refining existing components\n- Component-level design decisions\n- Component documentation and examples\n- Variant design and props API\n\nThis agent works at the component level, not system architecture.\n"
+        }
+      }
+    },
+    {
+      "name": "constitutional-guardian",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "agents/constitutional-guardian.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/agents/constitutional-guardian.md",
+      "frontmatter": {
+        "meta": {
+          "name": "constitutional-guardian",
+          "description": "Constitutional compliance enforcer for all spec-kit phases. Always active as system-level validator. Ensures specifications, plans, and implementations adhere to the 8 core principles. Use proactively throughout workflow to prevent violations and guide corrections. Examples:\n<example> Context: Spec validation needed user: 'Review this feature specification for constitutional compliance' assistant: 'I'll use the constitutional-guardian agent to validate against the 8 principles' <commentary> Spec validation triggers compliance check before proceeding to implementation. </commentary> </example>\n<example> Context: Implementation review user: 'Check if this implementation violates any constitutional principles' assistant: 'I'll use the constitutional-guardian agent to audit the implementation' <commentary> Implementation reviews trigger violation detection and correction guidance. </commentary> </example>\n<example> Context: Design decision user: 'Should we wrap this library or use it directly?' assistant: 'Let me consult the constitutional-guardian agent on this abstraction decision' <commentary> Architectural decisions trigger constitutional analysis per Anti-Abstraction Rule. </commentary> </example>"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem"
+          },
+          {
+            "module": "tool-bash"
+          }
+        ]
+      }
+    },
+    {
+      "name": "core-expert",
+      "repo": "microsoft/amplifier-core",
+      "path": "agents/core-expert.md",
+      "github_url": "https://github.com/microsoft/amplifier-core/blob/main/agents/core-expert.md",
+      "frontmatter": {
+        "meta": {
+          "name": "core-expert",
+          "description": "**Expert consultant for Amplifier kernel internals.** Use when you need deep understanding of kernel contracts, module protocols, the event system, or deciding whether something belongs in kernel vs module.\n\n**When to consult**:\n- Building new modules\n- Understanding kernel contracts\n- Events and hooks system details\n- Session lifecycle questions\n- Kernel vs module placement decisions\n\nExamples:\n\n<example>\nContext: Building a new module\nuser: 'I need to implement a custom provider module'\nassistant: 'I'll consult core:core-expert to understand the Provider protocol and kernel contracts.'\n<commentary>\ncore:core-expert knows the exact protocol specifications for building modules.\n</commentary>\n</example>\n\n<example>\nContext: Deciding kernel vs module\nuser: 'Should retry logic be in the kernel?'\nassistant: 'Let me ask core:core-expert - this is a kernel philosophy question.'\n<commentary>\ncore:core-expert can apply the litmus test for kernel vs module decisions.\n</commentary>\n</example>\n\n<example>\nContext: Understanding hooks\nuser: 'How do hooks participate in the agent loop?'\nassistant: 'I'll consult core:core-expert for detailed hooks API understanding.'\n<commentary>\ncore:core-expert has deep knowledge of the hook system and event flow.\n</commentary>\n</example>"
+        }
+      }
+    },
+    {
+      "name": "design-system-architect",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/design-system-architect.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/design-system-architect.md",
+      "frontmatter": {
+        "meta": {
+          "name": "design-system-architect",
+          "description": "Use this agent when working on design system architecture, design tokens, or establishing\ndesign foundations. This agent transforms user's vision into systematic, scalable design\ninfrastructure following the Nine Dimensions and Five Pillars philosophy.\n\nDeploy for:\n- Design system architecture and token design\n- Establishing design foundations (color, typography, spacing, motion)\n- Evaluating design decisions against Nine Dimensions\n- Validating Five Pillars alignment\n- Design philosophy application and guidance\n- Cross-cutting design concerns\n\nThis agent operates at the system level, not individual components.\n"
+        }
+      }
+    },
+    {
+      "name": "ecosystem-expert",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/ecosystem-expert.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/ecosystem-expert.md",
+      "frontmatter": {
+        "meta": {
+          "name": "ecosystem-expert",
+          "description": "Amplifier ecosystem development specialist. Delegate for: multi-repo coordination, testing local changes, cross-repo workflows, working memory patterns. Example: 'How do I test changes across core and foundation?'"
+        }
+      }
+    },
+    {
+      "name": "explorer",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation/agents/explorer.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation/agents/explorer.md",
+      "frontmatter": {
+        "meta": {
+          "name": "explorer",
+          "description": "Deep local-context reconnaissance agent. IMPORTANT: This agent has zero prior context—every invocation must include the full objective, scope hints (directories, file types, keywords), and any constraints the agent should respect. Without that information it will not be aware of such. Use this agent whenever the user needs a comprehensive survey of local code, documentation, configuration, or user-provided content (not a precise single-file lookup). Examples:\n\n<example>\nuser: 'What does the overall event handling flow look like?'\nassistant: 'I'll delegate to the foundation:explorer agent to map the event handling modules and summarize the flow.'\n<commentary>The agent conducts a structured sweep of relevant packages and reports the flow.</commentary>\n</example>\n\n<example>\nuser: 'Gather everything we have about client-facing SLAs across docs and configs.'\nassistant: 'I'll use the foundation:explorer agent to survey documentation and configuration files related to client SLAs and summarize the findings.'\n<commentary>The agent spans code, docs, and content to answer the request.</commentary>\n</example>"
+        }
+      }
+    },
+    {
+      "name": "file-ops",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/file-ops.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/file-ops.md",
+      "frontmatter": {
+        "meta": {
+          "name": "file-ops",
+          "description": "Focused file operations agent for reading, writing, editing, and searching files. Use when you need precise file system operations without the broader exploration scope. This agent handles: reading file contents, writing new files, making targeted edits, finding files by pattern (glob), and searching file contents (grep). Best for: single-file operations, batch file changes, content search, and file discovery tasks."
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "foundation-expert",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/foundation-expert.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/foundation-expert.md",
+      "frontmatter": {
+        "meta": {
+          "name": "foundation-expert",
+          "description": "**Expert consultant for building applications with Amplifier Foundation.** Use when you need guidance on bundle composition, patterns, examples, or the philosophy of building AI-powered applications.\n\n**When to consult**:\n- Creating or composing bundles\n- Understanding the thin bundle pattern\n- Finding examples and patterns\n- Philosophy questions (implementation, modular design)\n- Building new behaviors or agents\n\nExamples:\n\n<example>\nContext: Building a new bundle\nuser: 'I want to create a bundle for code review capabilities'\nassistant: 'I'll consult foundation:foundation-expert for bundle composition patterns and the thin bundle approach.'\n<commentary>\nfoundation:foundation-expert knows the thin bundle pattern and behavior composition.\n</commentary>\n</example>\n\n<example>\nContext: Finding working examples\nuser: 'Show me how to set up a multi-provider configuration'\nassistant: 'Let me ask foundation:foundation-expert - it has access to all the working examples.'\n<commentary>\nfoundation:foundation-expert can point to specific examples and patterns.\n</commentary>\n</example>\n\n<example>\nContext: Philosophy question\nuser: 'Should I inline my instructions or create separate context files?'\nassistant: 'I'll consult foundation:foundation-expert for the recommended approach based on modular design philosophy.'\n<commentary>\nfoundation:foundation-expert applies philosophy principles to practical decisions.\n</commentary>\n</example>"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "git-ops",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/git-ops.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/git-ops.md",
+      "frontmatter": {
+        "meta": {
+          "name": "git-ops",
+          "description": "**ALWAYS delegate git and GitHub operations to this agent.** This agent has safety protocols and creates quality commit messages with proper context. MUST be used for:\n- Creating commits (generates proper messages with Amplifier co-author)\n- Creating and managing PRs\n- Branch operations and conflict resolution\n- GitHub API interactions (issues, checks, releases)\n- Multi-repo sync operations (fetch, pull, status)\n\nDO NOT use bash directly for git commands - this agent has safety checks you lack.\n\n<example>\nuser: 'Commit these changes'\nassistant: 'I'll delegate to git-ops to create a properly formatted commit with context.'\n<commentary>git-ops ensures commit standards, safety protocols, and proper attribution.</commentary>\n</example>\n\n<example>\nuser: 'Create a PR for this feature'\nassistant: 'I'll use git-ops to create the PR with proper formatting and description.'\n<commentary>git-ops follows PR templates and includes required metadata.</commentary>\n</example>"
+        },
+        "tools": [
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "integration-specialist",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/integration-specialist.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/integration-specialist.md",
+      "frontmatter": {
+        "meta": {
+          "name": "integration-specialist",
+          "description": "Expert at integrating with external services, APIs, and MCP servers while maintaining simplicity. Also analyzes and manages dependencies for security, compatibility, and technical debt. Use proactively when connecting to external systems, setting up MCP servers, handling API integrations, or analyzing project dependencies. Examples: <example>user: 'Set up integration with the new payment API' assistant: 'I'll use the integration-specialist agent to create a simple, direct integration with the payment API.' <commentary>The integration-specialist ensures clean, maintainable external connections.</commentary></example> <example>user: 'Connect our system to the MCP notification server' assistant: 'Let me use the integration-specialist agent to set up the MCP server connection properly.' <commentary>Perfect for external system integration without over-engineering.</commentary></example> <example>user: 'Check our dependencies for security vulnerabilities' assistant: 'I'll use the integration-specialist agent to analyze dependencies for vulnerabilities and suggest updates.' <commentary>The agent handles dependency health as part of integration management.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "layout-architect",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/layout-architect.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/layout-architect.md",
+      "frontmatter": {
+        "meta": {
+          "name": "layout-architect",
+          "description": "Use this agent for page-level layout structure, information architecture, and\nspatial composition. Transforms user's structural vision into systematic layout\npatterns that work across content types and scales.\n\nDeploy for:\n- Page/view layout structure (header, sidebar, main, footer)\n- Information architecture and navigation hierarchy\n- Grid systems and spatial composition\n- Content flow and reading patterns\n- Screen-level structure\n\nOwns the Space dimension (Nine Dimensions #4) at the page/view level.\n"
+        }
+      }
+    },
+    {
+      "name": "modular-builder",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/modular-builder.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/modular-builder.md",
+      "frontmatter": {
+        "meta": {
+          "name": "modular-builder",
+          "description": "Primary implementation agent that builds code from specifications. Use PROACTIVELY for ALL implementation tasks. Works with zen-architect specifications to create self-contained, regeneratable modules following the 'bricks and studs' philosophy. Examples: <example>user: 'Implement the caching layer we designed' assistant: 'I'll use the modular-builder agent to implement the caching layer from the specifications.' <commentary>The modular-builder implements modules based on specifications from zen-architect.</commentary></example> <example>user: 'Build the authentication module' assistant: 'Let me use the modular-builder agent to implement the authentication module following the specifications.' <commentary>Perfect for implementing components that follow the modular design philosophy.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "plan-architect",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "agents/plan-architect.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/agents/plan-architect.md",
+      "frontmatter": {
+        "meta": {
+          "name": "plan-architect",
+          "description": "Use this agent PROACTIVELY for transforming approved specifications into comprehensive implementation plans with research, data models, contracts, and task breakdowns. This agent operates in planning phase (Phase 0-2) between specification approval and implementation. It coordinates with research-architect for technology evaluation and task-decomposer for task breakdown. Examples:\n\n<example>\nContext: Specification approved, ready for planning\nuser: 'Create implementation plan for authentication feature'\nassistant: 'I'll use plan-architect to create research-backed plan with data models and contracts'\n<commentary>\nApproved spec triggers planning with research and architecture\n</commentary>\n</example>\n\n<example>\nContext: Need technology evaluation before design\nuser: 'Plan the caching layer implementation'\nassistant: 'Let me use plan-architect to research options and create detailed design'\n<commentary>\nPlanning includes research phase for technology selection\n</commentary>\n</example>\n\n<example>\nContext: Complete plan needed with tasks\nuser: 'Generate full implementation plan with task breakdown'\nassistant: 'I'll use plan-architect to create plan, models, contracts, and delegate task decomposition'\n<commentary>\nFull planning workflow from research through task creation\n</commentary>\n</example>",
+          "phase": "planning",
+          "keywords": "planning, implementation, architecture, tasks, breakdown, research, data-model, contracts",
+          "priority": "planning-phase"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem"
+          },
+          {
+            "module": "tool-bash"
+          },
+          {
+            "module": "tool-web"
+          },
+          {
+            "module": "tool-search"
+          },
+          {
+            "module": "task"
+          }
+        ]
+      }
+    },
+    {
+      "name": "post-task-cleanup",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/post-task-cleanup.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/post-task-cleanup.md",
+      "frontmatter": {
+        "meta": {
+          "name": "post-task-cleanup",
+          "description": "Use this agent when a todo list or major task has been completed and you need to ensure codebase hygiene. This agent should be invoked PROACTIVELY after task completion to review git status, identify all touched files, remove temporary artifacts, eliminate unnecessary complexity, and ensure adherence to project philosophy principles. <example>Context: Todo list for feature implementation completed. user: 'Todo list completed for new authentication feature' assistant: 'I'll use the post-task-cleanup agent to review what was changed and ensure the codebase follows our simplicity principles' <commentary>After completing tasks, the post-task-cleanup agent ensures no temporary files, mocks, or unnecessary complexity remains.</commentary></example> <example>Context: Bug fix completed with test files and debugging artifacts. user: 'Fixed the bug and all tests pass' assistant: 'Let me invoke the post-task-cleanup agent to clean up any debugging artifacts and temporary test files' <commentary>The cleanup agent removes temporary artifacts while preserving essential test coverage.</commentary></example> <example>Context: Major refactoring work completed. user: 'Finished refactoring the database module' assistant: 'Now I'll run the post-task-cleanup agent to ensure we haven't left any old code, temporary files, or unnecessary abstractions' <commentary>The cleanup agent ensures refactoring doesn't leave behind cruft or violate simplicity principles.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "python-code-intel",
+      "repo": "microsoft/amplifier-bundle-lsp-python",
+      "path": "agents/python-code-intel.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-lsp-python/blob/main/agents/python-code-intel.md",
+      "frontmatter": {
+        "meta": {
+          "name": "python-code-intel",
+          "description": "Python code intelligence specialist using LSP/Pyright for semantic understanding beyond text search. For complex multi-step Python code navigation (tracing inheritance chains, mapping module dependencies, understanding type flows), delegate to this agent. For simple single-operation lookups (quick hover, single goToDefinition), agents with tool-lsp can use it directly. MUST BE USED when: tracing what calls a Python function (or what it calls), finding all usages of a symbol, understanding type hierarchies or inheritance, getting inferred types even without annotations, or debugging type mismatches. Preferred over grep for any 'find usages' or 'where defined' questions in Python. Examples: <example>user: 'Fix the bug in the payment processing module' assistant: 'I'll first use python-code-intel to map the payment module structure, trace call paths, and gather type signatures - then pass this context to bug-hunter for informed debugging.' <commentary>Complex multi-step navigation benefits from the Python specialist.</commentary></example> <example>user: 'What calls the authenticate() method and where is it defined?' assistant: 'I'll delegate to python-code-intel for precise definition and call graph tracing.' <commentary>LSP goToDefinition + incomingCalls gives exact results; grep would match 'authenticate' in comments and strings too.</commentary></example> <example>user: 'What type does get_connection() return? There are no type hints in this codebase.' assistant: 'I'll use python-code-intel to get Pyright's inferred return type.' <commentary>Pyright infers types from implementation even without annotations - impossible with text search.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "recipe-author",
+      "repo": "microsoft/amplifier-bundle-recipes",
+      "path": "agents/recipe-author.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-recipes/blob/main/agents/recipe-author.md",
+      "frontmatter": {
+        "meta": {
+          "name": "recipe-author",
+          "description": "Conversational recipe creation and validation expert. Use this agent when users need help creating, validating, or refining Amplifier recipe YAML specifications. The agent understands recipe schema, design patterns, and best practices for workflow orchestration including flat and staged recipes, approval gates, recipe composition, and advanced features like foreach loops and conditional execution. Examples:\\n\\n<example>\\nuser: 'I need to create a recipe for code review'\\nassistant: 'I'll use the recipe-author agent to help you create a code review recipe through conversational design.'\\n<commentary>\\nThe recipe-author agent guides users through recipe creation with clarifying questions and generates valid YAML with proper structure and best practices.\\n</commentary>\\n</example>\\n\\n<example>\\nuser: 'Validate this recipe YAML'\\nassistant: 'Let me use the recipe-author agent to validate your recipe against the schema.'\\n<commentary>\\nThe agent performs schema validation, checks for common mistakes, and provides actionable feedback on errors and improvements.\\n</commentary>\\n</example>\\n\\n<example>\\nuser: 'How can I improve error handling in my recipe?'\\nassistant: 'I'll engage the recipe-author agent to suggest improvements to your recipe's error handling.'\\n<commentary>\\nPerfect for refining and optimizing existing recipes with retry logic, on_error strategies, and timeout configurations.\\n</commentary>\\n</example>"
+        }
+      }
+    },
+    {
+      "name": "researcher",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/researcher.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/researcher.md",
+      "frontmatter": {
+        "meta": {
+          "name": "researcher",
+          "description": "Use this agent when you need to research and analyze content files for a specific task or project. Examples: <example>Context: User is working on implementing a new authentication system and wants to research best practices from their content collection. user: 'I need to implement OAuth 2.0 authentication for my web app. Can you research relevant content and provide recommendations?' assistant: 'I'll use the content-researcher agent to analyze the content files in our collection and find relevant authentication and OAuth documentation.' <commentary>Since the user needs research from content files for a specific implementation task, use the content-researcher agent to analyze the content collection and provide targeted recommendations.</commentary></example> <example>Context: User is designing a new API architecture and wants insights from their content collection. user: 'I'm designing a REST API for a microservices architecture. What insights can we gather from our content collection?' assistant: 'Let me use the content-researcher agent to analyze our content files for API design and microservices architecture insights.' <commentary>The user needs research from the content collection for API design, so use the content-researcher agent to find and analyze relevant content.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "responsive-strategist",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/responsive-strategist.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/responsive-strategist.md",
+      "frontmatter": {
+        "meta": {
+          "name": "responsive-strategist",
+          "description": "Use this agent for responsive design strategy, breakpoint behavior, and device-specific\nadaptations. Transforms user's multi-device vision into systematic responsive patterns\nthat work across all viewport sizes and input methods.\n\nDeploy for:\n- Responsive design strategy and breakpoint definitions\n- Mobile-first vs desktop-first approach\n- Touch vs mouse interaction patterns\n- Device-specific optimizations (phone, tablet, desktop)\n- Fluid typography and spacing\n\nHandles web modalities (desktop, tablet, mobile).\n"
+        }
+      }
+    },
+    {
+      "name": "result-validator",
+      "repo": "microsoft/amplifier-bundle-recipes",
+      "path": "agents/result-validator.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-recipes/blob/main/agents/result-validator.md",
+      "frontmatter": {
+        "meta": {
+          "name": "result-validator",
+          "description": "Specialized agent for result validation and verification. Focused exclusively on objective pass/fail assessment of outcomes using conversational validation with clear verdict signals. Supports both simple binary validation and semantic rubric-based evaluation. Use in recipes to evaluate step outcomes, workflow results, or any pass/fail assessment. Examples: <example>user: 'Validate this deployment result against the acceptance criteria' assistant: 'I'll use the result-validator agent to objectively evaluate the deployment outcome and provide a clear pass/fail verdict.' <commentary>The agent evaluates results against specified criteria and provides evidence-based verdicts using the standard format.</commentary></example> <example>user: 'Check if this code analysis meets the quality rubric' assistant: 'Let me use the result-validator agent to score each criterion and determine if the threshold was met.' <commentary>Perfect for complex multi-criterion validation with semantic rubric scoring.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "security-guardian",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/security-guardian.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/security-guardian.md",
+      "frontmatter": {
+        "meta": {
+          "name": "security-guardian",
+          "description": "Use this agent when you need to perform security reviews, vulnerability assessments, or security audits of code and systems. This includes pre-deployment security checks, reviewing authentication/authorization implementations, checking for common vulnerabilities (OWASP Top 10), detecting hardcoded secrets, validating input/output security, and ensuring data protection measures are in place. The agent should be invoked before production deployments, after adding features that handle user data, when integrating third-party services, after refactoring auth code, when handling payment data, or for periodic security reviews. <example>Context: User has just implemented a new API endpoint for user profile updates. user: 'I've added a new endpoint for updating user profiles. Here's the code...' assistant: 'I'll review this new endpoint for security vulnerabilities using the security-guardian agent.' <commentary>Since new user data handling functionality was added, use the security-guardian agent to check for vulnerabilities.</commentary></example> <example>Context: Preparing for a production deployment. user: 'We're ready to deploy version 2.0 to production' assistant: 'Before deploying to production, let me run a security review with the security-guardian agent.' <commentary>Pre-deployment security review is a critical checkpoint that requires the security-guardian agent.</commentary></example> <example>Context: User has integrated a payment processing service. user: 'I've integrated Stripe for payment processing in our checkout flow' assistant: 'Since this involves payment processing, I'll use the security-guardian agent to review the integration for security issues.' <commentary>Payment and financial data handling requires thorough security review from the security-guardian agent.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "session-analyst",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/session-analyst.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/session-analyst.md",
+      "frontmatter": {
+        "meta": {
+          "name": "session-analyst",
+          "description": "REQUIRED agent for analyzing, debugging, searching, and REPAIRING Amplifier sessions. MUST be used when:\\n- Investigating why a session failed or won't resume\\n- Analyzing events.jsonl files (contains 100k+ token lines that WILL crash other tools)\\n- Diagnosing API errors, missing tool results, or corrupted transcripts\\n- Understanding what happened in a past conversation\\n- Searching for sessions by ID, project, date, or topic\\n- REWINDING a session to a prior point (truncating history to retry from a clean state)\\n\\nThis agent has specialized knowledge for safely extracting data from large session logs without context overflow. DO NOT attempt to read events.jsonl directly - delegate to this agent.\\n\\nExamples:\\n\\n<example>\\nuser: 'Why did my session fail?' or 'Session X won't resume'\\nassistant: 'I'll use the session-analyst agent to investigate the failure - it has specialized tools for safely analyzing large event logs.'\\n<commentary>MUST delegate session debugging to this agent. It knows how to handle 100k+ token event lines safely.</commentary>\\n</example>\\n\\n<example>\\nuser: 'What's in events.jsonl?' or asks about session event logs\\nassistant: 'I'll delegate this to session-analyst - events.jsonl files can have lines with 100k+ tokens that require special handling.'\\n<commentary>NEVER attempt to read events.jsonl directly. Always delegate to session-analyst.</commentary>\\n</example>\\n\\n<example>\\nuser: 'Find the conversation where I worked on authentication'\\nassistant: 'I'll use the session-analyst agent to search through your Amplifier sessions for authentication-related conversations.'\\n<commentary>The agent searches session metadata and transcripts for relevant conversations.</commentary>\\n</example>\\n\\n<example>\\nuser: 'What sessions do I have from last week in the azure project?'\\nassistant: 'Let me use the session-analyst agent to locate sessions from the azure project directory from last week.'\\n<commentary>The agent scopes search to specific project and timeframe.</commentary>\\n</example>\\n\\n<example>\\nuser: 'Rewind session X to before my last message' or 'Fix my broken session by removing the problematic exchange'\\nassistant: 'I'll use the session-analyst agent to rewind that session - it can safely truncate the events.jsonl to remove history from a specific point so you can retry.'\\n<commentary>The agent can repair sessions by rewinding to a prior state, creating backups before modification.</commentary>\\n</example>"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main",
+            "config": {
+              "allowed_write_paths": [
+                ".",
+                "~/.amplifier/projects"
+              ]
+            }
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "shell-exec",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/shell-exec.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/shell-exec.md",
+      "frontmatter": {
+        "meta": {
+          "name": "shell-exec",
+          "description": "Shell command execution agent for running terminal commands. Use when you need to execute bash commands, run scripts, manage processes, or perform system operations. This agent handles: running commands, checking exit codes, capturing output, and managing background processes. Best for: build operations, test execution, package management, and system administration tasks."
+        },
+        "tools": [
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "spec-critic",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "agents/spec-critic.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/agents/spec-critic.md",
+      "frontmatter": {
+        "meta": {
+          "name": "spec-critic",
+          "description": "Specification review and validation expert ensuring constitutional compliance",
+          "phase": "specification-review",
+          "keywords": "review, validation, critique, quality-assurance, governance",
+          "priority": "specification-phase"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "spec-smith",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "agents/spec-smith.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/agents/spec-smith.md",
+      "frontmatter": {
+        "meta": {
+          "name": "spec-smith",
+          "description": "Use this agent PROACTIVELY for transforming requirements into formal specifications following constitutional rules and templates. This agent operates in three modes: INTERVIEW mode for clarifying requirements, DRAFT mode for creating specifications from templates, and VALIDATE mode for constitutional compliance. It ensures specifications are complete, clear, and ready for implementation. Examples:\n\n<example>\nContext: User provides requirements\nuser: 'We need a caching layer for API responses'\nassistant: 'I'll use spec-smith to clarify requirements and create a formal specification'\n<commentary>\nRequirements gathering triggers INTERVIEW mode to ask clarifying questions.\n</commentary>\n</example>\n\n<example>\nContext: Requirements are clear\nuser: 'Add user authentication with OAuth2 support'\nassistant: 'Let me use spec-smith to draft the specification using the feature template'\n<commentary>\nClear requirements trigger DRAFT mode to create specification.\n</commentary>\n</example>\n\n<example>\nContext: Specification needs validation\nuser: 'Review this spec for constitutional compliance'\nassistant: 'I'll use spec-smith to validate against all eight constitutional principles'\n<commentary>\nValidation requests trigger VALIDATE mode for compliance checking.\n</commentary>\n</example>",
+          "phase": "specification",
+          "keywords": "specification, requirements, clarity, validation, constitutional",
+          "priority": "specification-phase"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem"
+          },
+          {
+            "module": "tool-bash"
+          }
+        ]
+      }
+    },
+    {
+      "name": "task-decomposer",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "path": "agents/task-decomposer.md",
+      "github_url": "https://github.com/robotdad/amplifier-collection-spec-kit/blob/main/agents/task-decomposer.md",
+      "frontmatter": {
+        "meta": {
+          "name": "task-decomposer",
+          "description": "Use this agent PROACTIVELY for breaking approved implementation plans into executable task lists with dependency analysis, parallelization markers, and user-story organization. This agent operates in planning phase (Phase 2) after plan-architect creates implementation plan and before implementation begins. Examples:\n\n<example>\nContext: Implementation plan approved, ready for task breakdown\nuser: 'Break down authentication feature into tasks'\nassistant: 'I'll use task-decomposer to create detailed task list with dependencies and parallel work streams'\n<commentary>\nApproved plan triggers task decomposition with dependency analysis\n</commentary>\n</example>\n\n<example>\nContext: Need task organization for complex feature\nuser: 'Create task breakdown for caching layer with user story mapping'\nassistant: 'Let me use task-decomposer to organize tasks by deliverable user stories'\n<commentary>\nComplex features need user-story organization for independent delivery\n</commentary>\n</example>\n\n<example>\nContext: Identify parallelizable work\nuser: 'Generate task list showing what can be worked in parallel'\nassistant: 'I'll use task-decomposer to identify parallel work streams and critical path'\n<commentary>\nTask breakdown includes parallelization analysis for efficient execution\n</commentary>\n</example>",
+          "phase": "planning",
+          "keywords": "tasks, breakdown, dependencies, parallelization, sequencing, user-stories",
+          "priority": "planning-phase"
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem"
+          },
+          {
+            "module": "tool-bash"
+          }
+        ]
+      }
+    },
+    {
+      "name": "test-coverage",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/test-coverage.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/test-coverage.md",
+      "frontmatter": {
+        "meta": {
+          "name": "test-coverage",
+          "description": "Expert at analyzing test coverage, identifying gaps, and suggesting comprehensive test cases. Use proactively when writing new features, after bug fixes, or during test reviews. Examples: <example>user: 'Check if our synthesis pipeline has adequate test coverage' assistant: 'I'll use the test-coverage agent to analyze the test coverage and identify gaps in the synthesis pipeline.' <commentary>The test-coverage agent ensures thorough testing without over-testing.</commentary></example> <example>user: 'What tests should I add for this new authentication module?' assistant: 'Let me use the test-coverage agent to analyze your module and suggest comprehensive test cases.' <commentary>Perfect for ensuring quality through strategic testing.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "tool-builder",
+      "repo": "microsoft/amplifier-collection-toolkit",
+      "path": "agents/tool-builder.md",
+      "github_url": "https://github.com/microsoft/amplifier-collection-toolkit/blob/main/agents/tool-builder.md",
+      "frontmatter": {
+        "meta": {
+          "name": "tool-builder",
+          "description": "Expert knowledge provider for Amplifier Scenario Tools - multi-config metacognitive recipes that orchestrate specialized AI sessions. Use PROACTIVELY throughout the entire lifecycle: CONTEXTUALIZE mode when starting scenario tool work, GUIDE mode when planning implementations, and VALIDATE mode when reviewing tools."
+        }
+      }
+    },
+    {
+      "name": "typescript-code-intel",
+      "repo": "microsoft/amplifier-bundle-lsp-typescript",
+      "path": "agents/typescript-code-intel.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-lsp-typescript/blob/main/agents/typescript-code-intel.md",
+      "frontmatter": {
+        "meta": {
+          "name": "typescript-code-intel",
+          "description": "TypeScript/JavaScript code intelligence specialist using LSP/typescript-language-server for semantic understanding beyond text search. For complex multi-step TypeScript/JavaScript code navigation (tracing module dependencies, understanding type flows, mapping React component hierarchies), delegate to this agent. For simple single-operation lookups (quick hover, single goToDefinition), agents with tool-lsp can use it directly. MUST BE USED when: tracing what calls a function (or what it calls), finding all usages of a symbol, understanding type hierarchies or interfaces, getting inferred types in JavaScript projects, or debugging module resolution issues. Preferred over grep for any 'find usages' or 'where defined' questions in TypeScript/JavaScript. Examples: <example>user: 'Fix the bug in the API handler module' assistant: 'I'll first use typescript-code-intel to map the handler structure, trace call paths, and gather type signatures - then pass this context to bug-hunter for informed debugging.' <commentary>Complex multi-step navigation benefits from the TypeScript specialist.</commentary></example> <example>user: 'What calls the authenticateUser() function and where is it defined?' assistant: 'I'll delegate to typescript-code-intel for precise definition and call graph tracing.' <commentary>LSP goToDefinition + incomingCalls gives exact results; grep would match 'authenticateUser' in comments and strings too.</commentary></example> <example>user: 'What type does getConnection() return? This is plain JavaScript.' assistant: 'I'll use typescript-code-intel to get typescript-language-server's inferred return type.' <commentary>typescript-language-server infers types from implementation even in JavaScript projects - impossible with text search.</commentary></example>"
+        }
+      }
+    },
+    {
+      "name": "voice-strategist",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "agents/voice-strategist.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/agents/voice-strategist.md",
+      "frontmatter": {
+        "meta": {
+          "name": "voice-strategist",
+          "description": "Use this agent for voice & tone strategy, UX writing, and microcopy. Transforms\nuser's messaging vision into systematic content patterns that ensure language is\nclear, helpful, and consistent with brand personality.\n\nDeploy for:\n- Voice & tone strategy and framework\n- UX writing and microcopy (buttons, labels, placeholders)\n- Error message patterns\n- Empty state messaging\n- Content guidelines for developers\n\nOwns the Voice dimension (Nine Dimensions #3).\n"
+        }
+      }
+    },
+    {
+      "name": "web-research",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "agents/web-research.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/agents/web-research.md",
+      "frontmatter": {
+        "meta": {
+          "name": "web-research",
+          "description": "Web research agent for searching and fetching information from the internet. Use when you need to find external information, documentation, or resources. This agent handles: web searches, fetching URL content, and synthesizing information from multiple sources. Best for: looking up documentation, finding examples, researching libraries, and gathering external context."
+        },
+        "tools": [
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zen-architect",
+      "repo": "microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise/agents/zen-architect.md",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise/agents/zen-architect.md",
+      "frontmatter": {
+        "meta": {
+          "name": "zen-architect",
+          "description": "Use this agent PROACTIVELY for code planning, architecture design, and review tasks. It embodies ruthless simplicity and analysis-first development. This agent operates in three modes: ANALYZE mode for breaking down problems and designing solutions, ARCHITECT mode for system design and module specification, and REVIEW mode for code quality assessment. It creates specifications that the modular-builder agent then implements. Examples:\n\n<example>\nContext: User needs a new feature\nuser: 'Add a caching layer to improve API performance'\nassistant: 'I'll use the zen-architect agent to analyze requirements and design the caching architecture'\n<commentary>\nNew feature requests trigger ANALYZE mode to break down the problem and create implementation specs.\n</commentary>\n</example>\n\n<example>\nContext: System design needed\nuser: 'We need to restructure our authentication system'\nassistant: 'Let me use the zen-architect agent to architect the new authentication structure'\n<commentary>\nArchitectural changes trigger ARCHITECT mode for system design.\n</commentary>\n</example>\n\n<example>\nContext: Code review requested\nuser: 'Review this module for complexity and philosophy compliance'\nassistant: 'I'll use the zen-architect agent to review the code quality'\n<commentary>\nReview requests trigger REVIEW mode for assessment and recommendations.\n</commentary>\n</example>"
+        }
+      }
+    }
+  ],
+  "collections": [
+    {
+      "id": "microsoft/amplifier-app-cli#developer-expertise",
+      "kind": "bundled",
+      "name": "developer-expertise",
+      "repo": "microsoft/amplifier-app-cli",
+      "repo_url": "https://github.com/microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/developer-expertise",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/developer-expertise",
+      "readme_summary": "# Developer Expertise Collection",
+      "profiles": [
+        "dev",
+        "full"
+      ],
+      "agents": [
+        "bug-hunter",
+        "integration-specialist",
+        "modular-builder",
+        "post-task-cleanup",
+        "researcher",
+        "security-guardian",
+        "test-coverage",
+        "zen-architect"
+      ]
+    },
+    {
+      "id": "microsoft/amplifier-app-cli#foundation",
+      "kind": "bundled",
+      "name": "foundation",
+      "repo": "microsoft/amplifier-app-cli",
+      "repo_url": "https://github.com/microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/foundation",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/foundation",
+      "readme_summary": "# Foundation Collection",
+      "profiles": [
+        "base",
+        "foundation",
+        "general",
+        "test"
+      ],
+      "agents": [
+        "explorer"
+      ]
+    },
+    {
+      "id": "microsoft/amplifier-app-cli#test",
+      "kind": "bundled",
+      "name": "test",
+      "repo": "microsoft/amplifier-app-cli",
+      "repo_url": "https://github.com/microsoft/amplifier-app-cli",
+      "path": "amplifier_app_cli/data/collections/test",
+      "github_url": "https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/collections/test",
+      "readme_summary": null,
+      "profiles": [],
+      "agents": []
+    },
+    {
+      "id": "microsoft/amplifier-collection-design-intelligence",
+      "kind": "repo",
+      "name": "design-intelligence",
+      "repo": "microsoft/amplifier-collection-design-intelligence",
+      "repo_url": "https://github.com/microsoft/amplifier-collection-design-intelligence",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "> **DEPRECATED**: This collection has been replaced by the **Design Intelligence Bundle**."
+    },
+    {
+      "id": "microsoft/amplifier-collection-issues",
+      "kind": "repo",
+      "name": "issues",
+      "repo": "microsoft/amplifier-collection-issues",
+      "repo_url": "https://github.com/microsoft/amplifier-collection-issues",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "Persistent issue tracking for Amplifier sessions with dependency management and priority-based scheduling."
+    },
+    {
+      "id": "microsoft/amplifier-collection-recipes",
+      "kind": "repo",
+      "name": "recipes",
+      "repo": "microsoft/amplifier-collection-recipes",
+      "repo_url": "https://github.com/microsoft/amplifier-collection-recipes",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "**Multi-step AI agent orchestration for repeatable workflows**"
+    },
+    {
+      "id": "microsoft/amplifier-collection-toolkit",
+      "kind": "repo",
+      "name": "toolkit",
+      "repo": "microsoft/amplifier-collection-toolkit",
+      "repo_url": "https://github.com/microsoft/amplifier-collection-toolkit",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "**Build sophisticated CLI tools using metacognitive recipes with Amplifier**"
+    },
+    {
+      "id": "robotdad/amplifier-collection-ddd",
+      "kind": "repo",
+      "name": "ddd",
+      "repo": "robotdad/amplifier-collection-ddd",
+      "repo_url": "https://github.com/robotdad/amplifier-collection-ddd",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "> Systematic documentation-first development for existing codebases with AI assistance"
+    },
+    {
+      "id": "robotdad/amplifier-collection-spec-kit",
+      "kind": "repo",
+      "name": "spec-kit",
+      "repo": "robotdad/amplifier-collection-spec-kit",
+      "repo_url": "https://github.com/robotdad/amplifier-collection-spec-kit",
+      "package_name": null,
+      "package_description": null,
+      "readme_summary": "> Transform requirements into implementation through formal specifications with constitutional governance"
+    }
+  ],
+  "bundles": [
+    {
+      "name": "amplifier",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier/blob/main/bundle.md",
+      "bundle": {
+        "name": "amplifier",
+        "version": "1.0.0",
+        "description": "Amplifier ecosystem entry point - comprehensive documentation and expert guidance"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "amplifier:behaviors/amplifier-expert"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "amplifier",
+          "version": "1.0.0",
+          "description": "Amplifier ecosystem entry point - comprehensive documentation and expert guidance"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "amplifier:behaviors/amplifier-expert"
+          }
+        ]
+      }
+    },
+    {
+      "name": "amplifier-dev",
+      "kind": "bundle-yaml",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "bundles/amplifier-dev.yaml",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/bundles/amplifier-dev.yaml",
+      "bundle": {
+        "name": "amplifier-dev",
+        "version": "1.1.0",
+        "description": "Bundle for developing ON the Amplifier ecosystem - multi-repo coordination, testing patterns, shadow environments"
+      },
+      "includes": [
+        {
+          "bundle": "foundation"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-bundle-shadow@main"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main#subdirectory=behaviors/amplifier-dev.yaml"
+        }
+      ]
+    },
+    {
+      "name": "core",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-core",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-core/blob/main/bundle.md",
+      "bundle": {
+        "name": "core",
+        "version": "1.0.0",
+        "description": "Amplifier kernel - ultra-thin mechanism layer providing stable contracts"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "core:behaviors/core-expert"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "core",
+          "version": "1.0.0",
+          "description": "Amplifier kernel - ultra-thin mechanism layer providing stable contracts"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "core:behaviors/core-expert"
+          }
+        ]
+      }
+    },
+    {
+      "name": "design-intelligence",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-bundle-design-intelligence",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-design-intelligence/blob/main/bundle.md",
+      "bundle": {
+        "name": "design-intelligence",
+        "version": "1.0.0",
+        "description": "Comprehensive design intelligence capability with specialized agents and knowledge base"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "design-intelligence:behaviors/design-intelligence"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "design-intelligence",
+          "version": "1.0.0",
+          "description": "Comprehensive design intelligence capability with specialized agents and knowledge base"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "design-intelligence:behaviors/design-intelligence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "exp-delegation",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "experiments/delegation-only/bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/experiments/delegation-only/bundle.md",
+      "bundle": {
+        "name": "exp-delegation",
+        "version": "1.0.0",
+        "description": "Experimental bundle that has NO direct tool access - must delegate ALL work to specialized agents"
+      },
+      "includes": [
+        {
+          "bundle": "foundation:behaviors/logging"
+        },
+        {
+          "bundle": "foundation:behaviors/status-context"
+        },
+        {
+          "bundle": "foundation:behaviors/redaction"
+        },
+        {
+          "bundle": "foundation:behaviors/todo-reminder"
+        },
+        {
+          "bundle": "foundation:behaviors/streaming-ui"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "exp-delegation",
+          "version": "1.0.0",
+          "description": "Experimental bundle that has NO direct tool access - must delegate ALL work to specialized agents"
+        },
+        "includes": [
+          {
+            "bundle": "foundation:behaviors/logging"
+          },
+          {
+            "bundle": "foundation:behaviors/status-context"
+          },
+          {
+            "bundle": "foundation:behaviors/redaction"
+          },
+          {
+            "bundle": "foundation:behaviors/todo-reminder"
+          },
+          {
+            "bundle": "foundation:behaviors/streaming-ui"
+          }
+        ],
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 300000,
+              "compact_threshold": 0.8,
+              "auto_compact": true
+            }
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main"
+          },
+          {
+            "module": "tool-todo",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-todo@main"
+          }
+        ],
+        "spawn": {
+          "exclude_tools": [
+            "tool-task"
+          ]
+        },
+        "agents": {
+          "include": [
+            "foundation:explorer",
+            "foundation:bug-hunter",
+            "foundation:zen-architect",
+            "foundation:modular-builder",
+            "foundation:integration-specialist",
+            "foundation:security-guardian",
+            "foundation:test-coverage",
+            "foundation:session-analyst",
+            "foundation:file-ops",
+            "foundation:shell-exec",
+            "foundation:git-ops",
+            "foundation:web-research"
+          ]
+        }
+      }
+    },
+    {
+      "name": "foundation",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/bundle.md",
+      "bundle": {
+        "name": "foundation",
+        "version": "1.0.0",
+        "description": "Foundation bundle - provider-agnostic base configuration"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier@main#subdirectory=behaviors/amplifier-expert.yaml"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-core@main#subdirectory=behaviors/core-expert.yaml"
+        },
+        {
+          "bundle": "foundation:behaviors/sessions"
+        },
+        {
+          "bundle": "foundation:behaviors/status-context"
+        },
+        {
+          "bundle": "foundation:behaviors/redaction"
+        },
+        {
+          "bundle": "foundation:behaviors/todo-reminder"
+        },
+        {
+          "bundle": "foundation:behaviors/streaming-ui"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-bundle-recipes@main#subdirectory=behaviors/recipes.yaml"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-bundle-design-intelligence@main#subdirectory=behaviors/design-intelligence.yaml"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-bundle-lsp-python@main#subdirectory=behaviors/python-lsp.yaml"
+        },
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-module-tool-skills@main#subdirectory=behaviors/skills.yaml"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "foundation",
+          "version": "1.0.0",
+          "description": "Foundation bundle - provider-agnostic base configuration"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier@main#subdirectory=behaviors/amplifier-expert.yaml"
+          },
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-core@main#subdirectory=behaviors/core-expert.yaml"
+          },
+          {
+            "bundle": "foundation:behaviors/sessions"
+          },
+          {
+            "bundle": "foundation:behaviors/status-context"
+          },
+          {
+            "bundle": "foundation:behaviors/redaction"
+          },
+          {
+            "bundle": "foundation:behaviors/todo-reminder"
+          },
+          {
+            "bundle": "foundation:behaviors/streaming-ui"
+          },
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-bundle-recipes@main#subdirectory=behaviors/recipes.yaml"
+          },
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-bundle-design-intelligence@main#subdirectory=behaviors/design-intelligence.yaml"
+          },
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-bundle-lsp-python@main#subdirectory=behaviors/python-lsp.yaml"
+          },
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-module-tool-skills@main#subdirectory=behaviors/skills.yaml"
+          }
+        ],
+        "session": {
+          "orchestrator": {
+            "module": "loop-streaming",
+            "source": "git+https://github.com/microsoft/amplifier-module-loop-streaming@main",
+            "config": {
+              "extended_thinking": true
+            }
+          },
+          "context": {
+            "module": "context-simple",
+            "source": "git+https://github.com/microsoft/amplifier-module-context-simple@main",
+            "config": {
+              "max_tokens": 300000,
+              "compact_threshold": 0.8,
+              "auto_compact": true
+            }
+          }
+        },
+        "tools": [
+          {
+            "module": "tool-filesystem",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-filesystem@main"
+          },
+          {
+            "module": "tool-bash",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-bash@main"
+          },
+          {
+            "module": "tool-web",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-web@main"
+          },
+          {
+            "module": "tool-search",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-search@main"
+          },
+          {
+            "module": "tool-task",
+            "source": "git+https://github.com/microsoft/amplifier-module-tool-task@main",
+            "config": {
+              "exclude_tools": [
+                "tool-task"
+              ]
+            }
+          }
+        ],
+        "agents": {
+          "include": [
+            "foundation:foundation-expert",
+            "foundation:bug-hunter",
+            "foundation:explorer",
+            "foundation:file-ops",
+            "foundation:git-ops",
+            "foundation:integration-specialist",
+            "foundation:modular-builder",
+            "foundation:post-task-cleanup",
+            "foundation:security-guardian",
+            "foundation:test-coverage",
+            "foundation:web-research",
+            "foundation:zen-architect"
+          ]
+        }
+      }
+    },
+    {
+      "name": "foundation-anthropic",
+      "kind": "bundle-yaml",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "bundles/with-anthropic.yaml",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/bundles/with-anthropic.yaml",
+      "bundle": {
+        "name": "foundation-anthropic",
+        "version": "1.0.0",
+        "description": "Foundation bundle with Anthropic Claude Opus provider"
+      },
+      "includes": [
+        {
+          "bundle": "foundation"
+        },
+        {
+          "bundle": "foundation:providers/anthropic-opus"
+        }
+      ]
+    },
+    {
+      "name": "foundation-minimal",
+      "kind": "bundle-yaml",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "bundles/minimal.yaml",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/bundles/minimal.yaml",
+      "bundle": {
+        "name": "foundation-minimal",
+        "version": "1.0.0",
+        "description": "Minimal foundation bundle - basic tools only"
+      },
+      "includes": []
+    },
+    {
+      "name": "foundation-openai",
+      "kind": "bundle-yaml",
+      "repo": "microsoft/amplifier-foundation",
+      "path": "bundles/with-openai.yaml",
+      "github_url": "https://github.com/microsoft/amplifier-foundation/blob/main/bundles/with-openai.yaml",
+      "bundle": {
+        "name": "foundation-openai",
+        "version": "1.0.0",
+        "description": "Foundation bundle with OpenAI GPT-5.1 Codex provider"
+      },
+      "includes": [
+        {
+          "bundle": "foundation"
+        },
+        {
+          "bundle": "foundation:providers/openai-gpt-codex"
+        }
+      ]
+    },
+    {
+      "name": "mcp-example",
+      "kind": "bundle-md",
+      "repo": "robotdad/amplifier-module-tool-mcp",
+      "path": "examples/mcp-example.md",
+      "github_url": "https://github.com/robotdad/amplifier-module-tool-mcp/blob/main/examples/mcp-example.md",
+      "bundle": {
+        "name": "mcp-example",
+        "version": "1.0.0",
+        "description": "Example bundle demonstrating MCP integration with Amplifier"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "git+https://github.com/robotdad/amplifier-module-tool-mcp@main#subdirectory=behaviors/mcp.yaml"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "mcp-example",
+          "version": "1.0.0",
+          "description": "Example bundle demonstrating MCP integration with Amplifier"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "git+https://github.com/robotdad/amplifier-module-tool-mcp@main#subdirectory=behaviors/mcp.yaml"
+          }
+        ]
+      }
+    },
+    {
+      "name": "recipes",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-bundle-recipes",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-bundle-recipes/blob/main/bundle.md",
+      "bundle": {
+        "name": "recipes",
+        "version": "1.0.0",
+        "description": "Multi-step AI agent orchestration for repeatable workflows"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "recipes:behaviors/recipes"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "recipes",
+          "version": "1.0.0",
+          "description": "Multi-step AI agent orchestration for repeatable workflows"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "recipes:behaviors/recipes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "skills",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-module-tool-skills",
+      "path": "bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-module-tool-skills/blob/main/bundle.md",
+      "bundle": {
+        "name": "skills",
+        "version": "1.0.0",
+        "description": "Dynamic skill system for loading and managing agent capabilities"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        },
+        {
+          "bundle": "skills:behaviors/skills"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "skills",
+          "version": "1.0.0",
+          "description": "Dynamic skill system for loading and managing agent capabilities"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          },
+          {
+            "bundle": "skills:behaviors/skills"
+          }
+        ]
+      }
+    },
+    {
+      "name": "test-local-skills",
+      "kind": "bundle-md",
+      "repo": "microsoft/amplifier-module-tool-skills",
+      "path": "ai_working/test-local-bundle.md",
+      "github_url": "https://github.com/microsoft/amplifier-module-tool-skills/blob/main/ai_working/test-local-bundle.md",
+      "bundle": {
+        "name": "test-local-skills",
+        "version": "1.0.0",
+        "description": "Test bundle using local development version with hooks.py"
+      },
+      "includes": [
+        {
+          "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+        }
+      ],
+      "frontmatter": {
+        "bundle": {
+          "name": "test-local-skills",
+          "version": "1.0.0",
+          "description": "Test bundle using local development version with hooks.py"
+        },
+        "includes": [
+          {
+            "bundle": "git+https://github.com/microsoft/amplifier-foundation@main"
+          }
+        ],
+        "tools": [
+          {
+            "module": "tool-skills",
+            "source": "file:///Users/robotdad/Source/Work/skills/amplifier-module-tool-skills",
+            "config": {
+              "visibility": {
+                "enabled": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

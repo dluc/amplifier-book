@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collection: toolkit</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Collection: <code class="inline">toolkit</code></h1>
+        <p>
+          The <code class="inline">toolkit</code> collection is positioned as a set of profiles/agents for building sophisticated CLI
+          tools using repeatable “recipes” and structured approaches.
+        </p>
+
+        <h2>What you get</h2>
+        <ul>
+          <li>A ready-to-use profile (commonly referenced as <code class="inline">toolkit-dev</code>)</li>
+          <li>Agents you can invoke by name (often prefixed like <code class="inline">toolkit:...</code>)</li>
+          <li>Domain context and workflow scaffolding for tool-building</li>
+        </ul>
+
+        <h2>How it tends to be used</h2>
+        <ul>
+          <li>Authoring new tools/modules for Amplifier</li>
+          <li>Creating multi-step CLI workflows with explicit “inputs/outputs” and repeatable structure</li>
+          <li>Turning ad-hoc prompts into reusable procedures</li>
+        </ul>
+
+        <h2>Tradeoffs</h2>
+        <ul>
+          <li>More structure than a general-purpose dev profile (great when you want it; heavy when you don’t)</li>
+          <li>May bring in additional modules and conventions that you’ll want to learn</li>
+        </ul>
+
+        <h2>Install and try</h2>
+        <pre><code>amplifier collection add git+https://github.com/microsoft/amplifier-collection-toolkit@main
+amplifier profile use toolkit-dev
+</code></pre>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

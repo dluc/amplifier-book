@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deprecated Concepts</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Deprecated Concepts & Migration</h1>
+
+        <div class="callout warn">
+          <strong>⚠️ This section documents deprecated features</strong>
+          <div>
+            <p>The concepts on this page are being phased out in favor of the bundle system.</p>
+            <p>This documentation is maintained to help users migrate existing setups.</p>
+          </div>
+        </div>
+
+        <h2>What's Deprecated and Why</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Deprecated Concept</th>
+              <th>Replacement</th>
+              <th>Status</th>
+              <th>Migration Path</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Profiles</strong></td>
+              <td><strong>Bundles</strong></td>
+              <td>Deprecated (still works)</td>
+              <td><a href="#profile-to-bundle">Profile → Bundle migration</a></td>
+            </tr>
+            <tr>
+              <td><strong>Collections</strong></td>
+              <td><strong>Bundles</strong></td>
+              <td>Deprecated (still works)</td>
+              <td><a href="#collection-to-bundle">Collection → Bundle migration</a></td>
+            </tr>
+            <tr>
+              <td><strong>amplifier-profiles library</strong></td>
+              <td><strong>amplifier-foundation</strong></td>
+              <td>Replaced</td>
+              <td>Use foundation's bundle system</td>
+            </tr>
+            <tr>
+              <td><strong>amplifier-collections library</strong></td>
+              <td><strong>amplifier-foundation</strong></td>
+              <td>Replaced</td>
+              <td>Use foundation's bundle system</td>
+            </tr>
+            <tr>
+              <td><strong>amplifier-config library</strong></td>
+              <td><strong>amplifier-foundation</strong></td>
+              <td>Replaced</td>
+              <td>Use foundation's configuration</td>
+            </tr>
+            <tr>
+              <td><strong>amplifier-module-resolution library</strong></td>
+              <td><strong>amplifier-foundation</strong></td>
+              <td>Replaced</td>
+              <td>Use foundation's module resolution</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="profile-to-bundle">Profile to Bundle Migration</h2>
+
+        <h3>For Users (Using Profiles)</h3>
+        <p>If you're using profiles via <code class="inline">amplifier profile use</code>:</p>
+
+        <pre><code class="language-bash"># Check current configuration
+amplifier bundle current
+
+# If it shows "Mode: Profile (deprecated)", switch to bundles:
+amplifier bundle clear  # Clears profile, defaults to foundation bundle
+
+# Or explicitly set a bundle
+amplifier bundle use foundation
+amplifier bundle use recipes
+</code></pre>
+
+        <h3>For Profile Authors (Custom Profiles)</h3>
+        <p>Convert profile YAML to bundle markdown:</p>
+
+        <div class="grid2">
+          <div>
+            <h4>Before (profile)</h4>
+            <pre><code class="language-yaml"># profiles/my-custom.yaml
+profile:
+  name: my-custom
+  extends: base
+
+providers:
+  - module: provider-anthropic
+    config:
+      default_model: claude-opus-4
+
+tools:
+  - module: tool-filesystem
+  - module: tool-bash
+</code></pre>
+          </div>
+          <div>
+            <h4>After (bundle)</h4>
+            <pre><code class="language-yaml"># bundle.md
+---
+bundle:
+  name: my-custom
+  version: 1.0.0
+
+includes:
+  - bundle: foundation
+
+providers:
+  - module: provider-anthropic
+    source: git+https://...
+    config:
+      default_model: claude-opus-4
+---
+
+# Custom instructions here
+</code></pre>
+          </div>
+        </div>
+
+        <h2 id="collection-to-bundle">Collection to Bundle Migration</h2>
+
+        <h3>Key Differences</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>Collections (old)</th>
+              <th>Bundles (new)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Format</td>
+              <td>Python package with pyproject.toml</td>
+              <td>Markdown with YAML frontmatter</td>
+            </tr>
+            <tr>
+              <td>Loading</td>
+              <td><code>amplifier collection add ...</code></td>
+              <td><code>amplifier bundle add ...</code></td>
+            </tr>
+            <tr>
+              <td>Configuration</td>
+              <td><code>[tool.amplifier.collection]</code> in pyproject.toml</td>
+              <td>YAML in bundle.md frontmatter</td>
+            </tr>
+            <tr>
+              <td>Composition</td>
+              <td>Limited (profile extends)</td>
+              <td>Full (bundle includes)</td>
+            </tr>
+            <tr>
+              <td>Complexity</td>
+              <td>High (Python packaging)</td>
+              <td>Low (just markdown)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Why the Change?</h2>
+
+        <h3>Problems with Profiles/Collections</h3>
+        <ul>
+          <li><strong>Complex packaging</strong>: Collections required Python packaging knowledge</li>
+          <li><strong>Limited composition</strong>: Profile inheritance was rigid</li>
+          <li><strong>Multiple libraries</strong>: amplifier-profiles, amplifier-collections, amplifier-config, amplifier-module-resolution</li>
+          <li><strong>CLI-specific</strong>: Designed primarily for CLI, not reusable for other apps</li>
+        </ul>
+
+        <h3>Benefits of Bundles</h3>
+        <ul>
+          <li><strong>Simple format</strong>: Just markdown + YAML frontmatter</li>
+          <li><strong>Flexible composition</strong>: Include multiple bundles, override as needed</li>
+          <li><strong>Single library</strong>: Everything in amplifier-foundation</li>
+          <li><strong>Universal</strong>: Works for CLI, web apps, services, IDE plugins</li>
+          <li><strong>Reproducible</strong>: Self-contained with module sources</li>
+        </ul>
+
+        <h2>Timeline & Support</h2>
+
+        <div class="callout">
+          <strong>Current Status</strong>
+          <div>
+            <ul>
+              <li><strong>Profiles</strong>: Still work but deprecated. Will be removed in a future major version.</li>
+              <li><strong>Collections</strong>: Still work but deprecated. Will be removed in a future major version.</li>
+              <li><strong>Bundles</strong>: Current and recommended. Default for new users.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Resources</h2>
+        <ul>
+          <li>
+            <strong>Official Migration Guide</strong>:
+            <a href="https://github.com/microsoft/amplifier/blob/main/docs/MIGRATION_COLLECTIONS_TO_BUNDLES.md" target="_blank" rel="noreferrer">
+              MIGRATION_COLLECTIONS_TO_BUNDLES.md
+            </a>
+          </li>
+          <li>
+            <strong>Bundle System Documentation</strong>:
+            <a href="/bundles/index.html">Bundles page</a>
+          </li>
+          <li>
+            <strong>Bundle Guide</strong>:
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md" target="_blank" rel="noreferrer">
+              amplifier-foundation/docs/BUNDLE_GUIDE.md
+            </a>
+          </li>
+          <li>
+            <strong>Old Profile Documentation</strong>:
+            <a href="/profiles/index.html">Profiles page (archived)</a>
+          </li>
+          <li>
+            <strong>Old Collection Documentation</strong>:
+            <a href="/collections/index.html">Collections page (archived)</a>
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

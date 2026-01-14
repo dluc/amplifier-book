@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CLI Uses Modules</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How the CLI uses modules</h1>
+        <p>
+          The CLI is a module host: at startup (and when you run a command), it resolves and loads the modules required by the
+          active bundle. The orchestrator then coordinates the provider and tools through the kernel contracts.
+        </p>
+
+        <div class="callout">
+          <strong>Bundle-first</strong>
+          <div>
+            Bundles declare which modules to use. The CLI resolves their sources, downloads/caches them, and mounts them into the session.
+            This replaced the older profile system. See <a href="/bundles/fundamentals.html">Bundle fundamentals</a>.
+          </div>
+        </div>
+
+        <h2>Resolution (where a module comes from)</h2>
+        <p>
+          Module sourcing is designed to support overrides. The resolver implements a layered "first match wins"
+          strategy allowing you to override module sources for development.
+        </p>
+
+        <h3>Resolution Order (first match wins)</h3>
+        <ol>
+          <li><strong>Environment variable</strong> - <code>AMPLIFIER_MODULE_TOOL_BASH=/path</code></li>
+          <li><strong>Workspace convention</strong> - <code>.amplifier/modules/tool-bash/</code></li>
+          <li><strong>Settings override</strong> - <code>sources:</code> in settings.yaml</li>
+          <li><strong>Bundle-declared source</strong> - <code>source:</code> field in bundle.md</li>
+          <li><strong>Installed package</strong> - <code>pip install amplifier-module-tool-bash</code></li>
+        </ol>
+
+        <p>
+          This layering lets you develop one module locally while everything else stays pinned to git.
+          See <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/sources/" target="_blank" rel="noreferrer">
+            amplifier-foundation/sources/
+          </a> for implementation.
+        </p>
+
+        <h2>Mounting (what happens after resolution)</h2>
+        <ul>
+          <li>The module is imported/loaded.</li>
+          <li>Its mount function registers capabilities with a coordinator (e.g. tool registry, provider registry).</li>
+          <li>The orchestrator loop consumes those registries to run turns.</li>
+        </ul>
+
+        <h2>Concrete implementation points (amplifier-app-cli)</h2>
+        <ul>
+          <li>
+            Module resolver creation and module-category scanning:
+            <code class="inline">amplifier_app_cli/paths.py</code>
+          </li>
+          <li>
+            Caching and installation of git-sourced modules:
+            <code class="inline">amplifier_app_cli/utils/module_cache.py</code>
+          </li>
+          <li>
+            Provider resolution/import orchestration:
+            <code class="inline">amplifier_app_cli/provider_manager.py</code>
+          </li>
+        </ul>
+
+        <p>
+          Source (resolver):
+          <a
+            href="https://github.com/microsoft/amplifier-module-resolution/blob/main/src/amplifier_module_resolution/resolvers.py"
+            target="_blank"
+            rel="noreferrer"
+            >microsoft/amplifier-module-resolution/src/amplifier_module_resolution/resolvers.py</a
+          >
+        </p>
+
+        <h2>Why this is powerful</h2>
+        <ul>
+          <li><strong>Swap providers</strong> without changing the CLI - just change bundle or override in settings</li>
+          <li><strong>Local development</strong> - Develop one module locally while everything else stays pinned to git</li>
+          <li><strong>Composition</strong> - Compose "apps" by choosing different bundles or including multiple bundles</li>
+          <li><strong>Reproducibility</strong> - Bundle declares exact sources, ensuring consistent behavior</li>
+        </ul>
+
+        <h2>Module Source Types</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Source Type</th>
+              <th>Example</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Git URL</td>
+              <td><code>git+https://github.com/owner/repo@main</code></td>
+              <td>Remote modules, production use</td>
+            </tr>
+            <tr>
+              <td>Local path</td>
+              <td><code>file:///absolute/path</code> or <code>/absolute/path</code></td>
+              <td>Local development, testing</td>
+            </tr>
+            <tr>
+              <td>Relative path</td>
+              <td><code>./relative/path</code></td>
+              <td>Modules bundled with your bundle</td>
+            </tr>
+            <tr>
+              <td>Installed package</td>
+              <td>(no source specified)</td>
+              <td>Globally installed via pip/uv</td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

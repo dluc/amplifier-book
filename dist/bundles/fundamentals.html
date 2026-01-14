@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bundle Fundamentals</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Bundle Fundamentals</h1>
+
+        <p>
+          Bundles are the foundation of Amplifier's configuration system. Understanding how they work is essential to using and
+          extending Amplifier effectively.
+        </p>
+
+        <h2>What is a Bundle?</h2>
+
+        <p>A bundle is a <strong>markdown file with YAML frontmatter</strong> that packages:</p>
+
+        <ul>
+          <li><strong>Configuration</strong> - Which modules to load (providers, tools, hooks, orchestrators)</li>
+          <li><strong>Resources</strong> - Context files, agent definitions, examples</li>
+          <li><strong>Composition</strong> - References to other bundles to include</li>
+          <li><strong>Instructions</strong> - System prompts and documentation in markdown</li>
+        </ul>
+
+        <h2>Anatomy of a Bundle</h2>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-bundle
+  version: 1.0.0
+  description: What this bundle does
+
+includes:
+  - bundle: foundation  # Inherit from foundation bundle
+
+providers:
+  - module: provider-anthropic
+    source: git+https://github.com/microsoft/amplifier-module-provider-anthropic@main
+    config:
+      default_model: claude-sonnet-4-5
+
+tools:
+  - module: tool-custom
+    source: git+https://github.com/you/tool-custom@main
+
+hooks:
+  - module: hooks-logging
+    source: git+https://github.com/microsoft/amplifier-module-hooks-logging@main
+
+agents:
+  - agent: my-expert
+
+context:
+  - file: context/instructions.md
+---
+
+# System Instructions
+
+Your system prompt and documentation goes here in markdown.
+
+This content becomes part of the agent's context.
+
+## Using @mentions
+
+You can reference other files:
+
+@my-bundle:context/domain-knowledge.md
+</code></pre>
+
+        <h2>Key Concepts</h2>
+
+        <h3>Bundle Composition with <code class="inline">includes:</code></h3>
+
+        <p>Bundles can include other bundles, creating a composable stack:</p>
+
+        <pre><code class="language-yaml">includes:
+  - bundle: foundation           # Base capabilities
+  - bundle: lsp                  # Add LSP support
+  - bundle: my-bundle:behaviors/notifications  # Behavior overlay
+</code></pre>
+
+        <p>When bundles are included:</p>
+        <ul>
+          <li>Their modules are merged (later overrides earlier)</li>
+          <li>Their agents are combined</li>
+          <li>Their context is accessible via @mentions</li>
+          <li>Their system instructions are composed</li>
+        </ul>
+
+        <h3>Module Sources</h3>
+
+        <p>Each module in a bundle must specify where to find it:</p>
+
+        <ul>
+          <li><code>git+https://github.com/owner/repo@branch</code> - Git repository</li>
+          <li><code>file:///absolute/path</code> - Local filesystem</li>
+          <li><code>./relative/path</code> - Relative to bundle location</li>
+        </ul>
+
+        <p>The foundation bundle handles downloading and activating module sources automatically.</p>
+
+        <h3>@mentions and Namespaces</h3>
+
+        <p>Bundles create namespaces for referencing resources:</p>
+
+        <pre><code># From within a bundle's markdown:
+@my-bundle:context/instructions.md      # File in this bundle
+@foundation:context/shared/base.md      # File in foundation bundle
+@lsp:agents/code-navigator.md           # Agent from LSP bundle
+</code></pre>
+
+        <h2>Why Bundles Replace Profiles/Collections</h2>
+
+        <div class="grid2">
+          <div>
+            <h3>Problems with Old System</h3>
+            <ul>
+              <li>Profiles needed Python packaging knowledge</li>
+              <li>Collections required pyproject.toml complexity</li>
+              <li>Split across 4 separate libraries</li>
+              <li>Limited composition capabilities</li>
+              <li>CLI-specific design</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Benefits of Bundles</h3>
+            <ul>
+              <li>Just markdown + YAML frontmatter</li>
+              <li>Single library (amplifier-foundation)</li>
+              <li>Full composition via includes</li>
+              <li>Self-contained (includes sources)</li>
+              <li>Universal (works in any app)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Bundle Types</h2>
+
+        <h3>Foundation Bundles</h3>
+        <p>
+          Core bundles that provide base functionality. Most custom bundles will include <code class="inline">foundation</code> as
+          their starting point.
+        </p>
+
+        <h3>Domain Bundles</h3>
+        <p>
+          Specialized bundles for specific use cases: <code class="inline">recipes</code> (workflow orchestration),
+          <code class="inline">design-intelligence</code> (design system work), <code class="inline">lsp</code> (code intelligence).
+        </p>
+
+        <h3>Behavior Bundles</h3>
+        <p>
+          Small bundles that add specific behaviors via hooks. These are often included by other bundles rather than used directly.
+        </p>
+
+        <h3>Extension Bundles</h3>
+        <p>
+          Bundles that extend other bundles. Example: <code class="inline">lsp-python</code> extends
+          <code class="inline">lsp</code> with Python-specific capabilities.
+        </p>
+
+        <h2>How Bundles are Loaded</h2>
+
+        <p>Applications load bundles and compile them into mount plans:</p>
+
+        <ol>
+          <li>Bundle file is read (local file or downloaded from git)</li>
+          <li>YAML frontmatter is parsed</li>
+          <li>Included bundles are loaded recursively</li>
+          <li>Module sources are resolved and downloaded</li>
+          <li>Mount plan is compiled (providers/tools/hooks/orchestrator/context)</li>
+          <li>Resources are made available via @mention system</li>
+          <li>Session is created with the mount plan</li>
+        </ol>
+
+        <h2>Next Steps</h2>
+
+        <ul>
+          <li><a href="/bundles/composition.html">Learn about bundle composition patterns</a></li>
+          <li><a href="/bundles/authoring.html">Create your own bundle</a></li>
+          <li><a href="/bundles/index.html">Browse available bundles</a></li>
+          <li><a href="/bundles/deep-dive.html">Deep dive into all bundles</a></li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

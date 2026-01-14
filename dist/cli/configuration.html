@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CLI configuration</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>CLI configuration</h1>
+        <p>
+          This page documents how the Amplifier CLI assembles its effective configuration: where it reads settings from, which files
+          exist at user vs project scope, which environment variables override which parts, and what defaults apply.
+        </p>
+
+        <div class="callout">
+          <strong>Three different "config surfaces"</strong>
+          <div>
+            The CLI's behavior comes from three inputs that are easy to conflate:
+            <ul>
+              <li><strong>Settings</strong> (<code class="inline">settings.yaml</code>): select bundle, register module sources, set overrides.</li>
+              <li><strong>Bundles</strong>: the actual mount plan content (providers/tools/hooks/agents/system instructions).</li>
+              <li><strong>Environment variables</strong>: last-mile overrides (especially module resolution and credentials).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Profiles & Collections (Deprecated)</strong>
+          <div>
+            <p>Older versions used profiles and collections. These still work but are deprecated.</p>
+            <p><strong>For new projects</strong>: Use bundles exclusively. See <a href="/bundles/fundamentals.html">Bundle fundamentals</a>.</p>
+            <p><strong>For existing projects</strong>: See <a href="/deprecated/index.html">migration guide</a>.</p>
+          </div>
+        </div>
+
+        <h2>Where the CLI reads and writes</h2>
+        <p>The CLI uses a “project + user” directory convention (plus a local settings file for machine-specific overrides).</p>
+
+        <h3>User home (<code class="inline">~/.amplifier/</code>)</h3>
+        <ul>
+          <li><code class="inline">~/.amplifier/settings.yaml</code> — global settings (always enabled)</li>
+          <li><code class="inline">~/.amplifier/keys.env</code> — API keys loaded into environment on startup</li>
+          <li><code class="inline">~/.amplifier/bundles/</code> — installed bundles</li>
+          <li><code class="inline">~/.amplifier/cache/</code> — module git cache (module resolution)</li>
+          <li><code class="inline">~/.amplifier/projects/&lt;project&gt;/sessions/&lt;id&gt;/</code> — saved sessions/transcripts/events</li>
+          <li><code class="inline">~/.amplifier/repl_history</code> — interactive history</li>
+          <li><code class="inline">~/.amplifier/collections/</code> — <em>(deprecated)</em> installed collections</li>
+        </ul>
+
+        <h3>Project workspace (<code class="inline">.amplifier/</code>)</h3>
+        <ul>
+          <li><code class="inline">.amplifier/settings.yaml</code> — project settings (commit this for teams)</li>
+          <li><code class="inline">.amplifier/settings.local.yaml</code> — local-only settings (do not commit)</li>
+          <li><code class="inline">.amplifier/AGENTS.md</code> — project-specific agent instructions (see <a href="/platform/agents-md.html">AGENTS.md loading</a>)</li>
+          <li><code class="inline">.amplifier/modules/</code> — workspace modules (local development override layer)</li>
+          <li><code class="inline">.amplifier/bundles/</code> — project-local bundles</li>
+          <li><code class="inline">.amplifier/profiles/</code> — <em>(deprecated)</em> project profiles</li>
+          <li><code class="inline">.amplifier/agents/</code> — <em>(deprecated)</em> project agents</li>
+          <li><code class="inline">.amplifier/collections/</code> — <em>(deprecated)</em> project-local collections</li>
+        </ul>
+
+        <h2>Settings files and precedence</h2>
+        <p>
+          The CLI uses the <code class="inline">amplifier-config</code> library (three-scope configuration) with CLI-specific paths and
+          guardrails.
+        </p>
+        <ul>
+          <li><strong>User (global):</strong> <code class="inline">~/.amplifier/settings.yaml</code></li>
+          <li><strong>Project:</strong> <code class="inline">.amplifier/settings.yaml</code></li>
+          <li><strong>Local (machine-specific):</strong> <code class="inline">.amplifier/settings.local.yaml</code></li>
+          <li><strong>Merge order:</strong> user → project → local (later wins)</li>
+          <li>
+            <strong>Special rule:</strong> when you run the CLI from your home directory, project/local scopes are disabled to prevent
+            confusing “<code class="inline">~/.amplifier/settings.local.yaml</code> only applies when cwd is ~”.
+          </li>
+        </ul>
+
+        <p>
+          Code references:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+            >amplifier-app-cli/amplifier_app_cli/paths.py</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-config/blob/main/src/amplifier_config/manager.py" target="_blank" rel="noreferrer"
+            >amplifier-config/src/amplifier_config/manager.py</a
+          >.
+        </p>
+
+        <h2>Settings schema (what keys exist)</h2>
+        <p>
+          Settings are YAML. The CLI reads several top-level keys to determine bundle/module configuration.
+        </p>
+
+        <h3>Current (Bundle-Based) Configuration</h3>
+
+        <pre><code class="language-yaml"># ~/.amplifier/settings.yaml (recommended for new projects)
+
+# 1) Active bundle (primary configuration)
+bundle:
+  active: foundation  # or recipes, design-intelligence, lsp-python, etc.
+
+# 2) Module source overrides (optional)
+sources:
+  tool-bash: /home/me/dev/amplifier-module-tool-bash  # Local development
+  provider-anthropic: git+https://github.com/microsoft/amplifier-module-provider-anthropic@main
+
+# 3) Provider configuration (optional, often set in bundle)
+config:
+  providers:
+    - module: provider-anthropic
+      config:
+        default_model: claude-sonnet-4-5
+        api_key: ${ANTHROPIC_API_KEY}  # From environment
+
+# 4) Registered modules (additional modules beyond bundle)
+modules:
+  tools:
+    - module: tool-my-custom
+      source: git+https://github.com/me/tool-custom@main
+  hooks:
+    - module: hooks-my-logging
+      source: /home/me/dev/my-hooks
+</code></pre>
+
+        <h3>Legacy (Deprecated) Configuration</h3>
+
+        <pre><code class="language-yaml"># OLD STYLE - Still works but deprecated
+
+# Profile selection (replaced by bundles)
+profile:
+  active: developer-expertise:dev
+  default: developer-expertise:dev
+
+# Collection source overrides (replaced by bundles)
+collection_sources:
+  toolkit: /home/me/dev/amplifier-collection-toolkit
+
+</code></pre>
+
+        <p><em>These settings still function but will be removed in a future version. Migrate to bundles.</em></p>
+
+        <h2>Configuration Precedence</h2>
+
+        <p>When the CLI determines what to run:</p>
+
+        <ol>
+          <li><strong>Bundle (if set)</strong> - <code>bundle.active</code> takes precedence</li>
+          <li><strong>Profile (if no bundle)</strong> - Falls back to <code>profile.active</code> (deprecated)</li>
+          <li><strong>Module overrides</strong> - Settings can override individual modules from bundle</li>
+          <li><strong>Environment variables</strong> - Final override layer</li>
+        </ol>
+
+        <div class="callout">
+          <strong>Recommendation</strong>
+          <div>
+            For new projects, only use <code>bundle.active</code>. Avoid mixing bundles and profiles in the same project.
+          </div>
+        </div>
+
+        <p>
+          Code reference for the overlay behavior:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/runtime/config.py" target="_blank" rel="noreferrer"
+            >amplifier-app-cli/amplifier_app_cli/runtime/config.py</a
+          >.
+        </p>
+
+        <h2>How the CLI picks profile vs bundle</h2>
+        <p>The run command decides your configuration source in this order:</p>
+        <ol>
+          <li><strong><code class="inline">--bundle</code></strong> (explicit bundle mode)</li>
+          <li><strong><code class="inline">bundle.active</code></strong> in merged settings (bundle mode opt-in)</li>
+          <li><strong><code class="inline">--profile</code></strong> (profile override for this run)</li>
+          <li><strong><code class="inline">profile.active</code></strong> in settings (local &gt; project &gt; user)</li>
+          <li><strong>System default</strong> (compiled into the CLI package)</li>
+        </ol>
+
+        <p>
+          The system default profile is read from
+          <a
+            href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/data/profiles/DEFAULTS.yaml"
+            target="_blank"
+            rel="noreferrer"
+            >amplifier_app_cli/data/profiles/DEFAULTS.yaml</a
+          >.
+        </p>
+
+        <h2>Module resolution and overrides (what wins)</h2>
+        <p>
+          The CLI mounts a resolver from <code class="inline">amplifier-module-resolution</code>, which uses a fixed resolution order.
+          This is what makes “I’m developing module X locally” work without changing profiles.
+        </p>
+        <ol>
+          <li><strong>Environment:</strong> <code class="inline">AMPLIFIER_MODULE_&lt;MODULE_ID&gt;=&lt;source&gt;</code></li>
+          <li><strong>Workspace convention:</strong> <code class="inline">.amplifier/modules/&lt;module_id&gt;/</code></li>
+          <li><strong>Settings:</strong> <code class="inline">sources:</code> and <code class="inline">modules.*[].source</code> from settings</li>
+          <li><strong>Collections:</strong> modules packaged inside installed collections</li>
+          <li><strong>Profile hint:</strong> <code class="inline">source:</code> specified in the profile/bundle</li>
+          <li><strong>Installed package:</strong> entry points from installed Python packages</li>
+        </ol>
+
+        <p>
+          Code references:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+            >CLI wiring in paths.py</a
+          >,
+          <a
+            href="https://github.com/microsoft/amplifier-module-resolution/blob/main/src/amplifier_module_resolution/resolvers.py"
+            target="_blank"
+            rel="noreferrer"
+            >amplifier-module-resolution/src/.../resolvers.py</a
+          >.
+        </p>
+
+        <h2>Provider credentials: <code class="inline">keys.env</code> and env vars</h2>
+        <p>
+          The CLI loads <code class="inline">~/.amplifier/keys.env</code> on startup and injects any key/value pairs into the process
+          environment if they’re not already set.
+        </p>
+        <p>
+          Code reference:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/key_manager.py" target="_blank" rel="noreferrer"
+            >amplifier_app_cli/key_manager.py</a
+          >.
+        </p>
+
+        <pre><code class="language-bash"># Example keys.env entries (written by CLI commands)
+ANTHROPIC_API_KEY="..."
+OPENAI_API_KEY="..."
+AZURE_OPENAI_ENDPOINT="https://...openai.azure.com"</code></pre>
+
+        <div class="callout">
+          <strong>Provider-specific env vars</strong>
+          <div>
+            Each provider module declares which environment variables it uses (e.g., <code class="inline">ANTHROPIC_API_KEY</code>).
+            The set of credential env vars is provider-specific and lives in provider module code, not in the CLI.
+          </div>
+        </div>
+
+        <h2>Environment variables used by the CLI ecosystem</h2>
+        <table class="data-table">
+          <colgroup>
+            <col style="width: 28%" />
+            <col style="width: 22%" />
+            <col style="width: 50%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Env var</th>
+              <th>Where it applies</th>
+              <th>What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">AMPLIFIER_HOME</code></td>
+              <td>Bundles / foundation</td>
+              <td>Overrides the default home directory used by foundation’s bundle registry and caches (default: <code class="inline">~/.amplifier</code>).</td>
+            </tr>
+            <tr>
+              <td><code class="inline">AMPLIFIER_MODULE_&lt;ID&gt;</code></td>
+              <td>Module resolution</td>
+              <td>Highest-precedence module source override (beats workspace/settings/collections/profile).</td>
+            </tr>
+            <tr>
+              <td><code class="inline">AMPLIFIER_MODULES</code></td>
+              <td>Kernel fallback</td>
+              <td>Colon-separated search paths for module discovery when no source resolver is mounted (entry points + filesystem scan).</td>
+            </tr>
+            <tr>
+              <td><code class="inline">AMPLIFIER_AGENT_&lt;NAME&gt;</code></td>
+              <td>Agent resolution</td>
+              <td>Overrides an agent file path (used by agent resolver; useful for local agent development).</td>
+            </tr>
+            <tr>
+              <td><code class="inline">AMPLIFIER_BANNER_STYLE</code></td>
+              <td>CLI UX</td>
+              <td>Selects interactive banner style (e.g. <code class="inline">matrix</code>, <code class="inline">retro</code>).</td>
+            </tr>
+            <tr>
+              <td><code class="inline">_AMPLIFIER_COMPLETE</code></td>
+              <td>CLI UX</td>
+              <td>Shell completion plumbing used by the CLI completion integration.</td>
+            </tr>
+            <tr>
+              <td><code class="inline">SHELL</code></td>
+              <td>CLI UX</td>
+              <td>Used to auto-detect your shell when printing completion setup instructions.</td>
+            </tr>
+            <tr>
+              <td><code class="inline">AMPLIFIER_GIT_HOST</code></td>
+              <td>Module downloads</td>
+              <td>Rewrites GitHub URLs to a shadow git host for isolated/test environments.</td>
+            </tr>
+            <tr>
+              <td><code class="inline">GITHUB_TOKEN</code></td>
+              <td>Module downloads / status</td>
+              <td>Used for GitHub API access (e.g. update checks and certain resolver behaviors).</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Env var expansion inside settings</h3>
+        <p>
+          The CLI expands <code class="inline">${VAR}</code> and <code class="inline">${VAR:default}</code> inside the resolved config
+          right before session creation. This is primarily used for credential injection without committing secrets.
+        </p>
+        <pre><code class="language-yaml">config:
+  providers:
+    - module: provider-anthropic
+      config:
+        default_model: claude-sonnet-4-5
+        api_key: ${ANTHROPIC_API_KEY:}</code></pre>
+
+        <p>
+          Code reference:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/runtime/config.py" target="_blank" rel="noreferrer"
+            >expand_env_vars()</a
+          >.
+        </p>
+
+        <p>
+          Additional references:
+          <a
+            href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/paths/resolution.py"
+            target="_blank"
+            rel="noreferrer"
+            >foundation: <code class="inline">get_amplifier_home()</code></a
+          >,
+          <a
+            href="https://github.com/microsoft/amplifier-core/blob/main/amplifier_core/loader.py"
+            target="_blank"
+            rel="noreferrer"
+            >core: <code class="inline">AMPLIFIER_MODULES</code> discovery</a
+          >.
+        </p>
+
+        <h2>Important markdown files the CLI can load</h2>
+        <p>
+          The CLI is not “just a prompt runner”: it resolves profiles, agents, and bundle resources from the filesystem and can also
+          resolve <code class="inline">@mentions</code> that include markdown files into prompts/context.
+        </p>
+        <ul>
+          <li><strong>Profiles:</strong> <code class="inline">.amplifier/profiles/*.md</code>, <code class="inline">~/.amplifier/profiles/*.md</code>, plus profiles inside collections.</li>
+          <li><strong>Agents:</strong> <code class="inline">.amplifier/agents/*.md</code>, <code class="inline">~/.amplifier/agents/*.md</code>, plus agents inside collections/bundles.</li>
+          <li><strong>Bundles:</strong> <code class="inline">bundle.md</code> inside <code class="inline">.amplifier/bundles/</code> or <code class="inline">~/.amplifier/bundles/</code> bundle directories.</li>
+          <li><strong>AGENTS.md (common convention):</strong> <code class="inline">~/.amplifier/AGENTS.md</code>, <code class="inline">.amplifier/AGENTS.md</code> (often referenced by default contexts).</li>
+          <li><strong>Mentions:</strong> the CLI supports shortcuts like <code class="inline">@user:path</code> → <code class="inline">~/.amplifier/path</code> and <code class="inline">@project:path</code> → <code class="inline">.amplifier/path</code>.</li>
+        </ul>
+
+        <p>
+          Code references:
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/agent_resolver.py" target="_blank" rel="noreferrer"
+            >amplifier-profiles agent resolver</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/lib/mention_loading/app_resolver.py" target="_blank" rel="noreferrer"
+            >CLI mention resolver</a
+          >.
+        </p>
+
+        <div class="callout">
+          <strong><code class="inline">AGENTS.md</code> (why it feels “special”)</strong>
+          <div>
+            In the default profiles, <code class="inline">AGENTS.md</code> is referenced via <code class="inline">@mentions</code> and can be pulled into the session’s system message by the CLI’s mention expansion.
+            See <a href="/platform/agents-md.html">AGENTS.md Loading</a>.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

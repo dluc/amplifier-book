@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CLI Uses Profiles</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How the CLI uses profiles</h1>
+        <p>
+          A profile is the CLI’s primary composition unit: it declares what to mount (modules, agents, defaults). When you switch
+          profiles, you’re switching the “capability graph” the CLI will load and use.
+        </p>
+
+        <h2>Profile selection</h2>
+        <ul>
+          <li><code class="inline">amplifier profile use &lt;name&gt;</code> sets the default profile.</li>
+          <li><code class="inline">amplifier run --profile &lt;name&gt; ...</code> overrides for one invocation.</li>
+        </ul>
+
+        <h2>What a profile typically contains</h2>
+        <ul>
+          <li>Which orchestrator (“loop”) module to use</li>
+          <li>Which provider module to use (and model defaults)</li>
+          <li>Which tool modules are available for tool-calling</li>
+          <li>Which hook modules are enabled (logging, approvals, UI, redaction)</li>
+          <li>Which agents exist and what they’re for</li>
+        </ul>
+
+        <h2>Why profiles matter for understanding behavior</h2>
+        <ul>
+          <li>If tool availability changes, it’s usually a profile change.</li>
+          <li>If the UI/streaming/logging behavior changes, it’s often a hook set (profile-driven).</li>
+          <li>If delegation agents appear/disappear, they’re profile- or collection-provided.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Debugging tip</strong>
+          <div>
+            When something feels “different”, note <code class="inline">provider current</code> + <code class="inline">profile current</code> and then inspect which modules are mounted.
+          </div>
+        </div>
+
+        <h2>Verified references</h2>
+        <ul>
+          <li><a href="/platform/profile-loading.html">Profile loading (verified)</a></li>
+          <li>
+            CLI wiring:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-app-cli/amplifier_app_cli/paths.py</a
+            >
+          </li>
+          <li>
+            Profiles library:
+            <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/loader.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-profiles/src/amplifier_profiles/loader.py</a
+            >
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

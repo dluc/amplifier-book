@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CLI Uses Hooks</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How the CLI uses hooks</h1>
+        <p>
+          Hooks are how the CLI adds behavior "around" the core loop without baking it into the kernel. Your bundle declares which
+          hooks to use; the orchestrator calls into them during request handling, streaming, tool execution, and persistence.
+        </p>
+
+        <div class="callout">
+          <strong>Bundle configuration</strong>
+          <div>
+            Hooks are listed in the bundle's <code>hooks:</code> section. The foundation bundle includes hooks for logging, streaming UI,
+            redaction, and context injection. See <a href="/bundles/fundamentals.html">Bundle fundamentals</a>.
+          </div>
+        </div>
+
+        <h2>Typical hook responsibilities</h2>
+        <ul>
+          <li><strong>Logging</strong>: capture a canonical event stream for later inspection.</li>
+          <li><strong>Redaction</strong>: scrub secrets from logs/streams.</li>
+          <li><strong>Approvals</strong>: stop and ask before risky operations.</li>
+          <li><strong>UI</strong>: present streaming output and status in a consistent way.</li>
+          <li><strong>Context injection</strong>: add git status, time, reminders, etc.</li>
+        </ul>
+
+        <h2>Common Hooks in Foundation</h2>
+
+        <p>The foundation bundle includes these hooks by default:</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Hook</th>
+              <th>Purpose</th>
+              <th>When It Fires</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>hooks-logging</code></td>
+              <td>JSONL event logging</td>
+              <td>Every event (turns, tool calls, errors)</td>
+            </tr>
+            <tr>
+              <td><code>hooks-streaming-ui</code></td>
+              <td>Terminal output rendering</td>
+              <td>Streaming responses, tool results</td>
+            </tr>
+            <tr>
+              <td><code>hooks-redaction</code></td>
+              <td>Secret scrubbing</td>
+              <td>Before logging, before display</td>
+            </tr>
+            <tr>
+              <td><code>hooks-status-context</code></td>
+              <td>Git status injection</td>
+              <td>Start of each turn</td>
+            </tr>
+            <tr>
+              <td><code>hooks-todo-reminder</code></td>
+              <td>Todo list reminders</td>
+              <td>Start of each turn</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Adding Hooks to Your Bundle</h2>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-bundle
+  version: 1.0.0
+
+includes:
+  - bundle: foundation  # Gets default hooks
+
+hooks:
+  - module: hooks-approval  # Add approval gates
+    source: git+https://github.com/microsoft/amplifier-module-hooks-approval@main
+    config:
+      require_approval_for:
+        - bash_commands
+        - file_writes
+---
+</code></pre>
+
+        <h2>Hook Lifecycle Events</h2>
+
+        <p>Hooks can intercept these events:</p>
+
+        <ul>
+          <li><strong>before_turn</strong> - Before orchestrator processes user input</li>
+          <li><strong>after_turn</strong> - After turn completes</li>
+          <li><strong>before_tool_call</strong> - Before executing a tool</li>
+          <li><strong>after_tool_call</strong> - After tool execution</li>
+          <li><strong>streaming_chunk</strong> - Each chunk of streaming response</li>
+          <li><strong>error</strong> - When errors occur</li>
+        </ul>
+
+        <p>
+          See <a href="https://github.com/microsoft/amplifier-core/blob/main/docs/HOOKS_API.md" target="_blank" rel="noreferrer">
+            amplifier-core/docs/HOOKS_API.md
+          </a> for the complete hook contract.
+        </p>
+
+        <h2>Debugging with Hooks</h2>
+        <ul>
+          <li>If something "should have been blocked" → check if <code class="inline">hooks-approval</code> is active in your bundle</li>
+          <li>If logs contain secrets → check redaction hook config or add <code class="inline">hooks-redaction</code> to your bundle</li>
+          <li>If streaming UI looks odd → check <code class="inline">hooks-streaming-ui</code> config and which orchestrator you're using</li>
+          <li>Missing context → check if <code class="inline">hooks-status-context</code> or <code class="inline">hooks-todo-reminder</code> are in your bundle</li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

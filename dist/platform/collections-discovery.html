@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collections Discovery (Verified)</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Collections discovery (verified)</h1>
+        <p>
+          Collections are installable “packs” that can contain profiles, agents, context files, and sometimes modules. This page
+          describes how applications discover collections and resolve a collection name to a filesystem path, based on the
+          <code class="inline">amplifier-collections</code> library and the CLI wiring.
+        </p>
+
+        <h2>The resolver: CollectionResolver</h2>
+        <p>
+          The core mechanism is <code class="inline">CollectionResolver</code>. It takes search paths from the app (policy), then
+          resolves collection names by inspecting filesystem content (mechanism).
+        </p>
+        <p>
+          Source:
+          <a href="https://github.com/microsoft/amplifier-collections/blob/main/src/amplifier_collections/resolver.py" target="_blank" rel="noreferrer"
+            >microsoft/amplifier-collections/src/amplifier_collections/resolver.py</a
+          >
+        </p>
+
+        <h2>Resolution order</h2>
+        <p>The resolver checks:</p>
+        <ol>
+          <li>
+            <strong>Source override</strong> (if a source provider is injected by the app) — file paths only.
+          </li>
+          <li>
+            <strong>Filesystem search</strong> in reverse precedence order (highest precedence path wins).
+          </li>
+        </ol>
+
+        <h2>Metadata name is the source of truth</h2>
+        <p>
+          A subtle but important detail: discovery is driven by the collection’s metadata name (read from
+          <code class="inline">pyproject.toml</code>), not by the directory name. This allows a repo directory like
+          <code class="inline">amplifier-collection-design-intelligence</code> to expose the collection name
+          <code class="inline">design-intelligence</code>.
+        </p>
+
+        <div class="callout">
+          <strong>Why this matters</strong>
+          <div>
+            It’s the reason profile identifiers like <code class="inline">design-intelligence:designer</code> can work even if the
+            on-disk directory name differs. It’s also why “find all collections” requires scanning directories and reading metadata.
+          </div>
+        </div>
+
+        <h2>Flat vs nested collection layouts</h2>
+        <p>The resolver supports both patterns:</p>
+        <ul>
+          <li><strong>Flat</strong>: <code class="inline">collections/&lt;something&gt;/pyproject.toml</code></li>
+          <li><strong>Nested</strong>: <code class="inline">collections/&lt;something&gt;/&lt;package&gt;/pyproject.toml</code></li>
+        </ul>
+
+        <h2>How the CLI wires it up</h2>
+        <p>
+          The CLI constructs a collection resolver with CLI-specific search paths and injects a source provider backed by its config
+          system:
+        </p>
+        <ul>
+          <li>
+            <code class="inline">create_collection_resolver()</code>:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-app-cli/amplifier_app_cli/paths.py</a
+            >
+          </li>
+          <li>
+            Collection management commands:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/collection.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-app-cli/amplifier_app_cli/commands/collection.py</a
+            >
+          </li>
+        </ul>
+
+        <h2>Where collections show up elsewhere</h2>
+        <p>
+          Collections aren’t just “more profiles”: the CLI also uses collections to discover module directories, feeding them into
+          module resolution as a dedicated layer.
+        </p>
+        <ul>
+          <li>
+            Source:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-app-cli/amplifier_app_cli/paths.py (CLICollectionModuleProvider)</a
+            >
+          </li>
+        </ul>
+
+        <h2>Flow diagram</h2>
+        <div class="mermaid">
+flowchart TB
+  app["App (CLI/web/etc.)"] --> paths["App policy: collection search paths"]
+  paths --> resolver["CollectionResolver"]
+  resolver --> name["Resolve by metadata name (pyproject.toml)"]
+  resolver --> found["Collection path"]
+  found --> profiles["Profiles/agents/context discovered"]
+  found --> modules["Optional: modules discovered"]
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How the CLI Works</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How the Amplifier CLI Works</h1>
+        <p>
+          The <code class="inline">amplifier</code> command is the entry point to the reference CLI app. The CLI is a convenient
+          "lens" for understanding Amplifier because it exercises most of the platform: bundles, module loading, tool calling,
+          hooks, and sessions.
+        </p>
+
+        <div class="callout">
+          <strong>Implementation Details</strong>
+          <div>
+            <ul>
+              <li><strong>Language</strong>: Python 3.11+</li>
+              <li><strong>Packaging</strong>: UV/Hatch with pyproject.toml</li>
+              <li><strong>Entry point</strong>: <code>amplifier_app_cli.main:main</code></li>
+              <li><strong>Key dependencies</strong>: amplifier-core, amplifier-foundation, click, rich, pydantic</li>
+              <li><strong>Installation</strong>: <code>uv tool install git+https://github.com/microsoft/amplifier</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>One turn (high-level)</h2>
+        <div class="mermaid">
+flowchart TB
+  user["User input"] --> env["Request envelope"]
+  env --> orch["Orchestrator (loop)"]
+  ctx["Context manager"] --> env
+  orch --> prov["Provider call (streaming)"]
+  orch --> tools["Tool calls (if requested)"]
+  orch --> persist["Persist session + events"]
+  prov --> orch
+  tools --> orch
+        </div>
+
+        <h2>What makes behavior change</h2>
+        <ul>
+          <li><strong>Bundle</strong>: which modules are mounted, what agents are available, system instructions (bundles are primary)</li>
+          <li><strong>Provider</strong>: which backend/model family you're calling (Anthropic, OpenAI, Azure, etc.)</li>
+          <li><strong>Hook set</strong>: logging/approvals/redaction/streaming UI behaviors</li>
+          <li><strong>Module sources</strong>: where the modules were resolved from (git/local/installed)</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Profiles are deprecated</strong>
+          <div>
+            Older versions used "profiles" instead of bundles. Profiles still work but are deprecated. New users should use bundles.
+            See <a href="/deprecated/index.html">migration guide</a>.
+          </div>
+        </div>
+
+        <h2>Session persistence</h2>
+        <p>
+          The CLI persists interactions as sessions so you can resume, inspect, and iterate. This is a first-class concept: sessions
+          are project-scoped and can be resumed later.
+        </p>
+
+        <h2>Why the CLI is “just one app”</h2>
+        <p>
+          The kernel doesn’t know about terminals. A different application can reuse the same providers/tools/hooks/orchestrators but
+          present them via a web UI, a background worker, a mobile app, or an IDE plugin. The core is the contracts + module system,
+          not the UI.
+        </p>
+
+        <h2>Architecture & Implementation</h2>
+
+        <h3>Technology Stack</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Technology</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Language</td>
+              <td>Python 3.11+</td>
+              <td>Core implementation language</td>
+            </tr>
+            <tr>
+              <td>Packaging</td>
+              <td>UV + Hatch (pyproject.toml)</td>
+              <td>Modern Python packaging</td>
+            </tr>
+            <tr>
+              <td>CLI Framework</td>
+              <td>Click</td>
+              <td>Command parsing and subcommands</td>
+            </tr>
+            <tr>
+              <td>Terminal UI</td>
+              <td>Rich + prompt-toolkit</td>
+              <td>Colored output, prompts, interactive mode</td>
+            </tr>
+            <tr>
+              <td>Validation</td>
+              <td>Pydantic v2</td>
+              <td>Configuration and data validation</td>
+            </tr>
+            <tr>
+              <td>HTTP Client</td>
+              <td>HTTPX</td>
+              <td>Async HTTP for provider calls</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Core Dependencies</h3>
+        <ul>
+          <li><strong>amplifier-core</strong> - Kernel contracts and session orchestration</li>
+          <li><strong>amplifier-foundation</strong> - Bundle system, module resolution, @mention loading</li>
+          <li><strong>amplifier-profiles</strong> - Legacy profile system (deprecated, for backward compatibility)</li>
+          <li><strong>amplifier-collections</strong> - Legacy collections (deprecated, for backward compatibility)</li>
+        </ul>
+
+        <h3>Entry Points & Structure</h3>
+        <pre><code class="language-python"># Entry point in pyproject.toml
+[project.scripts]
+amplifier = "amplifier_app_cli.main:main"
+
+# Main CLI structure
+amplifier_app_cli/
+├── main.py              # Main entry point, command router
+├── commands/            # CLI commands
+│   ├── bundle.py       # Bundle management (add, use, update)
+│   ├── module.py       # Module commands
+│   ├── run.py          # Main run command
+│   ├── session.py      # Session management
+│   └── ...
+├── runtime/             # Runtime configuration assembly
+│   └── config.py       # Mount plan assembly from bundles
+├── session_runner.py    # Session execution
+├── session_store.py     # Session persistence
+└── lib/                 # Shared libraries
+    ├── bundle_loader/  # Bundle loading and resolution
+    └── settings.py     # Settings management
+</code></pre>
+
+        <h2>Where to look in the code</h2>
+        <p>
+          The implementation lives in <code class="inline">microsoft/amplifier-app-cli</code>. Key files for understanding:
+        </p>
+
+        <h3>Bundle System</h3>
+        <ul>
+          <li>
+            Bundle commands:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/bundle.py" target="_blank" rel="noreferrer">
+              <code class="inline">commands/bundle.py</code>
+            </a>
+          </li>
+          <li>
+            Bundle loading and discovery:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/lib/bundle_loader/" target="_blank" rel="noreferrer">
+              <code class="inline">lib/bundle_loader/</code>
+            </a>
+          </li>
+          <li>
+            Runtime config assembly:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/runtime/config.py" target="_blank" rel="noreferrer">
+              <code class="inline">runtime/config.py</code>
+            </a>
+          </li>
+        </ul>
+
+        <h3>Module System</h3>
+        <ul>
+          <li>
+            Module commands:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/module.py" target="_blank" rel="noreferrer">
+              <code class="inline">commands/module.py</code>
+            </a>
+          </li>
+          <li>
+            Module caching:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/utils/module_cache.py" target="_blank" rel="noreferrer">
+              <code class="inline">utils/module_cache.py</code>
+            </a>
+          </li>
+          <li>
+            Settings management:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/lib/settings.py" target="_blank" rel="noreferrer">
+              <code class="inline">lib/settings.py</code>
+            </a>
+          </li>
+        </ul>
+
+        <h3>Session Management</h3>
+        <ul>
+          <li>
+            Session runner:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/session_runner.py" target="_blank" rel="noreferrer">
+              <code class="inline">session_runner.py</code>
+            </a>
+          </li>
+          <li>
+            Session storage:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/session_store.py" target="_blank" rel="noreferrer">
+              <code class="inline">session_store.py</code>
+            </a>
+          </li>
+          <li>
+            Session commands:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/session.py" target="_blank" rel="noreferrer">
+              <code class="inline">commands/session.py</code>
+            </a>
+          </li>
+        </ul>
+
+        <h3>Legacy (Deprecated)</h3>
+        <ul>
+          <li>
+            Profile commands (deprecated):
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/profile.py" target="_blank" rel="noreferrer">
+              <code class="inline">commands/profile.py</code>
+            </a>
+          </li>
+          <li>
+            Collection commands (deprecated):
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/commands/collection.py" target="_blank" rel="noreferrer">
+              <code class="inline">commands/collection.py</code>
+            </a>
+          </li>
+          <li>
+            Legacy support:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/lib/legacy/" target="_blank" rel="noreferrer">
+              <code class="inline">lib/legacy/</code>
+            </a>
+          </li>
+        </ul>
+
+        <h2>Runtime Execution Model</h2>
+
+        <h3>Startup Sequence</h3>
+        <ol>
+          <li><strong>Load settings</strong> - Merge user/project/local settings.yaml files</li>
+          <li><strong>Resolve bundle</strong> - Determine active bundle (from settings or --bundle flag)</li>
+          <li><strong>Load bundle</strong> - Parse bundle.md, resolve includes recursively</li>
+          <li><strong>Compile mount plan</strong> - Extract providers/tools/hooks/orchestrator from bundle</li>
+          <li><strong>Resolve module sources</strong> - Git clone or locate local modules</li>
+          <li><strong>Mount modules</strong> - Import and register with coordinator</li>
+          <li><strong>Create session</strong> - Initialize AmplifierSession with mount plan</li>
+          <li><strong>Expand @mentions</strong> - Load AGENTS.md and other context files</li>
+          <li><strong>Run orchestrator loop</strong> - Begin turn-by-turn interaction</li>
+        </ol>
+
+        <h3>Per-Turn Execution</h3>
+        <ol>
+          <li>User input received</li>
+          <li>Context manager assembles conversation history</li>
+          <li>Hooks inject additional context (git status, todos, etc.)</li>
+          <li>Orchestrator sends request to provider (streaming)</li>
+          <li>Provider returns response with optional tool calls</li>
+          <li>If tool calls requested, orchestrator executes them</li>
+          <li>Hooks can approve/deny/modify tool calls</li>
+          <li>Results fed back to provider for next iteration</li>
+          <li>Session and events persisted to disk</li>
+          <li>Streaming UI hook renders output to terminal</li>
+        </ol>
+
+        <h2>For Application Developers</h2>
+
+        <p>If you want to build a different Amplifier app (web UI, IDE plugin, service):</p>
+
+        <h3>What to Reuse</h3>
+        <ul>
+          <li><strong>amplifier-core</strong> - Session, contracts, events (mandatory)</li>
+          <li><strong>amplifier-foundation</strong> - Bundle loading, module resolution, @mentions (highly recommended)</li>
+          <li><strong>Runtime modules</strong> - Providers, tools, hooks (reuse any/all)</li>
+          <li><strong>Bundles</strong> - Use existing bundles or create app-specific ones</li>
+        </ul>
+
+        <h3>What to Replace</h3>
+        <ul>
+          <li><strong>UI layer</strong> - Terminal → Web/Mobile/IDE</li>
+          <li><strong>Settings management</strong> - CLI uses YAML files, you might use database/API</li>
+          <li><strong>Session storage</strong> - CLI uses local filesystem, you might use cloud storage</li>
+          <li><strong>Commands</strong> - Click CLI → REST API / GraphQL / gRPC</li>
+        </ul>
+
+        <h3>Example: Building a Web App</h3>
+        <pre><code class="language-python">from amplifier_core import AmplifierSession
+from amplifier_foundation.registry import load_bundle
+
+# Load a bundle (async)
+bundle = await load_bundle("foundation")  # or custom bundle
+composed = bundle.compose()
+mount_plan = composed.to_mount_plan()
+
+# Create session
+session = AmplifierSession(
+    orchestrator=mount_plan["orchestrator"],
+    providers=mount_plan["providers"],
+    tools=mount_plan["tools"],
+    hooks=mount_plan["hooks"],
+    context=mount_plan["context"]
+)
+
+# Run turns (in your web framework)
+async for event in session.run_async(user_input):
+    # Send events to websocket/SSE
+    await websocket.send(event)
+</code></pre>
+
+        <p>
+          See <a href="/core/building-other-apps.html">Building Other Apps</a> for more details.
+        </p>
+
+        <h2>Where the "magic" really is</h2>
+        <p>
+          The kernel defines contracts; the runtime modules and bundles implement most of the end-user experience. If you want to
+          explain an unexpected behavior, "which bundle/modules/hooks are active?" is the first question to answer.
+        </p>
+
+        <h2>Debugging CLI Behavior</h2>
+
+        <div class="callout">
+          <strong>Check these in order</strong>
+          <div>
+            <ol>
+              <li><code>amplifier bundle current</code> - Which bundle is active?</li>
+              <li><code>amplifier module list</code> - Which modules are loaded?</li>
+              <li>Check logs: <code>~/.amplifier/projects/&lt;project&gt;/sessions/&lt;id&gt;/events.jsonl</code></li>
+              <li>Review bundle source: See what's in the bundle.md that's active</li>
+            </ol>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>

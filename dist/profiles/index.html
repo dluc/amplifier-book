@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profiles</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profiles</h1>
+
+        <div class="callout warn">
+          <strong>⚠️ Deprecation Notice</strong>
+          <div>
+            <p><strong>Profiles are deprecated and being replaced by bundles.</strong></p>
+            <p>The bundle system provides better composability, reproducibility, and flexibility. New users should start with bundles instead.</p>
+            <p>Migration guide: <a href="https://github.com/microsoft/amplifier/blob/main/docs/MIGRATION_COLLECTIONS_TO_BUNDLES.md" target="_blank" rel="noreferrer">MIGRATION_COLLECTIONS_TO_BUNDLES.md</a></p>
+            <p>Learn about bundles: <a href="/bundles/index.html">Bundles page</a></p>
+          </div>
+        </div>
+
+        <h2>What Profiles Were</h2>
+        <p>
+          A profile is a named, reusable "capability set" that tells the app what to mount: which provider module, which tools,
+          which hooks, which orchestrator (loop), and which agent definitions. You can treat profiles as "workflows".
+        </p>
+
+        <p><em>Note: This documentation is maintained for users migrating from profiles to bundles.</em></p>
+
+        <h2>Where profiles live</h2>
+        <ul>
+          <li>
+            <strong>Bundled with applications</strong>: the CLI ships built-in profiles as “bundled collections” (see
+            <code class="inline">microsoft/amplifier-app-cli</code> → <code class="inline">amplifier_app_cli/data/collections/</code>).
+          </li>
+          <li>
+            <strong>In collections</strong>: installed collections contribute additional profile files (commonly under
+            <code class="inline">profiles/</code> in the collection repo).
+          </li>
+          <li>
+            <strong>User/project profiles</strong>: you can author your own profiles and select them like any other.
+          </li>
+        </ul>
+
+        <h2>What a profile consists of</h2>
+        <p>
+          A profile file is typically Markdown with YAML frontmatter that declares the mount plan (session orchestrator, context
+          manager, providers, tools, hooks, agents), followed by human-readable instructions and @mentions to shared context.
+        </p>
+
+        <h2>What profiles control</h2>
+        <ul>
+          <li><strong>Which modules are loaded</strong> (provider/tool/hook/loop/context)</li>
+          <li><strong>Defaults</strong> (model selection, streaming mode, tool availability)</li>
+          <li><strong>Delegation options</strong> (which specialist agents exist and what they can do)</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Keep the layers straight</strong>
+          <div>
+            A provider is not a profile. A profile typically <em>selects</em> a provider module (and other modules) and configures
+            them.
+          </div>
+        </div>
+
+        <h2>How to load a profile</h2>
+        <pre><code># list what your app can see
+amplifier profile list
+
+# set default
+amplifier profile use dev
+
+# one-off selection
+amplifier run --profile base "Explain this codebase"
+</code></pre>
+
+        <div class="callout">
+          <strong>How to inspect what a profile enables</strong>
+          <div>
+            The most reliable view is the profile’s own file (YAML frontmatter). The deep-dive page below renders that frontmatter so
+            you can quickly see which modules (tools/hooks/providers) are actually mounted.
+          </div>
+        </div>
+
+        <p>
+          Verified mechanism references:
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/loader.py" target="_blank" rel="noreferrer"
+            >ProfileLoader</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/compiler.py" target="_blank" rel="noreferrer"
+            >compile_profile_to_mount_plan</a
+          >,
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+            >CLI wiring (paths.py)</a
+          >.
+        </p>
+
+        <h2>Existing profiles (scanned)</h2>
+        <p>
+          This list is rendered from <code class="inline">data/catalog.json</code> (scanned from Amplifier’s ecosystem repos,
+          including the profiles embedded in <code class="inline">amplifier-app-cli</code> and profiles inside collection repos).
+        </p>
+        <ul>
+          <li><a href="/profiles/deep-dive.html">Deep Dive (All)</a></li>
+        </ul>
+        <div id="profiles-list"></div>
+
+        <h2>How to read the deep dives</h2>
+        <p>
+          The per-profile pages focus on: intended use, typical module composition (at a conceptual level), tradeoffs, and “when to
+          choose it”.
+        </p>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      (async () => {
+        const catalog = await loadCatalog();
+        renderProfilesIndex(document.getElementById("profiles-list"), catalog);
+      })();
+    </script>
+  </body>
+</html>

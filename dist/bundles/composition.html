@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bundle Composition</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Bundle Composition Patterns</h1>
+
+        <p>
+          One of the most powerful features of bundles is composition - the ability to build complex configurations by combining
+          simpler bundles. This page explores real-world composition patterns from the Amplifier ecosystem.
+        </p>
+
+        <h2>The <code class="inline">includes:</code> Mechanism</h2>
+
+        <p>Bundles can include other bundles using the <code class="inline">includes:</code> field:</p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-bundle
+  version: 1.0.0
+
+includes:
+  - bundle: foundation                    # From registry or git
+  - bundle: git+https://github.com/...   # Explicit git URL
+  - bundle: my-bundle:behaviors/extra    # Subdirectory reference
+---
+</code></pre>
+
+        <p>When a bundle is included, its entire configuration merges into the parent:</p>
+        <ul>
+          <li><strong>Modules merge</strong> - Tools, hooks, providers combine</li>
+          <li><strong>Agents merge</strong> - All agents become available</li>
+          <li><strong>Context accessible</strong> - Files available via @mentions</li>
+          <li><strong>Later wins</strong> - If same module listed twice, later config overrides</li>
+        </ul>
+
+        <h2>Pattern: Base + Extension</h2>
+
+        <p>The most common pattern: extend a base bundle with domain-specific capabilities.</p>
+
+        <h3>Example: LSP Python</h3>
+
+        <p>The <code class="inline">lsp-python</code> bundle extends <code class="inline">lsp</code>:</p>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: lsp-python
+  version: 1.0.0
+  description: Python code intelligence via Pyright
+
+includes:
+  - bundle: lsp  # Get all base LSP functionality
+
+tools:
+  - module: tool-lsp-client
+    config:
+      language_servers:
+        - name: pyright
+          command: pyright-langserver
+          args: ["--stdio"]
+
+agents:
+  - agent: python-code-intel
+    file: agents/python-code-intel.md
+---
+
+# Python Code Intelligence
+
+@lsp-python:context/python-capabilities.md
+</code></pre>
+
+        <p><strong>What this achieves</strong>:</p>
+        <ul>
+          <li><code class="inline">lsp</code> provides core LSP client/protocol handling</li>
+          <li><code class="inline">lsp-python</code> adds Pyright-specific configuration</li>
+          <li>Reusable: <code class="inline">lsp-typescript</code> follows same pattern</li>
+        </ul>
+
+        <h2>Pattern: Layered Behaviors</h2>
+
+        <p>Build up functionality by layering behavior bundles.</p>
+
+        <h3>Example: Custom Stack</h3>
+
+        <pre><code class="language-yaml">---
+bundle:
+  name: my-production-setup
+  version: 1.0.0
+
+includes:
+  - bundle: foundation                    # Base tools/providers
+  - bundle: notify:behaviors/desktop      # Add desktop notifications
+  - bundle: issues:behaviors/tracking     # Add issue tracking
+  - bundle: my-custom:behaviors/logging   # Custom logging rules
+
+providers:
+  - module: provider-anthropic
+    config:
+      default_model: claude-opus-4-1  # Override for production
+---
+
+# Production Assistant
+
+@my-production-setup:context/production-guidelines.md
+</code></pre>
+
+        <p><strong>Each layer adds</strong>:</p>
+        <ul>
+          <li><code class="inline">foundation</code>: Core capabilities</li>
+          <li><code class="inline">notify</code>: Desktop notifications hook</li>
+          <li><code class="inline">issues</code>: Issue management tool</li>
+          <li><code class="inline">my-custom</code>: Your custom logging behavior</li>
+        </ul>
+
+        <h2>Pattern: Bundle Families</h2>
+
+        <p>Create a family of related bundles with shared base.</p>
+
+        <h3>Example: Development Environments</h3>
+
+        <pre><code class="language-yaml"># bundles/base.md - Shared foundation
+---
+bundle:
+  name: my-company-base
+  version: 1.0.0
+
+includes:
+  - bundle: foundation
+
+tools:
+  - module: tool-company-internal
+    source: git+https://github.com/company/tool@main
+
+context:
+  - file: context/company-standards.md
+---
+
+@my-company-base:context/company-standards.md
+</code></pre>
+
+        <pre><code class="language-yaml"># bundles/python-dev.md - Python-specific
+---
+bundle:
+  name: my-company-python
+  version: 1.0.0
+
+includes:
+  - bundle: ./base.md         # Inherit company base
+  - bundle: lsp-python        # Add Python LSP
+
+agents:
+  - agent: python-reviewer
+---
+
+Python development with company standards
+</code></pre>
+
+        <pre><code class="language-yaml"># bundles/typescript-dev.md - TypeScript-specific
+---
+bundle:
+  name: my-company-typescript
+  version: 1.0.0
+
+includes:
+  - bundle: ./base.md           # Same company base
+  - bundle: lsp-typescript      # Add TypeScript LSP
+
+agents:
+  - agent: typescript-reviewer
+---
+
+TypeScript development with company standards
+</code></pre>
+
+        <h2>Pattern: Behavior Composition</h2>
+
+        <p>Small bundles that just add hooks or behaviors, designed to be composed.</p>
+
+        <h3>Example: Notification Behaviors</h3>
+
+        <pre><code class="language-yaml"># behaviors/desktop-notifications.yaml (small bundle)
+---
+bundle:
+  name: notify-desktop
+  version: 1.0.0
+
+hooks:
+  - module: hooks-notify
+    source: git+https://github.com/microsoft/amplifier-bundle-notify@main#subdirectory=modules/hooks-notify
+    config:
+      method: desktop
+---
+</code></pre>
+
+        <p>Use it in any bundle:</p>
+
+        <pre><code class="language-yaml">includes:
+  - bundle: foundation
+  - bundle: notify-desktop  # Just add notifications
+</code></pre>
+
+        <h2>Pattern: Environment-Specific Overrides</h2>
+
+        <p>Different bundles for dev/staging/production:</p>
+
+        <pre><code class="language-yaml"># bundles/dev.md
+---
+bundle:
+  name: app-dev
+  version: 1.0.0
+
+includes:
+  - bundle: ./base.md
+
+providers:
+  - module: provider-anthropic
+    config:
+      default_model: claude-sonnet-4-5  # Cheaper for dev
+---
+</code></pre>
+
+        <pre><code class="language-yaml"># bundles/production.md
+---
+bundle:
+  name: app-production
+  version: 1.0.0
+
+includes:
+  - bundle: ./base.md
+
+providers:
+  - module: provider-anthropic
+    config:
+      default_model: claude-opus-4-1  # More capable for prod
+
+hooks:
+  - module: hooks-approval  # Extra safety in production
+---
+</code></pre>
+
+        <h2>Composition Tips</h2>
+
+        <div class="callout">
+          <strong>Include order matters</strong>
+          <div>
+            Later includes override earlier ones. Put base bundles first, customizations last.
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Keep behavior bundles small</strong>
+          <div>
+            Single-responsibility bundles are more reusable. A bundle that just adds notifications can be composed anywhere.
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Use relative includes for bundle families</strong>
+          <div>
+            When creating multiple related bundles, use <code class="inline">./base.md</code> relative paths so they stay together.
+          </div>
+        </div>
+
+        <h2>Real Examples from the Ecosystem</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Bundle</th>
+              <th>Pattern</th>
+              <th>What it demonstrates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">lsp-python</code></td>
+              <td>Base + Extension</td>
+              <td>Extends <code>lsp</code> with Python-specific agent and config</td>
+            </tr>
+            <tr>
+              <td><code class="inline">lsp-typescript</code></td>
+              <td>Base + Extension</td>
+              <td>Extends <code>lsp</code> with TypeScript-specific agent and config</td>
+            </tr>
+            <tr>
+              <td><code class="inline">design-intelligence</code></td>
+              <td>Domain Bundle</td>
+              <td>7 specialized agents, design framework, knowledge base</td>
+            </tr>
+            <tr>
+              <td><code class="inline">recipes</code></td>
+              <td>Orchestration</td>
+              <td>Multi-step workflows with behavior overlays</td>
+            </tr>
+            <tr>
+              <td><code class="inline">foundation</code></td>
+              <td>Base</td>
+              <td>The foundation most bundles build on</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Next Steps</h2>
+
+        <ul>
+          <li><a href="/bundles/fundamentals.html">Bundle fundamentals</a></li>
+          <li><a href="/bundles/index.html">Browse available bundles</a></li>
+          <li><a href="/bundles/deep-dive.html">Deep dive into all bundles</a></li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hooks</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Hooks</h1>
+        <p>
+          Hooks are modules that run “around” the agent loop to add cross-cutting behavior: logging, approvals, redaction,
+          UI/streaming presentation, and context injection. They’re the closest thing Amplifier has to middleware.
+        </p>
+
+        <h2>Why hooks matter</h2>
+        <ul>
+          <li><strong>Observability</strong>: capture a canonical event stream for debugging and tooling.</li>
+          <li><strong>Safety and governance</strong>: approvals and redaction can be enforced consistently.</li>
+          <li><strong>UX</strong>: streaming UI behavior can be swapped without touching the kernel.</li>
+        </ul>
+
+        <h2>Existing hooks (scanned)</h2>
+        <p>This list is rendered from <code class="inline">data/catalog.json</code>.</p>
+        <div id="hooks"></div>
+
+        <h2>How to think about a hook chain</h2>
+        <p>
+          You can picture hooks as a pipeline around “one turn”:
+        </p>
+        <div class="mermaid">
+flowchart LR
+  req["Request (prompt + context)"] --> inj["Context injection hooks"]
+  inj --> approve["Approval/redaction hooks"]
+  approve --> provider["Provider call (model)"]
+  provider --> stream["Streaming UI / output formatting"]
+  provider --> log["Logging/event stream"]
+  stream --> end["User sees output"]
+  log --> end
+        </div>
+
+        <div class="callout warn">
+          <strong>Important</strong>
+          <div>
+            Hooks affect what gets logged, what the model sees, and what actions are allowed. If you’re auditing behavior, start by
+            checking which hooks your profile enables.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+      (async () => {
+        const catalog = await loadCatalog();
+        renderModulesTable(document.getElementById("hooks"), catalog, "hook", null);
+      })();
+    </script>
+  </body>
+</html>

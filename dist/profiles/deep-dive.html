@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profiles Deep Dive</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Deep dive: profiles</h1>
+        <p>
+          This page is generated from <code class="inline">data/catalog.json</code>, built by scanning the Amplifier ecosystem repos
+          (including <code class="inline">amplifier-app-cli</code> and installed collection repos). Each section below shows the
+          concrete mount-plan frontmatter for a profile: orchestrator, context manager, providers, tools, hooks, and agents.
+        </p>
+
+        <h2>How to use this page</h2>
+        <ul>
+          <li>Use it to answer “what does profile X actually mount?” (tools, hooks, providers).</li>
+          <li>Follow the “Defined in” links to jump to the exact profile file in GitHub.</li>
+          <li>If a profile has multiple definitions, treat that as a signal to be explicit about which one you’re using.</li>
+        </ul>
+
+        <h2>How profiles are loaded (conceptual)</h2>
+        <ul>
+          <li>An application discovers available profiles from bundled content, installed collections, and user/project profile dirs.</li>
+          <li>The app selects a profile (default or per-command) and compiles it into a mount plan.</li>
+          <li>The mount plan drives module resolution and registration (provider/tools/hooks/orchestrator/context).</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Reality check</strong>
+          <div>
+            A profile’s <em>description text</em> can drift from its actual module list. Trust the frontmatter fields (tools/hooks/etc.)
+            when you’re reasoning about what’s enabled.
+          </div>
+        </div>
+
+        <div id="profiles"></div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      (async () => {
+        const catalog = await loadCatalog();
+        renderProfileDeepDive(document.getElementById("profiles"), catalog);
+      })();
+    </script>
+  </body>
+</html>

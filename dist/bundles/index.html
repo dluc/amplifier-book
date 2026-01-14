@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bundles</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Bundles</h1>
+
+        <p>
+          A bundle is a composable “packaging unit” defined by <code class="inline">amplifier-foundation</code>. A bundle combines:
+          (1) a mount plan (session + providers/tools/hooks/agents) and (2) resources (context files, agent markdown, examples), and it
+          can include other bundles. Bundles are designed for applications that want a turn-key way to ship and run a curated setup
+          without depending on the profile/collection conventions.
+        </p>
+
+        <h2>When to use bundles</h2>
+        <ul>
+          <li><strong>Primary configuration</strong>: Bundles are the recommended way to configure Amplifier (replaces profiles/collections)</li>
+          <li><strong>Apps and services</strong>: a web app/daemon can load a bundle and run sessions without a "profile catalog"</li>
+          <li><strong>Reproducibility</strong>: share a single "thing" that includes config + resources + module sources</li>
+          <li><strong>Composition</strong>: build a stack by including smaller bundles (see examples below)</li>
+          <li><strong>Default in CLI</strong>: New users start with the <code class="inline">foundation</code> bundle</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Mental model</strong>
+          <div>
+            <strong>Bundles are the new standard.</strong> They replace profiles/collections with a simpler, more composable system.
+            A bundle is just a markdown file with YAML frontmatter - easier to create, share, and understand than Python packages.
+          </div>
+        </div>
+
+        <h2>Bundle composition (inheritance)</h2>
+        <p>
+          Bundles can <code class="inline">include:</code> other bundles, enabling powerful composition patterns:
+        </p>
+
+        <h3>Example: LSP Bundle Inheritance</h3>
+        <p>The LSP bundles demonstrate composition:</p>
+
+        <pre><code class="language-yaml"># lsp-python bundle (simplified)
+---
+bundle:
+  name: lsp-python
+  version: 1.0.0
+
+includes:
+  - bundle: lsp  # Inherit core LSP functionality
+
+agents:
+  - agent: python-code-intel  # Add Python-specific agent
+---
+
+# Python code intelligence via Pyright
+</code></pre>
+
+        <p>
+          The <code class="inline">lsp-python</code> bundle extends <code class="inline">lsp</code> (core Language Server Protocol support)
+          and adds Python-specific capabilities. Similarly, <code class="inline">lsp-typescript</code> extends <code class="inline">lsp</code>
+          for TypeScript/JavaScript.
+        </p>
+
+        <h3>Example: Foundation Bundle Composition</h3>
+        <p>Most bundles build on <code class="inline">foundation</code>:</p>
+
+        <pre><code class="language-yaml"># Your custom bundle
+---
+bundle:
+  name: my-custom-setup
+  version: 1.0.0
+
+includes:
+  - bundle: foundation  # Get all core tools/providers/hooks
+
+tools:
+  - module: tool-custom  # Add your custom tool
+    source: git+https://github.com/you/tool-custom@main
+
+agents:
+  - agent: my-expert  # Add your custom agent
+---
+
+# Your custom system instructions here
+</code></pre>
+
+        <h2>What changes when you switch to bundle mode</h2>
+        <ul>
+          <li><strong>Session config source</strong> switches from “compile a profile” to “load a bundle’s mount plan”.</li>
+          <li><strong>Module acquisition</strong> can become turn-key (foundation can download modules from bundle URIs).</li>
+          <li><strong>Namespace mentions</strong> become more important (<code class="inline">@foundation:…</code> resolves within the bundle’s resources).</li>
+        </ul>
+
+        <h2>Existing bundles (scanned)</h2>
+        <p>This list is rendered from <code class="inline">data/catalog.json</code>.</p>
+        <div id="bundles"></div>
+
+        <h2>CLI impact</h2>
+        <p>
+          Bundles are opt-in in the CLI. When a bundle is active, it takes precedence over profiles for session configuration. See
+          <a href="/cli/configuration.html">CLI configuration</a>.
+        </p>
+
+        <h2>Deep references</h2>
+        <ul>
+          <li>
+            Bundle data model:
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/amplifier_foundation/bundle.py" target="_blank" rel="noreferrer"
+              >amplifier-foundation/amplifier_foundation/bundle.py</a
+            >
+          </li>
+          <li>
+            Bundle concepts/patterns:
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/CONCEPTS.md" target="_blank" rel="noreferrer"
+              >amplifier-foundation/docs/CONCEPTS.md</a
+            >
+            and
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/PATTERNS.md" target="_blank" rel="noreferrer"
+              >amplifier-foundation/docs/PATTERNS.md</a
+            >
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      (async () => {
+        const catalog = await loadCatalog();
+        renderBundlesTable(document.getElementById("bundles"), catalog);
+      })();
+    </script>
+  </body>
+</html>

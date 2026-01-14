@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glossary</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Glossary</h1>
+        <p>A quick-reference of Amplifier terms used throughout the book. Most definitions link to a deeper explanation page.</p>
+
+        <div class="glossary-jump">
+          <span class="glossary-jump-label">Jump to</span>
+          <a href="/glossary.html#g-a">A</a>
+          <a href="/glossary.html#g-b">B</a>
+          <a href="/glossary.html#g-c">C</a>
+          <a href="/glossary.html#g-h">H</a>
+          <a href="/glossary.html#g-m">M</a>
+          <a href="/glossary.html#g-o">O</a>
+          <a href="/glossary.html#g-p">P</a>
+          <a href="/glossary.html#g-t">T</a>
+        </div>
+
+        <section class="glossary-section" id="g-a">
+          <h2>A</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Amplifier core (kernel)</div>
+              <div class="glossary-def">
+                The small, stable runtime library: session orchestration plumbing, hook/event mechanism, module contracts, and provider
+                request/response envelopes. See <a href="/core/core-and-foundation.html">amplifier-core & foundation</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Amplifier foundation (library)</div>
+              <div class="glossary-def">
+                The foundational library that provides the bundle system, module resolution, source management, and shared utilities.
+                Consolidates functionality previously split across amplifier-profiles, amplifier-collections, amplifier-config, and
+                amplifier-module-resolution. See <a href="/core/core-and-foundation.html">amplifier-core & foundation</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Application (app)</div>
+              <div class="glossary-def">
+                A consumer of the Amplifier ecosystem: CLI, web UI, service, daemon, benchmark runner, etc. Apps assemble a mount plan
+                and create sessions. See <a href="/core/core-and-foundation.html">amplifier-core & foundation</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-b">
+          <h2>B</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Bundle</div>
+              <div class="glossary-def">
+                <strong>Current configuration system.</strong> A composable packaging unit from <code class="inline">amplifier-foundation</code> that combines a mount plan (session +
+                providers/tools/hooks/agents) with resources (context files, agent markdown, examples). Bundles can include other bundles
+                and can be prepared for execution (downloading/activating module sources). Bundles replace the deprecated profile/collection system.
+                See <a href="/bundles/index.html">Bundles</a> and <a href="/core/core-and-foundation.html">amplifier-core & foundation</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-c">
+          <h2>C</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Collection (deprecated)</div>
+              <div class="glossary-def">
+                <strong>Deprecated - replaced by bundles.</strong> A packaged "domain bundle" distributed separately, containing profiles, agents, prompts/context, and related resources.
+                Collections can be installed/updated and then discovered by the app. See <a href="/collections/index.html">Collections (archived)</a>
+                and <a href="/deprecated/index.html">Migration guide</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Context manager</div>
+              <div class="glossary-def">
+                A module responsible for storing conversation state (as dicts), and for compaction when needed. See
+                <a href="/modules/index.html">Modules</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-h">
+          <h2>H</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Hook</div>
+              <div class="glossary-def">
+                A lifecycle middleware module. Hooks can observe, deny, modify event data, inject context, or request user approval. See
+                <a href="/hooks/index.html">Hooks</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-m">
+          <h2>M</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Module</div>
+              <div class="glossary-def">
+                A dynamically loaded plugin implementing a stable contract (provider/tool/hook/orchestrator/context). Modules are mounted
+                into an <code class="inline">AmplifierSession</code>. See <a href="/modules/index.html">Modules</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Module resolution</div>
+              <div class="glossary-def">
+                The policy for deciding where modules come from (workspace overrides, settings, profile hints, installed packages, etc.).
+                See <a href="/platform/module-resolution.html">Module resolution</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Mount plan</div>
+              <div class="glossary-def">
+                The configuration dict that tells a session what to mount: orchestrator, context manager, providers, tools, hooks (and
+                app-level agent overlays). Profiles compile into mount plans; bundles compile into mount plans. See
+                <a href="/profiles/index.html">Profiles</a> and <a href="/core/core-and-foundation.html">amplifier-core & foundation</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-o">
+          <h2>O</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Orchestrator (loop)</div>
+              <div class="glossary-def">
+                The module that defines “how the agent runs”: how prompts, tool calls, provider calls, and hooks are sequenced. See
+                <a href="/modules/index.html">Modules</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-p">
+          <h2>P</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Profile (deprecated)</div>
+              <div class="glossary-def">
+                <strong>Deprecated - replaced by bundles.</strong> A declarative configuration (with inheritance) that compiles into a mount plan: which modules to mount and how to configure
+                them. See <a href="/profiles/index.html">Profiles (archived)</a> and <a href="/deprecated/index.html">Migration guide</a>.
+              </div>
+            </div>
+
+            <div class="glossary-item">
+              <div class="glossary-term">Provider</div>
+              <div class="glossary-def">
+                A module that talks to a model backend. Providers receive a typed request envelope and return a typed response. See
+                <a href="/modules/index.html">Modules</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="glossary-section" id="g-t">
+          <h2>T</h2>
+          <div class="glossary-items">
+            <div class="glossary-item">
+              <div class="glossary-term">Tool</div>
+              <div class="glossary-def">
+                A callable capability (filesystem, bash, web, etc.) exposed to the orchestrator/model and returning a typed
+                <code class="inline">ToolResult</code>. See <a href="/modules/index.html">Modules</a>.
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

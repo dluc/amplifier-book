@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile: foundation</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profile: <code class="inline">foundation</code></h1>
+        <p>
+          The <code class="inline">foundation</code> profile is the smallest usable setup: “provider + orchestrator only”, with few
+          or no tools and minimal extras.
+        </p>
+
+        <h2>Use it when</h2>
+        <ul>
+          <li>You want the simplest possible prompt → response flow</li>
+          <li>You’re debugging configuration issues (reduce variables)</li>
+          <li>You want minimal tool access for safety or policy reasons</li>
+        </ul>
+
+        <h2>Expected characteristics</h2>
+        <ul>
+          <li><strong>Few tools</strong>: the model can’t take many actions, so it will mostly explain and suggest</li>
+          <li><strong>Low complexity</strong>: fewer moving parts means fewer surprises</li>
+          <li><strong>Lower risk</strong>: fewer ways to touch your system</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Tradeoff</strong>
+          <div>
+            Minimal tools means the assistant cannot inspect your repo, run tests, or perform edits via tools. It’s great for
+            “thinking” and planning, not for doing.
+          </div>
+        </div>
+
+        <h2>How it fits the architecture</h2>
+        <p>
+          <code class="inline">foundation</code> emphasizes the kernel+provider boundary: the orchestrator runs the loop, the provider
+          makes model calls, and everything else is either disabled or kept to a minimum.
+        </p>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

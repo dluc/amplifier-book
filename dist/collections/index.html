@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collections</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Collections</h1>
+
+        <div class="callout warn">
+          <strong>⚠️ Deprecation Notice</strong>
+          <div>
+            <p><strong>Collections are deprecated and being replaced by bundles.</strong></p>
+            <p>Bundles provide a simpler, more composable way to package and share Amplifier configurations. They use markdown with YAML frontmatter instead of Python packages.</p>
+            <p>Migration guide: <a href="https://github.com/microsoft/amplifier/blob/main/docs/MIGRATION_COLLECTIONS_TO_BUNDLES.md" target="_blank" rel="noreferrer">MIGRATION_COLLECTIONS_TO_BUNDLES.md</a></p>
+            <p>Learn about bundles: <a href="/bundles/index.html">Bundles page</a></p>
+          </div>
+        </div>
+
+        <h2>What Collections Were</h2>
+        <p>
+          A collection is an installable pack of profiles, agents, and domain context. Collections are optional: they extend what's
+          available, but you don't need them to use the core CLI.
+        </p>
+
+        <p><em>Note: This documentation is maintained for users migrating from collections to bundles.</em></p>
+
+        <h2>What a collection is (and is not)</h2>
+        <ul>
+          <li><strong>Is</strong>: a way to ship “expert setups” (profiles/agents/context) for a domain.</li>
+          <li><strong>Is not</strong>: the same thing as a runtime module (which is code that executes).</li>
+        </ul>
+
+        <h2>Why collections exist</h2>
+        <ul>
+          <li>Keep the default installation small while allowing powerful add-ons.</li>
+          <li>Share repeatable workflows without forcing everyone to install everything.</li>
+          <li>Let teams standardize profiles/agents for specific work (design, ops, testing, etc.).</li>
+        </ul>
+
+        <h2>Existing collections (scanned)</h2>
+        <p>
+          This list is rendered from <code class="inline">data/catalog.json</code>. Use the deep dive page to see what profiles each
+          collection provides.
+        </p>
+        <ul>
+          <li><a href="/collections/deep-dive.html">Deep Dive (All)</a></li>
+        </ul>
+        <div id="collections-list"></div>
+
+        <h2>How you use collections</h2>
+        <pre><code>amplifier collection add git+https://github.com/microsoft/amplifier-collection-toolkit@main
+amplifier collection list
+amplifier profile use toolkit-dev
+</code></pre>
+
+        <p>
+          Verified mechanism reference:
+          <a href="/platform/collections-discovery.html">Collections discovery (verified)</a>.
+        </p>
+
+        <div class="callout warn">
+          <strong>Security warning</strong>
+          <div>
+            Collections may reference modules (tools/hooks/providers) that execute code in your environment. Only install from sources
+            you trust.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      (async () => {
+        const catalog = await loadCatalog();
+        const container = document.getElementById("collections-list");
+        const ul = document.createElement("ul");
+        const cols = (catalog.collections || [])
+          .slice()
+          .sort((a, b) => ((a.kind || "") + a.repo + (a.name || "") < (b.kind || "") + b.repo + (b.name || "") ? -1 : 1));
+        for (const c of cols) {
+          const li = document.createElement("li");
+          const code = document.createElement("code");
+          code.className = "inline";
+          code.textContent = c.kind === "bundled" ? `${c.repo}#${c.name}` : c.repo;
+          li.appendChild(code);
+          li.appendChild(document.createTextNode(" — "));
+          const a = document.createElement("a");
+          a.href = c.repo_url;
+          a.target = "_blank";
+          a.rel = "noreferrer";
+          a.textContent = c.repo_url.replace("https://github.com/", "");
+          li.appendChild(a);
+          ul.appendChild(li);
+        }
+        container.appendChild(ul);
+      })();
+    </script>
+  </body>
+</html>

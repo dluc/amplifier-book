@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bundles Deep Dive</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Bundles Deep Dive</h1>
+
+        <p>
+          This page provides detailed information about every bundle in the Amplifier ecosystem. The data is generated from
+          <code class="inline">data/catalog.json</code>, which is scanned from actual bundle repositories.
+        </p>
+
+        <div class="callout">
+          <strong>How to read this</strong>
+          <div>
+            Each bundle shows: what it includes, which modules it provides, version, and where it lives. This helps you understand
+            what you're getting when you use a bundle.
+          </div>
+        </div>
+
+        <h2>All Bundles (scanned from ecosystem)</h2>
+
+        <div id="bundles-deep-dive"></div>
+
+        <h2>Understanding Bundle Details</h2>
+
+        <h3>Bundle Fields</h3>
+        <ul>
+          <li><strong>Name</strong> - How you reference the bundle (<code>amplifier bundle use name</code>)</li>
+          <li><strong>Version</strong> - Semantic version (helps track changes)</li>
+          <li><strong>Description</strong> - What the bundle does</li>
+          <li><strong>Includes</strong> - Other bundles this one builds on</li>
+          <li><strong>Repository</strong> - Where the bundle source lives</li>
+        </ul>
+
+        <h3>Module Types in Bundles</h3>
+        <ul>
+          <li><strong>Providers</strong> - AI model backends (Anthropic, OpenAI, etc.)</li>
+          <li><strong>Tools</strong> - Capabilities for the agent (filesystem, bash, web, etc.)</li>
+          <li><strong>Hooks</strong> - Lifecycle behaviors (logging, approvals, notifications, etc.)</li>
+          <li><strong>Orchestrator</strong> - How the agent loop runs (basic, streaming, events)</li>
+          <li><strong>Context</strong> - How conversation state is managed</li>
+        </ul>
+
+        <h2>Bundle Categories</h2>
+
+        <h3>Foundation Bundles</h3>
+        <p>
+          Core bundles that provide base functionality. Most custom bundles include <code class="inline">foundation</code>.
+        </p>
+
+        <h3>Domain Bundles</h3>
+        <p>
+          Specialized for specific use cases: code intelligence (LSP), design work (design-intelligence), workflow orchestration
+          (recipes), issue tracking (issues).
+        </p>
+
+        <h3>Behavior Bundles</h3>
+        <p>
+          Small, composable bundles that add specific hooks or behaviors. Often included by other bundles rather than used alone.
+        </p>
+
+        <h2>How to Use This Information</h2>
+
+        <div class="callout">
+          <strong>Choosing a bundle</strong>
+          <div>
+            <ul>
+              <li>Start with <code class="inline">foundation</code> for general use</li>
+              <li>Use domain bundles for specialized work (design, recipes, LSP)</li>
+              <li>Check what each bundle includes to avoid redundancy</li>
+              <li>Look at version numbers to assess maturity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Creating your own bundle</strong>
+          <div>
+            Study bundles similar to what you want to build:
+            <ul>
+              <li>Need base capabilities? Look at <code>foundation</code></li>
+              <li>Extending another bundle? Look at <code>lsp-python</code> pattern</li>
+              <li>Adding behaviors? Look at notification/logging bundles</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Related Resources</h2>
+
+        <ul>
+          <li><a href="/bundles/fundamentals.html">Bundle fundamentals</a></li>
+          <li><a href="/bundles/composition.html">Composition patterns</a></li>
+          <li><a href="/bundles/authoring.html">Creating bundles</a></li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md" target="_blank" rel="noreferrer"
+              >Official Bundle Guide</a
+            >
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      (async () => {
+        const catalog = await loadCatalog();
+        const container = document.getElementById("bundles-deep-dive");
+
+        const bundles = (catalog.bundles || []).slice().sort((a, b) => {
+          const aName = (a.name || "").toLowerCase();
+          const bName = (b.name || "").toLowerCase();
+          return aName < bName ? -1 : aName > bName ? 1 : 0;
+        });
+
+        for (const bundle of bundles) {
+          const section = document.createElement("div");
+          section.style.marginBottom = "32px";
+          section.style.paddingBottom = "24px";
+          section.style.borderBottom = "1px solid var(--border)";
+
+          const h3 = document.createElement("h3");
+          const code = document.createElement("code");
+          code.className = "inline";
+          code.textContent = bundle.name || "—";
+          h3.appendChild(code);
+          section.appendChild(h3);
+
+          if (bundle.bundle?.description) {
+            const p = document.createElement("p");
+            p.textContent = bundle.bundle.description;
+            section.appendChild(p);
+          }
+
+          const dl = document.createElement("dl");
+          dl.style.display = "grid";
+          dl.style.gridTemplateColumns = "140px 1fr";
+          dl.style.gap = "8px 16px";
+          dl.style.margin = "16px 0";
+
+          const addDetail = (term, value) => {
+            const dt = document.createElement("dt");
+            dt.style.color = "var(--muted)";
+            dt.style.fontSize = "13px";
+            dt.textContent = term;
+            const dd = document.createElement("dd");
+            dd.style.margin = "0";
+            if (value instanceof Node) dd.appendChild(value);
+            else dd.textContent = value || "—";
+            dl.appendChild(dt);
+            dl.appendChild(dd);
+          };
+
+          if (bundle.bundle?.version) addDetail("Version", bundle.bundle.version);
+
+          if (bundle.repo) {
+            const a = document.createElement("a");
+            a.href = `https://github.com/${bundle.repo}`;
+            a.target = "_blank";
+            a.rel = "noreferrer";
+            a.textContent = bundle.repo;
+            addDetail("Repository", a);
+          }
+
+          if (bundle.path) addDetail("Path", bundle.path);
+
+          if (bundle.includes && Array.isArray(bundle.includes) && bundle.includes.length > 0) {
+            const includesDiv = document.createElement("div");
+            const ul = document.createElement("ul");
+            ul.style.margin = "4px 0";
+            ul.style.paddingLeft = "20px";
+            for (const inc of bundle.includes.slice(0, 10)) {
+              const li = document.createElement("li");
+              li.style.fontSize = "13px";
+              li.textContent = typeof inc === "string" ? inc : JSON.stringify(inc);
+              ul.appendChild(li);
+            }
+            if (bundle.includes.length > 10) {
+              const li = document.createElement("li");
+              li.style.fontSize = "13px";
+              li.textContent = `... +${bundle.includes.length - 10} more`;
+              ul.appendChild(li);
+            }
+            includesDiv.appendChild(ul);
+            addDetail("Includes", includesDiv);
+          }
+
+          section.appendChild(dl);
+          container.appendChild(section);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collection: recipes</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Collection: <code class="inline">recipes</code></h1>
+        <p>
+          The <code class="inline">recipes</code> collection is positioned as a pack of repeatable, multi-step orchestration flows:
+          “recipes” for doing common tasks reliably.
+        </p>
+
+        <h2>What you get</h2>
+        <ul>
+          <li>Prebuilt workflows you can run or adapt</li>
+          <li>Profiles/agents that encourage structured multi-step execution</li>
+        </ul>
+
+        <h2>How it fits into the architecture</h2>
+        <ul>
+          <li>
+            Recipes live “above” the kernel: they’re compositions of existing tools/modules plus instructions and structure.
+          </li>
+          <li>
+            They’re a way to standardize how work is done without embedding policy in the core.
+          </li>
+        </ul>
+
+        <div class="callout">
+          <strong>Practical tip</strong>
+          <div>
+            If you like how Amplifier behaves for one task, a recipe/collection is the system’s intended way to package that behavior
+            for reuse.
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

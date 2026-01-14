@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile Loading (Verified)</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profile loading (verified)</h1>
+        <p>
+          This chapter explains how profiles are discovered and loaded in Amplifier, based on the actual implementation in
+          <code class="inline">amplifier-profiles</code> and how the CLI wires it up.
+        </p>
+
+        <h2>The pieces</h2>
+        <ul>
+          <li>
+            <code class="inline">amplifier-profiles</code> (library): implements <code class="inline">ProfileLoader</code> and
+            <code class="inline">compile_profile_to_mount_plan</code>.
+          </li>
+          <li>
+            <code class="inline">amplifier-collections</code> (library): helps resolve collection names to paths.
+          </li>
+          <li>
+            <code class="inline">amplifier-app-cli</code> (application): decides where to search (policy) and injects resolvers and
+            mention handling.
+          </li>
+        </ul>
+
+        <h2>Discovery and name formats</h2>
+        <p>
+          <code class="inline">ProfileLoader</code> supports both “simple” profile names and “collection:” forms. In particular, it
+          supports:
+        </p>
+        <ul>
+          <li><code class="inline">base</code> (simple name)</li>
+          <li><code class="inline">foundation:base</code> (collection + simple name)</li>
+          <li><code class="inline">foundation:profiles/base.md</code> (collection + full path)</li>
+        </ul>
+
+        <p>
+          Source:
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/loader.py" target="_blank" rel="noreferrer"
+            >microsoft/amplifier-profiles/src/amplifier_profiles/loader.py</a
+          >
+        </p>
+
+        <h2>Inheritance</h2>
+        <p>
+          Profiles can extend other profiles (via <code class="inline">profile.extends</code>). The loader resolves inheritance by
+          loading the parent first and deep-merging parent and child before validating the resulting schema.
+        </p>
+
+        <p>
+          Source:
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/loader.py" target="_blank" rel="noreferrer"
+            >ProfileLoader.load_profile()</a
+          >
+        </p>
+
+        <h2>Mount plan compilation</h2>
+        <p>
+          A loaded profile is compiled into a “mount plan” dictionary (the thing a session can consume) by
+          <code class="inline">compile_profile_to_mount_plan</code>. The code-level merge strategy is explicit:
+        </p>
+        <ul>
+          <li>Start with base profile</li>
+          <li>Apply overlays in precedence order</li>
+          <li>Merge module lists by module id (later wins)</li>
+          <li>Session fields are overridden (not deep-merged)</li>
+          <li>Agents are only loaded if the application injects an agent loader</li>
+        </ul>
+
+        <p>
+          Source:
+          <a
+            href="https://github.com/microsoft/amplifier-profiles/blob/main/src/amplifier_profiles/compiler.py"
+            target="_blank"
+            rel="noreferrer"
+            >microsoft/amplifier-profiles/src/amplifier_profiles/compiler.py</a
+          >
+        </p>
+
+        <h2>Mentions: what the loader does not do</h2>
+        <p>
+          The profile loader intentionally does <em>not</em> fully process @mentions in the instruction text; that’s handled in the
+          application layer. This is a deliberate boundary: profiles library loads config and leaves policy/IO to apps.
+        </p>
+
+        <h2>Concrete example (Python)</h2>
+        <p>
+          A minimal “profile service” that loads a profile and compiles it to a mount plan:
+        </p>
+        <pre><code>from pathlib import Path
+from amplifier_profiles import ProfileLoader, compile_profile_to_mount_plan
+
+loader = ProfileLoader(search_paths=[Path("profiles")])
+profile = loader.load_profile("dev")
+
+mount_plan = compile_profile_to_mount_plan(profile)
+</code></pre>
+
+        <p>
+          Source (example usage):
+          <a href="https://github.com/microsoft/amplifier-profiles/blob/main/README.md" target="_blank" rel="noreferrer"
+            >microsoft/amplifier-profiles/README.md</a
+          >
+        </p>
+
+        <h2>How the CLI wires it up</h2>
+        <p>
+          The CLI chooses search paths and injects the collection resolver and mention loader when constructing the profile loader:
+        </p>
+        <ul>
+          <li>
+            <code class="inline">create_profile_loader()</code>:
+            <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+              >microsoft/amplifier-app-cli/amplifier_app_cli/paths.py</a
+            >
+          </li>
+        </ul>
+
+        <h2>Flow diagram</h2>
+        <div class="mermaid">
+flowchart TB
+  sel["Select profile name"] --> load["ProfileLoader.find/load (inheritance)"]
+  load --> compile["compile_profile_to_mount_plan()"]
+  compile --> plan["Mount plan"]
+  plan --> resolve["Module resolution (sources → paths)"]
+  resolve --> session["Session runs orchestrator loop"]
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile: dev</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Profile: <code class="inline">dev</code></h1>
+        <p>
+          The <code class="inline">dev</code> profile is the recommended default for software work: it layers more tools and
+          delegation agents on top of a base setup so the assistant can both reason and act.
+        </p>
+
+        <h2>What it’s optimized for</h2>
+        <ul>
+          <li>Repo exploration and explanation</li>
+          <li>Editing and iteration (generate → run → fix)</li>
+          <li>Structured work via specialist agents (design, debugging, research, implementation)</li>
+        </ul>
+
+        <h2>Expected ingredients (conceptual)</h2>
+        <ul>
+          <li><strong>Base tools</strong>: filesystem + bash</li>
+          <li><strong>Internet-enabled tools</strong> (depending on configuration): web + search</li>
+          <li><strong>Tasking</strong>: a “task” tool/module for multi-step workflows</li>
+          <li><strong>Specialist agents</strong>: e.g. zen-architect, bug-hunter, researcher, modular-builder, explorer</li>
+          <li><strong>UI hooks</strong>: often includes streaming UI and logging hooks</li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Security posture</strong>
+          <div>
+            <code class="inline">dev</code> tends to be more powerful. More tools/modules means more ways to touch your system and
+            network—great for productivity, but you should understand what’s enabled.
+          </div>
+        </div>
+
+        <h2>Tradeoffs</h2>
+        <ul>
+          <li>More complexity: when something goes wrong, there are more modules in the chain</li>
+          <li>More variability: behavior can differ based on active tools, hooks, and installed collections</li>
+        </ul>
+
+        <h2>When to switch away</h2>
+        <ul>
+          <li>Use <code class="inline">base</code> if you want fewer integrations.</li>
+          <li>Use <code class="inline">test</code> if you want a focused testing workflow.</li>
+          <li>Use <code class="inline">foundation</code> if you’re debugging configuration or want minimal tool access.</li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
+

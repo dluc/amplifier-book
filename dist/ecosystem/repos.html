@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ecosystem Repos</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Ecosystem repo overview</h1>
+        <p>
+          This is a quick map of the Amplifier ecosystem as scanned from GitHub. It’s generated from
+          <code class="inline">data/catalog.json</code> so it can be refreshed whenever new repos are added.
+        </p>
+
+        <div class="callout">
+          <strong>How to read this</strong>
+          <div>
+            Amplifier is intentionally split: kernel (<code class="inline">amplifier-core</code>) defines contracts;
+            <code class="inline">amplifier-foundation</code> provides the bundle system; apps host and
+            compose; runtime modules add capabilities; bundles package configurations.
+          </div>
+        </div>
+
+        <h2>Kernel</h2>
+        <div id="repos-kernel"></div>
+
+        <h2>Applications</h2>
+        <div id="repos-apps"></div>
+
+        <h2>Libraries</h2>
+        <div id="repos-libs"></div>
+
+        <h2>Bundles</h2>
+        <div id="repos-bundles"></div>
+
+        <h2>Runtime modules</h2>
+        <div id="repos-modules"></div>
+
+        <h2>Collections (deprecated)</h2>
+        <p class="section-note">Collections are deprecated. Use <a href="/bundles/index.html">bundles</a> instead. See <a href="/deprecated/index.html">migration guide</a>.</p>
+        <div id="repos-collections"></div>
+
+        <h2>Community / other</h2>
+        <div id="repos-other"></div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script src="/assets/catalog.js?v=28"></script>
+    <script>
+      buildNav("nav");
+
+      function repoBucket(slug) {
+        if (slug === "microsoft/amplifier-core") return "kernel";
+        if (slug.startsWith("microsoft/amplifier-app-") || slug === "microsoft/amplifier") return "apps";
+        if (
+          slug === "microsoft/amplifier-foundation" ||
+          slug === "microsoft/amplifier-profiles" ||
+          slug === "microsoft/amplifier-collections" ||
+          slug === "microsoft/amplifier-config" ||
+          slug === "microsoft/amplifier-module-resolution"
+        )
+          return "libs";
+        if (slug.startsWith("microsoft/amplifier-bundle-") || slug.startsWith("robotdad/amplifier-bundle-")) return "bundles";
+        if (slug.startsWith("microsoft/amplifier-module-") || slug.startsWith("brycecutt-msft/amplifier-module-") || slug.startsWith("robotdad/amplifier-module-"))
+          return "modules";
+        if (slug.startsWith("microsoft/amplifier-collection-") || slug.startsWith("robotdad/amplifier-collection-")) return "collections";
+        return "other";
+      }
+
+      function renderRepoList(containerId, slugs) {
+        const el = document.getElementById(containerId);
+        const ul = document.createElement("ul");
+        for (const slug of slugs) {
+          const li = document.createElement("li");
+          const code = document.createElement("code");
+          code.className = "inline";
+          code.textContent = slug;
+          li.appendChild(code);
+          li.appendChild(document.createTextNode(" — "));
+          const a = document.createElement("a");
+          a.href = `https://github.com/${slug}`;
+          a.target = "_blank";
+          a.rel = "noreferrer";
+          a.textContent = `github.com/${slug}`;
+          li.appendChild(a);
+          ul.appendChild(li);
+        }
+        el.appendChild(ul);
+      }
+
+      (async () => {
+        const catalog = await loadCatalog();
+        const slugs = (catalog.repos_scanned || []).slice().sort();
+        const buckets = { kernel: [], apps: [], libs: [], bundles: [], modules: [], collections: [], other: [] };
+        for (const s of slugs) buckets[repoBucket(s)].push(s);
+
+        renderRepoList("repos-kernel", buckets.kernel);
+        renderRepoList("repos-apps", buckets.apps);
+        renderRepoList("repos-libs", buckets.libs);
+        renderRepoList("repos-bundles", buckets.bundles);
+        renderRepoList("repos-modules", buckets.modules);
+        renderRepoList("repos-collections", buckets.collections);
+        renderRepoList("repos-other", buckets.other);
+      })();
+    </script>
+  </body>
+</html>
+

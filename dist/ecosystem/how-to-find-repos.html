@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How to Find Amplifier Repos</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>How to find Amplifier repositories</h1>
+        <p>
+          Amplifier is not "one repo". It's an ecosystem of repositories: a small kernel, apps (like the CLI), libraries (amplifier-foundation), runtime
+          modules, and bundles (which replaced the older collections system).
+        </p>
+
+        <h2>Canonical index of repos</h2>
+        <p>
+          The intended “table of contents” for the ecosystem is the Component Catalog:
+          <a href="https://github.com/microsoft/amplifier/blob/main/docs/MODULES.md" target="_blank" rel="noreferrer"
+            ><code class="inline">microsoft/amplifier/docs/MODULES.md</code></a
+          >.
+        </p>
+        <ul>
+          <li>
+            GitHub:
+            <a href="https://github.com/microsoft/amplifier/blob/main/docs/MODULES.md" target="_blank" rel="noreferrer"
+              >microsoft/amplifier/docs/MODULES.md</a
+            >
+          </li>
+          <li>
+            This book’s scanned overview:
+            <a href="/ecosystem/repos.html">Ecosystem repo overview</a>
+          </li>
+        </ul>
+        <ul>
+          <li>It lists the kernel, apps, libraries, bundles, and runtime modules.</li>
+          <li>It links directly to the GitHub repo for each component.</li>
+          <li>This book's catalog updater uses that file as the source-of-truth for which repos to scan.</li>
+          <li><strong>Note</strong>: Collections are listed but deprecated - bundles are the current system.</li>
+        </ul>
+
+        <h2>Dev workspace (submodules)</h2>
+        <p>
+          If you want to contribute across multiple repos at once (core + CLI + modules), it’s common to use a “dev workspace” repo.
+          This is usually a normal git repo whose folders are git <em>submodules</em> pointing at other repos.
+        </p>
+
+        <h3>What a git submodule means (plain English)</h3>
+        <ul>
+          <li>
+            The workspace repo contains pointers to other repos at specific commits.
+          </li>
+          <li>
+            Each submodule is its own git repo on disk (you can <code class="inline">git status</code> inside it).
+          </li>
+          <li>
+            The workspace can “pin” a compatible set of versions across many repos.
+          </li>
+        </ul>
+
+        <h3>Example: clone a dev workspace</h3>
+        <p>
+          If a repo like <code class="inline">amplifier-dev</code> exists and you have access to it, you typically clone it like this:
+        </p>
+        <pre><code># Clone the workspace and all submodules
+git clone --recursive https://github.com/microsoft/amplifier-dev
+cd amplifier-dev
+
+# If you already cloned without --recursive:
+git submodule update --init --recursive
+</code></pre>
+
+        <h3>How to tell if a repo uses submodules</h3>
+        <pre><code># Shows submodule paths and pinned commits (if any)
+git submodule status --recursive
+
+# Also: look for a .gitmodules file at the repo root
+ls -la .gitmodules
+</code></pre>
+
+        <h3>What you do with a dev workspace</h3>
+        <p>Common workflows once you have multiple repos checked out locally:</p>
+        <ul>
+          <li>
+            <strong>Develop one module locally</strong>, while everything else stays on git:
+            point module resolution at your local folder (e.g. via <code class="inline">.amplifier/settings.yaml</code> overrides or
+            <code class="inline">AMPLIFIER_MODULE_*</code> env vars).
+          </li>
+          <li>
+            <strong>Make coordinated changes</strong> (e.g. update a core contract and adjust the CLI/module accordingly).
+          </li>
+          <li>
+            <strong>Debug end-to-end</strong> by stepping through app code and module code in the same workspace.
+          </li>
+        </ul>
+
+        <div class="callout">
+          <strong>Important</strong>
+          <div>
+            Not every environment uses a dev workspace. If you’re just a user of the CLI, you usually don’t need submodules at all.
+          </div>
+        </div>
+
+        <h2>How this book stays up to date</h2>
+        <p>
+          This book is designed to be printable/portable: it does not assume it “lives inside” any specific repo. Instead, it keeps a
+          generated catalog file with concrete facts extracted from the ecosystem.
+        </p>
+
+        <h3>Update the catalog</h3>
+        <p>
+          This command updates <em>the website’s data</em> (the lists and deep-dive pages). It does <strong>not</strong> update your
+          installed Amplifier CLI modules.
+        </p>
+        <pre><code>python3 amplifier-book/tools/update_catalog.py</code></pre>
+        <ul>
+          <li>
+            Reads repo links from <code class="inline">docs/MODULES.md</code> (component catalog).
+          </li>
+          <li>
+            Shallow-clones those repos into <code class="inline">amplifier-src/</code> (or <code class="inline">$AMPLIFIER_BOOK_SOURCES</code> if set).
+          </li>
+          <li>
+            Scans repos for bundles, profiles, agents, and module entry points (from code + metadata).
+          </li>
+          <li>
+            Writes <code class="inline">/data/catalog.json</code> (this book's structured dataset).
+          </li>
+        </ul>
+
+        <h3>What is catalog.json?</h3>
+        <p>
+          <code class="inline">/data/catalog.json</code> is a generated index that powers the book’s “scanned” lists (modules, hooks,
+          profiles, collections) and deep-dive pages. It exists so the book can be updated by re-scanning GitHub, without manually
+          rewriting pages.
+        </p>
+        <ul>
+          <li>Generated file: <code class="inline">/data/catalog.json</code></li>
+          <li>
+            Pages that use it:
+            <a href="/bundles/index.html">Bundles</a>,
+            <a href="/profiles/index.html">Profiles</a>,
+            <a href="/profiles/deep-dive.html">Profiles deep dive</a>,
+            <a href="/modules/index.html">Modules</a>,
+            <a href="/hooks/index.html">Hooks</a>,
+            <a href="/collections/index.html">Collections</a>,
+            <a href="/collections/deep-dive.html">Collections deep dive</a>,
+            <a href="/ecosystem/repos.html">Repo overview</a>
+          </li>
+        </ul>
+
+        <div class="callout warn">
+          <strong>Reality check</strong>
+          <div>
+            Some community repos may not expose the same entrypoint conventions (or may not publish the relevant metadata). The
+            catalog is best-effort; it also records clone failures so you can see what was missing.
+          </div>
+        </div>
+
+        <h2>Next: repo overview</h2>
+        <p><a href="/ecosystem/repos.html">See the ecosystem repo overview →</a></p>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

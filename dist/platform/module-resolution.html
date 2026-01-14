@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Module Resolution (Verified)</title>
+    <link rel="stylesheet" href="/assets/site.css?v=28" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Module resolution (verified)</h1>
+        <p>
+          “Module resolution” is how an app turns a module id like <code class="inline">tool-bash</code> into an actual Python module
+          directory (from git, a local path, a collection, or an installed package).
+        </p>
+
+        <h2>Reference implementation: StandardModuleSourceResolver</h2>
+        <p>
+          The reference resolver is implemented in <code class="inline">amplifier-module-resolution</code> as
+          <code class="inline">StandardModuleSourceResolver</code>.
+        </p>
+        <p>
+          Source:
+          <a
+            href="https://github.com/microsoft/amplifier-module-resolution/blob/main/src/amplifier_module_resolution/resolvers.py"
+            target="_blank"
+            rel="noreferrer"
+            >microsoft/amplifier-module-resolution/src/amplifier_module_resolution/resolvers.py</a
+          >
+        </p>
+
+        <h2>Resolution order (what the code actually does)</h2>
+        <p>The resolver implements a <strong>6-layer</strong> “first match wins” strategy:</p>
+        <ol>
+          <li>Environment variable: <code class="inline">AMPLIFIER_MODULE_&lt;ID&gt;</code></li>
+          <li>Workspace convention directory</li>
+          <li>Settings provider (merged project + user settings)</li>
+          <li>Collection-provided modules</li>
+          <li>Profile hint (source declared by the profile)</li>
+          <li>Installed package fallback</li>
+        </ol>
+
+        <div class="callout">
+          <strong>Readme vs reality</strong>
+          <div>
+            Some docs summarize this as “5 layers” (env → workspace → settings → profile → package). The code adds an explicit
+            <em>collection modules</em> layer in between settings and profile hint. When in doubt, trust
+            <code class="inline">resolve_with_layer()</code>.
+          </div>
+        </div>
+
+        <h2>Concrete example: force a module to a local checkout</h2>
+        <pre><code># force tool-bash to load from a local path (highest precedence)
+export AMPLIFIER_MODULE_TOOL_BASH=./amplifier-module-tool-bash
+</code></pre>
+
+        <h2>How the CLI uses it</h2>
+        <p>
+          The CLI creates the resolver and injects two providers:
+        </p>
+        <ul>
+          <li>
+            A settings provider that merges explicit overrides with sources registered in settings (<code class="inline">modules.providers</code>,
+            <code class="inline">modules.tools</code>, <code class="inline">modules.hooks</code>, etc.).
+          </li>
+          <li>
+            A collection-module provider that discovers module directories inside installed collections and registers them as
+            candidates in the resolver’s layer 4.
+          </li>
+        </ul>
+        <p>
+          Source:
+          <a href="https://github.com/microsoft/amplifier-app-cli/blob/main/amplifier_app_cli/paths.py" target="_blank" rel="noreferrer"
+            >microsoft/amplifier-app-cli/amplifier_app_cli/paths.py (create_module_resolver)</a
+          >
+        </p>
+
+        <h2>Flow diagram</h2>
+        <div class="mermaid">
+flowchart TB
+  id["module id (e.g. tool-bash)"] --> r["StandardModuleSourceResolver.resolve_with_layer()"]
+  r --> env["Layer 1: env var"]
+  r --> ws["Layer 2: workspace dir"]
+  r --> settings["Layer 3: settings"]
+  r --> col["Layer 4: collections"]
+  r --> prof["Layer 5: profile hint"]
+  r --> pkg["Layer 6: installed package"]
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=28"></script>
+    <script>
+      buildNav("nav");
+      initMermaid();
+    </script>
+  </body>
+</html>
+
