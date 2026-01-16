@@ -110,6 +110,73 @@ After step 2: {file_path: "auth.py", issues: "...", improvements: "..."}
           and terminates. Next step gets a new agent instance.
         </p>
 
+        <h2>Recipes and Bundles</h2>
+
+        <p>
+          <strong>Key insight</strong>: Recipes inherit the bundle they're executed with. The bundle determines which agents,
+          tools, and providers are available to recipe steps.
+        </p>
+
+        <h3>Bundle Determines Available Agents</h3>
+
+        <pre><code class="language-bash"># Execute with recipes bundle (has foundation agents)
+amplifier run --bundle recipes "execute my-recipe.yaml"
+# Can use: foundation:zen-architect, foundation:bug-hunter, etc.
+
+# Execute with custom bundle (different agents)
+amplifier run --bundle my-custom-bundle "execute my-recipe.yaml"
+# Can use: whatever agents your bundle provides
+</code></pre>
+
+        <p><strong>Agent references</strong>: Must match what's in the active bundle!</p>
+
+        <h3>Per-Step Configuration Override</h3>
+
+        <p>Steps can override providers, tools, and configuration:</p>
+
+        <pre><code class="language-yaml">steps:
+  - id: "creative-step"
+    agent: "foundation:zen-architect"
+    agent_config:
+      providers:
+        - module: "provider-anthropic"
+          config:
+            model: "claude-opus-4"   # Use more capable model
+            temperature: 0.9         # More creative
+    prompt: "Brainstorm alternatives"
+</code></pre>
+
+        <p>This step uses Opus with high temperature, while other steps use bundle defaults!</p>
+
+        <h3>Loading Recipes Bundle</h3>
+
+        <p><strong>Full bundle</strong> (tool + agents + context):</p>
+
+        <pre><code class="language-bash">amplifier run --bundle git+https://github.com/microsoft/amplifier-bundle-recipes@main
+</code></pre>
+
+        <p><strong>Behavior overlay</strong> (add to your bundle):</p>
+
+        <pre><code class="language-yaml"># In your bundle.md
+includes:
+  - bundle: foundation
+  - bundle: git+https://github.com/microsoft/amplifier-bundle-recipes@main#subdirectory=behaviors/recipes.yaml
+</code></pre>
+
+        <p><strong>Just the tool</strong> (minimal):</p>
+
+        <pre><code class="language-yaml">tools:
+  - module: tool-recipes
+    source: git+https://github.com/microsoft/amplifier-bundle-recipes@main#subdirectory=modules/tool-recipes
+</code></pre>
+
+        <p><strong>What you get</strong>:</p>
+        <ul>
+          <li>Full bundle: tool-recipes + recipe-author + result-validator + @recipes: namespace</li>
+          <li>Behavior: tool-recipes + agents (composable)</li>
+          <li>Just tool: Execute recipes only (no creation agents)</li>
+        </ul>
+
         <h2>Learn More</h2>
 
         <div class="grid2">

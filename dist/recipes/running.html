@@ -709,6 +709,175 @@ else:
         return None  # Complete failure
 </code></pre>
 
+        <h2>Running Same Recipe with Different AI Providers</h2>
+
+        <p>
+          You can run the same recipe with different AI providers (Anthropic, OpenAI, etc.) by changing the bundle or
+          using per-step configuration.
+        </p>
+
+        <h3>Method 1: Different Bundles</h3>
+
+        <p>Create bundles with different providers:</p>
+
+        <pre><code class="language-yaml"># bundles/anthropic.md
+bundle:
+  name: my-bundle-anthropic
+includes:
+  - bundle: foundation
+  - bundle: recipes:behaviors/recipes
+providers:
+  - module: provider-anthropic
+    config:
+      default_model: claude-sonnet-4-5
+</code></pre>
+
+        <pre><code class="language-yaml"># bundles/openai.md
+bundle:
+  name: my-bundle-openai
+includes:
+  - bundle: foundation
+  - bundle: recipes:behaviors/recipes
+providers:
+  - module: provider-openai
+    config:
+      default_model: gpt-5.1
+</code></pre>
+
+        <p><strong>Run same recipe with different providers</strong>:</p>
+
+        <pre><code class="language-bash"># With Anthropic
+amplifier run --bundle bundles/anthropic.md "execute code-review.yaml with file=src/auth.py"
+
+# With OpenAI
+amplifier run --bundle bundles/openai.md "execute code-review.yaml with file=src/auth.py"
+
+# Same recipe, different AI provider!
+</code></pre>
+
+        <h3>Method 2: Per-Step Override</h3>
+
+        <p>Override provider for specific steps in the recipe:</p>
+
+        <pre><code class="language-yaml">name: "multi-provider-workflow"
+version: "1.0.0"
+
+steps:
+  # Step 1: Use Anthropic (fast, cheap)
+  - id: "quick-analysis"
+    agent: "foundation:zen-architect"
+    agent_config:
+      providers:
+        - module: "provider-anthropic"
+          config:
+            model: "claude-haiku-4-5"
+    prompt: "Quick analysis of {{file}}"
+    output: "quick_result"
+
+  # Step 2: Use OpenAI (for comparison)
+  - id: "openai-analysis"
+    agent: "foundation:zen-architect"
+    agent_config:
+      providers:
+        - module: "provider-openai"
+          config:
+            model: "gpt-5.1"
+    prompt: "Analyze {{file}} from different perspective"
+    output: "openai_result"
+
+  # Step 3: Use Anthropic Opus (most capable)
+  - id: "deep-analysis"
+    agent: "foundation:zen-architect"
+    agent_config:
+      providers:
+        - module: "provider-anthropic"
+          config:
+            model: "claude-opus-4-1"
+    prompt: "Deep analysis comparing {{quick_result}} and {{openai_result}}"
+    output: "final_analysis"
+</code></pre>
+
+        <p><strong>Result</strong>: Same recipe uses 3 different AI providers across steps!</p>
+
+        <h3>Method 3: Programmatic Provider Selection</h3>
+
+        <pre><code class="language-python">async def run_with_provider(recipe_path: str, provider: str):
+    """Run recipe with specified provider."""
+
+    # Load appropriate bundle
+    if provider == "anthropic":
+        bundle = await load_bundle("bundles/anthropic.md")
+    elif provider == "openai":
+        bundle = await load_bundle("bundles/openai.md")
+    elif provider == "gemini":
+        bundle = await load_bundle("bundles/gemini.md")
+
+    prepared = await bundle.prepare()
+    session = await prepared.create_session(session_id=f"recipe-{provider}")
+
+    recipes_tool = session.coordinator.get("tools", "recipes")
+
+    # Execute recipe (uses bundle's provider)
+    result = await recipes_tool.execute({
+        "operation": "execute",
+        "recipe_path": recipe_path,
+        "context": {"file": "src/main.py"}
+    })
+
+    return result.output
+
+# Compare results from different providers
+anthropic_result = await run_with_provider("code-review.yaml", "anthropic")
+openai_result = await run_with_provider("code-review.yaml", "openai")
+
+print("Anthropic analysis:", anthropic_result.get("analysis"))
+print("OpenAI analysis:", openai_result.get("analysis"))
+</code></pre>
+
+        <h3>Use Cases</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Approach</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Compare AI providers</td>
+              <td>Run same recipe with different bundles</td>
+              <td>A/B testing, quality comparison</td>
+            </tr>
+            <tr>
+              <td>Cost optimization</td>
+              <td>Use cheap model for simple steps, powerful for complex</td>
+              <td>Haiku for analysis, Opus for synthesis</td>
+            </tr>
+            <tr>
+              <td>Multi-perspective analysis</td>
+              <td>Different providers in same recipe</td>
+              <td>Get diverse viewpoints</td>
+            </tr>
+            <tr>
+              <td>Fallback strategy</td>
+              <td>Try Anthropic, fall back to OpenAI if rate limited</td>
+              <td>Reliability</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout ok">
+          <strong>Key Takeaway</strong>
+          <div>
+            <p>
+              Recipes are <strong>provider-agnostic</strong>. The same recipe YAML can run with any AI provider.
+              Change providers by changing bundles or per-step configuration.
+            </p>
+          </div>
+        </div>
+
         <h2>Best Practices</h2>
 
         <div class="callout">
