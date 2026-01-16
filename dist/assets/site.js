@@ -145,6 +145,8 @@ function buildNav(containerId, depthPrefix = "") {
       links: [
         { href: root + "platform/module-resolution.html", label: "Module Resolution" },
         { href: root + "platform/agents-md.html", label: "AGENTS.md Loading" },
+        { href: root + "platform/prompt-caching.html", label: "Prompt Caching" },
+        { href: root + "platform/context-management.html", label: "Context Management" },
       ],
     },
     {

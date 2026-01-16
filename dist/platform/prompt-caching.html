@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prompt Caching</title>
+    <link rel="stylesheet" href="/assets/site.css?v=29" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Prompt Caching (Anthropic)</h1>
+
+        <p>
+          Anthropic's prompt caching feature can <strong>reduce API costs by up to 90%</strong> by reusing
+          previously processed prompt content across API calls. This is automatically enabled in the
+          <code class="inline">provider-anthropic</code> module.
+        </p>
+
+        <div class="callout ok">
+          <strong>Cost Savings Example</strong>
+          <div>
+            <p>Without caching: 10,000 input tokens × $3/M = $0.03 per request</p>
+            <p>With caching: 1,000 new tokens × $3/M + 9,000 cached × $0.30/M = $0.003 + $0.0027 = <strong>$0.0057</strong></p>
+            <p><strong>81% cost reduction</strong> on subsequent requests with the same prompt prefix!</p>
+          </div>
+        </div>
+
+        <h2>How It Works</h2>
+
+        <p>
+          Anthropic's API allows marking up to 4 "cache breakpoints" in your request. Content before each breakpoint
+          can be cached and reused across requests.
+        </p>
+
+        <h3>Cache Breakpoint Strategy (Amplifier)</h3>
+
+        <p>The provider-anthropic module uses <strong>3 of 4 allowed breakpoints</strong>:</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Content</th>
+              <th>Stability</th>
+              <th>Why Cached</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Tool Definitions</strong></td>
+              <td>Most stable</td>
+              <td>Tools rarely change within a session. Caching saves token costs on every request with tools.</td>
+            </tr>
+            <tr>
+              <td><strong>2. System Prompt</strong></td>
+              <td>Stable per session</td>
+              <td>System instructions don't change during a session. Large prompts (from bundles) cached once.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Last Message</strong></td>
+              <td>Changes each turn</td>
+              <td>Enables incremental caching - new messages build on cached conversation history.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Configuration</h2>
+
+        <h3>Enabled by Default</h3>
+
+        <p>Prompt caching is <strong>enabled by default</strong> in provider-anthropic. No configuration needed!</p>
+
+        <pre><code class="language-yaml"># In your bundle.md
+providers:
+  - module: provider-anthropic
+    source: git+https://github.com/microsoft/amplifier-module-provider-anthropic@main
+    config:
+      default_model: claude-sonnet-4-5
+      # enable_prompt_caching: true  # Already default
+</code></pre>
+
+        <h3>Disabling Caching (Not Recommended)</h3>
+
+        <p>To disable if needed (for testing or debugging):</p>
+
+        <pre><code class="language-yaml">providers:
+  - module: provider-anthropic
+    config:
+      enable_prompt_caching: false  # Disable caching
+</code></pre>
+
+        <h2>Cache Metrics</h2>
+
+        <p>The provider tracks cache performance in response events:</p>
+
+        <ul>
+          <li><strong>cache_creation_input_tokens</strong> - Tokens written to cache (first time)</li>
+          <li><strong>cache_read_input_tokens</strong> - Tokens read from cache (subsequent requests)</li>
+          <li><strong>input_tokens</strong> - New tokens processed</li>
+        </ul>
+
+        <h3>Example: Viewing Cache Stats</h3>
+
+        <p>With <code class="inline">hooks-streaming-ui</code> enabled, you'll see:</p>
+
+        <pre><code>Input: 1,234 tokens (890 cached)
+Output: 456 tokens
+</code></pre>
+
+        <p>This shows 890 tokens were read from cache, saving significant processing time and cost.</p>
+
+        <h2>When Caching Helps Most</h2>
+
+        <div class="grid2">
+          <div class="callout">
+            <strong>High Benefit Scenarios</strong>
+            <div>
+              <ul>
+                <li>Long system prompts (from bundles with many @mentions)</li>
+                <li>Many tools defined</li>
+                <li>Multi-turn conversations</li>
+                <li>Repeated similar prompts</li>
+                <li>Large context windows</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>Low Benefit Scenarios</strong>
+            <div>
+              <ul>
+                <li>Single-shot requests</li>
+                <li>Minimal system prompt</li>
+                <li>No tools</li>
+                <li>Short conversations</li>
+                <li>Constantly changing prompts</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h2>Cache Lifecycle</h2>
+
+        <p><strong>Cache duration</strong>: 5 minutes from last use (Anthropic's TTL)</p>
+
+        <p><strong>What this means</strong>:</p>
+        <ul>
+          <li>Active sessions benefit (rapid back-and-forth keeps cache warm)</li>
+          <li>Inactive sessions lose cache after 5 minutes</li>
+          <li>First request after 5 minutes pays full token cost</li>
+          <li>Subsequent requests within 5 minutes use cache</li>
+        </ul>
+
+        <h2>Technical Implementation</h2>
+
+        <h3>Cache Control Headers</h3>
+
+        <p>The provider adds <code class="inline">cache_control</code> markers to:</p>
+
+        <pre><code class="language-python"># Tools array
+{
+  "tools": [...],
+  "cache_control": {"type": "ephemeral"}  # Cache tools
+}
+
+# System message
+{
+  "role": "system",
+  "content": "...",
+  "cache_control": {"type": "ephemeral"}  # Cache system prompt
+}
+
+# Last user message
+{
+  "role": "user",
+  "content": "...",
+  "cache_control": {"type": "ephemeral"}  # Incremental caching
+}
+</code></pre>
+
+        <h3>Automatic vs Manual</h3>
+
+        <p>
+          The provider handles caching <strong>automatically</strong>. You don't need to:
+        </p>
+        <ul>
+          <li>❌ Add cache_control markers manually</li>
+          <li>❌ Manage cache lifetimes</li>
+          <li>❌ Track what's cached</li>
+          <li>❌ Configure breakpoints</li>
+        </ul>
+
+        <p>Just use Amplifier normally - caching happens transparently!</p>
+
+        <h2>Cost Analysis</h2>
+
+        <h3>Anthropic Pricing (as of Jan 2026)</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Token Type</th>
+              <th>Cost (Claude Sonnet 4.5)</th>
+              <th>Savings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Regular input</td>
+              <td>$3.00 per million</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Cache write</td>
+              <td>$3.75 per million</td>
+              <td>-25% (one-time cost)</td>
+            </tr>
+            <tr>
+              <td>Cache read</td>
+              <td>$0.30 per million</td>
+              <td><strong>90% savings!</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Break-even point</strong>: After just 2 requests, caching pays for itself!</p>
+
+        <h3>Real Example</h3>
+
+        <p>Session with large bundle (10,000 token system prompt), 5 turns:</p>
+
+        <pre><code>Without caching:
+  Turn 1: 10,000 input × $3/M = $0.030
+  Turn 2: 10,000 input × $3/M = $0.030
+  Turn 3: 10,000 input × $3/M = $0.030
+  Turn 4: 10,000 input × $3/M = $0.030
+  Turn 5: 10,000 input × $3/M = $0.030
+  Total: $0.150
+
+With caching:
+  Turn 1: 10,000 write × $3.75/M = $0.0375 (create cache)
+  Turn 2: 10,000 read × $0.30/M = $0.003 (use cache)
+  Turn 3: 10,000 read × $0.30/M = $0.003
+  Turn 4: 10,000 read × $0.30/M = $0.003
+  Turn 5: 10,000 read × $0.30/M = $0.003
+  Total: $0.0495
+
+Savings: $0.1005 (67% reduction!)
+</code></pre>
+
+        <h2>Best Practices</h2>
+
+        <div class="callout">
+          <strong>Maximize Cache Benefits</strong>
+          <div>
+            <ul>
+              <li><strong>Keep sessions alive</strong> - Longer sessions benefit more from caching</li>
+              <li><strong>Use bundles</strong> - Large system prompts cache well</li>
+              <li><strong>Define many tools</strong> - Tool definitions are heavily cached</li>
+              <li><strong>Rapid interactions</strong> - Keep requests within 5 minutes to maintain cache</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Cache Invalidation</strong>
+          <div>
+            <p>Cache is invalidated when:</p>
+            <ul>
+              <li>5 minutes pass without requests</li>
+              <li>System prompt changes</li>
+              <li>Tools change (add/remove/modify)</li>
+              <li>Different model used</li>
+            </ul>
+            <p>These reset the cache, requiring a new write operation.</p>
+          </div>
+        </div>
+
+        <h2>Monitoring Cache Performance</h2>
+
+        <p>Check session logs (if <code class="inline">hooks-logging</code> enabled):</p>
+
+        <pre><code class="language-bash"># View cache metrics in events.jsonl
+cat ~/.amplifier/projects/myproject/sessions/SESSION_ID/events.jsonl | \
+  jq 'select(.event == "llm:response") | {
+    input: .data.usage.input_tokens,
+    cache_read: .data.usage.cache_read_input_tokens,
+    cache_created: .data.usage.cache_creation_input_tokens
+  }'
+</code></pre>
+
+        <h2>Limitations</h2>
+
+        <ul>
+          <li><strong>Minimum size</strong>: Cached segments must be ≥1024 tokens (Anthropic requirement)</li>
+          <li><strong>Max breakpoints</strong>: 4 per request (Anthropic limit)</li>
+          <li><strong>TTL</strong>: 5 minutes from last use</li>
+          <li><strong>Model-specific</strong>: Cache doesn't transfer between models</li>
+          <li><strong>Provider-specific</strong>: Only works with Anthropic (not OpenAI, Azure, etc.)</li>
+        </ul>
+
+        <h2>References</h2>
+
+        <ul>
+          <li>
+            <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank" rel="noreferrer">
+              Anthropic Prompt Caching Documentation
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-module-provider-anthropic" target="_blank" rel="noreferrer">
+              provider-anthropic source code
+            </a>
+          </li>
+          <li>Commit: 8524a78 - "feat: Add Anthropic prompt caching support"</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Bottom Line</strong>
+          <div>
+            <p>
+              Prompt caching is enabled by default and works transparently. For most users, you get automatic cost
+              savings without any configuration or code changes. Just use Amplifier normally!
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=29"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

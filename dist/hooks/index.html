@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hooks</title>
-    <link rel="stylesheet" href="/assets/site.css?v=28" />
+    <link rel="stylesheet" href="/assets/site.css?v=29" />
   </head>
   <body>
     <div class="layout">
@@ -38,8 +38,8 @@ flowchart LR
   approve --> provider["Provider call (model)"]
   provider --> stream["Streaming UI / output formatting"]
   provider --> log["Logging/event stream"]
-  stream --> end["User sees output"]
-  log --> end
+  stream --> output["User sees output"]
+  log --> output
         </div>
 
         <div class="callout warn">
@@ -51,12 +51,12 @@ flowchart LR
         </div>
       </main>
     </div>
-    <script src="/assets/site.js?v=28"></script>
-    <script src="/assets/catalog.js?v=28"></script>
+    <script src="/assets/site.js?v=29"></script>
+    <script src="/assets/catalog.js?v=29"></script>
     <script>
       buildNav("nav");
-      initMermaid();
       (async () => {
+        await initMermaid();
         const catalog = await loadCatalog();
         renderModulesTable(document.getElementById("hooks"), catalog, "hook", null);
       })();
