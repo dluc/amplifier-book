@@ -81,6 +81,46 @@ function buildNav(containerId, depthPrefix = "") {
   tag.textContent = "Mental model & reference";
   brand.appendChild(title);
   brand.appendChild(tag);
+
+  // Theme toggle
+  const themeToggle = document.createElement("button");
+  themeToggle.className = "theme-toggle";
+  const savedTheme = localStorage.getItem("amplifier-book-theme") || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+
+  const updateToggle = (theme) => {
+    themeToggle.innerHTML = theme === "dark"
+      ? '<span style="opacity: 0.6">Theme:</span> Dark'
+      : '<span style="opacity: 0.6">Theme:</span> Light';
+  };
+  updateToggle(savedTheme);
+
+  themeToggle.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const current = document.documentElement.getAttribute("data-theme");
+    const newTheme = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("amplifier-book-theme", newTheme);
+    updateToggle(newTheme);
+
+    // Re-render mermaid diagrams with new theme
+    const mermaidNodes = document.querySelectorAll(".mermaid");
+    if (mermaidNodes.length > 0 && window.mermaid) {
+      // Clear existing renders
+      mermaidNodes.forEach(node => {
+        const svg = node.querySelector('svg');
+        if (svg) {
+          node.removeAttribute('data-processed');
+          node.innerHTML = node.getAttribute('data-original-content') || node.innerHTML;
+        }
+      });
+      // Re-initialize with new theme
+      await initMermaid();
+    }
+  });
+
+  brand.appendChild(themeToggle);
+
   wrap.appendChild(brand);
 
   const sections = [
@@ -246,6 +286,13 @@ async function initMermaid() {
   const nodes = document.querySelectorAll(".mermaid");
   if (!nodes.length) return;
 
+  // Save original content before first render
+  nodes.forEach(node => {
+    if (!node.getAttribute('data-original-content')) {
+      node.setAttribute('data-original-content', node.innerHTML);
+    }
+  });
+
   // CDN load (keeps the book lightweight). If you need fully-offline rendering,
   // vendor mermaid into assets/ and change this URL.
   const cdn = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
@@ -254,7 +301,38 @@ async function initMermaid() {
   }
 
   if (!window.mermaid) return;
-  window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
+
+  // Configure mermaid theme based on current theme
+  const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+  const mermaidTheme = currentTheme === "light" ? "default" : "dark";
+
+  window.mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme: mermaidTheme,
+    themeVariables: currentTheme === "light" ? {
+      primaryColor: "#dbeafe",
+      primaryTextColor: "#0f172a",
+      primaryBorderColor: "#3b82f6",
+      lineColor: "#1e293b",
+      secondaryColor: "#e0e7ff",
+      tertiaryColor: "#f1f5f9",
+      background: "#ffffff",
+      mainBkg: "#dbeafe",
+      textColor: "#0f172a"
+    } : {
+      primaryColor: "#1e3a5f",
+      primaryTextColor: "#e6eefc",
+      primaryBorderColor: "#7db4ff",
+      lineColor: "#e6eefc",
+      secondaryColor: "#1a2332",
+      tertiaryColor: "#0f172a",
+      background: "#0b0f17",
+      mainBkg: "#1e3a5f",
+      textColor: "#e6eefc"
+    }
+  });
+
   // mermaid.run renders all nodes with class 'mermaid'
   await window.mermaid.run({ nodes });
 }
