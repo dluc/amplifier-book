@@ -16,7 +16,25 @@
           Complete reference for recipe YAML structure, fields, validation rules, and error handling.
         </p>
 
-        <h2>Recipe Structure</h2>
+        <div class="toc">
+          <strong>Contents:</strong>
+          <ul>
+            <li><a href="#structure">Recipe Structure</a></li>
+            <li><a href="#step-types">Step Types</a></li>
+            <li><a href="#common-fields">Common Fields</a></li>
+            <li><a href="#retry">Retry Configuration</a></li>
+            <li><a href="#foreach">Foreach Loops</a></li>
+            <li><a href="#error-handling">Error Handling</a></li>
+            <li><a href="#validation">Validation Rules</a></li>
+            <li><a href="#persistence">Session Persistence</a></li>
+            <li><a href="#limits">Limits and Constraints</a></li>
+            <li><a href="#variables">Variable Syntax</a></li>
+            <li><a href="#conditions">Condition Expressions</a></li>
+            <li><a href="#advanced">Advanced Features</a></li>
+          </ul>
+        </div>
+
+        <h2 id="structure">Recipe Structure</h2>
 
         <h3>Top-Level Fields</h3>
 
@@ -75,7 +93,7 @@
           </tbody>
         </table>
 
-        <h2>Step Types</h2>
+        <h2 id="step-types">Step Types</h2>
 
         <h3>Agent Step</h3>
 
@@ -205,7 +223,7 @@
           </tbody>
         </table>
 
-        <h2>Common Fields (All Step Types)</h2>
+        <h2 id="common-fields">Common Fields (All Step Types)</h2>
 
         <table class="data-table">
           <thead>
@@ -256,7 +274,7 @@
           </tbody>
         </table>
 
-        <h2>Retry Configuration</h2>
+        <h2 id="retry">Retry Configuration</h2>
 
         <pre><code class="language-yaml">retry:
   max_attempts: 5            # Total attempts (default: 1)
@@ -273,7 +291,7 @@
           <li><strong>constant</strong>: 5s → 5s → 5s (same delay)</li>
         </ul>
 
-        <h2>Foreach Loops</h2>
+        <h2 id="foreach">Foreach Loops</h2>
 
         <pre><code class="language-yaml">- id: "process-all-files"
   foreach: "{{`{files}`}}"       # Array to iterate over
@@ -286,7 +304,7 @@
   output: "all_results"      # Array of results
 </code></pre>
 
-        <h2>Error Handling</h2>
+        <h2 id="error-handling">Error Handling</h2>
 
         <table class="data-table">
           <thead>
@@ -315,7 +333,7 @@
           </tbody>
         </table>
 
-        <h2>Validation Rules</h2>
+        <h2 id="validation">Validation Rules</h2>
 
         <p>Before execution, recipes are validated for:</p>
 
@@ -328,7 +346,7 @@
           <li><strong>Foreach validity</strong> - Foreach target is array, sub-steps valid</li>
         </ul>
 
-        <h2>Session Persistence</h2>
+        <h2 id="persistence">Session Persistence</h2>
 
         <h3>Session Directory</h3>
 
@@ -362,7 +380,7 @@ amplifier run "resume recipe session recipe_20260116_143022_a3f2"
 # Resumes from step 3 (last checkpoint was after step 2)
 </code></pre>
 
-        <h2>Limits and Constraints</h2>
+        <h2 id="limits">Limits and Constraints</h2>
 
         <table class="data-table">
           <thead>
@@ -396,7 +414,7 @@ amplifier run "resume recipe session recipe_20260116_143022_a3f2"
           </tbody>
         </table>
 
-        <h2>Variable Syntax</h2>
+        <h2 id="variables">Variable Syntax</h2>
 
         <h3>Template Variables</h3>
 
@@ -456,7 +474,7 @@ steps:
           </tbody>
         </table>
 
-        <h2>Condition Expressions</h2>
+        <h2 id="conditions">Condition Expressions</h2>
 
         <p>Python expressions evaluated before step execution:</p>
 
@@ -492,7 +510,7 @@ condition: "'error' in {{`{message}`}}"
 condition: "{{`{file}`}}.endswith('.py')"
 </code></pre>
 
-        <h2>Advanced Features</h2>
+        <h2 id="advanced">Advanced Features</h2>
 
         <h3>Agent Config Override</h3>
 

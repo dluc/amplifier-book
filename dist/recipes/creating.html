@@ -16,7 +16,22 @@
           This guide walks you through creating your own multi-step AI workflows, from concept to working recipe.
         </p>
 
-        <h2>Step 1: Define Your Workflow</h2>
+        <div class="toc">
+          <strong>Contents:</strong>
+          <ul>
+            <li><a href="#step-1">Step 1: Define Your Workflow</a></li>
+            <li><a href="#step-2">Step 2: Map Data Flow</a></li>
+            <li><a href="#step-3">Step 3: Choose Agents and Step Types</a></li>
+            <li><a href="#step-4">Step 4: Write the YAML</a></li>
+            <li><a href="#step-5">Step 5: Test and Iterate</a></li>
+            <li><a href="#advanced">Advanced Features</a></li>
+            <li><a href="#best-practices">Best Practices</a></li>
+            <li><a href="#patterns">Common Patterns</a></li>
+            <li><a href="#recipe-author">Using Recipe-Author Agent</a></li>
+          </ul>
+        </div>
+
+        <h2 id="step-1">Step 1: Define Your Workflow</h2>
 
         <p>Break down your task into distinct steps. Each step should have a clear purpose.</p>
 
@@ -37,7 +52,7 @@
           <li>Reasonable scope (minutes, not hours)</li>
         </ul>
 
-        <h2>Step 2: Map Data Flow</h2>
+        <h2 id="step-2">Step 2: Map Data Flow</h2>
 
         <p>Identify what each step needs and produces:</p>
 
@@ -60,7 +75,7 @@ Step 4 (report):
 
         <p><strong>Key insight</strong>: Draw arrows showing dependencies. This becomes your recipe structure!</p>
 
-        <h2>Step 3: Choose Agents and Step Types</h2>
+        <h2 id="step-3">Step 3: Choose Agents and Step Types</h2>
 
         <h3>Step Types</h3>
 
@@ -99,7 +114,7 @@ Step 4 (report):
           <li><code>foundation:explorer</code> - Research, discovery</li>
         </ul>
 
-        <h2>Step 4: Write the YAML</h2>
+        <h2 id="step-4">Step 4: Write the YAML</h2>
 
         <p>Translate your plan to recipe format:</p>
 
@@ -164,7 +179,7 @@ steps:
     timeout: 300
 </code></pre>
 
-        <h2>Step 5: Test and Iterate</h2>
+        <h2 id="step-5">Step 5: Test and Iterate</h2>
 
         <h3>Validate Structure</h3>
 
@@ -215,7 +230,7 @@ cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/events.jsonl | jq .
           <li>Add retry logic for flaky operations</li>
         </ul>
 
-        <h2>Advanced: Adding Features</h2>
+        <h2 id="advanced">Advanced: Adding Features</h2>
 
         <h3>Retry Logic</h3>
 
@@ -259,7 +274,7 @@ cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/events.jsonl | jq .
   output: "alternatives"
 </code></pre>
 
-        <h2>Best Practices</h2>
+        <h2 id="best-practices">Best Practices</h2>
 
         <div class="callout">
           <strong>Design Principles</strong>
@@ -276,7 +291,7 @@ cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/events.jsonl | jq .
           </div>
         </div>
 
-        <h2>Common Patterns</h2>
+        <h2 id="patterns">Common Patterns</h2>
 
         <p><strong>Analyze → Improve → Validate</strong></p>
         <pre><code>1. Analyze current state
@@ -299,7 +314,7 @@ cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/events.jsonl | jq .
 4. Generate summary
 </code></pre>
 
-        <h2>Using the Recipe-Author Agent</h2>
+        <h2 id="recipe-author">Using the Recipe-Author Agent</h2>
 
         <p>Let AI help you create recipes:</p>
 

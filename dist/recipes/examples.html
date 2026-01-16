@@ -17,7 +17,20 @@
           processing. Each example introduces new concepts.
         </p>
 
-        <h2>Example 1: Hello Recipes (Simplest)</h2>
+        <div class="toc">
+          <strong>Contents:</strong>
+          <ul>
+            <li><a href="#example-1">Example 1: Hello Recipes (Simplest)</a></li>
+            <li><a href="#example-2">Example 2: Two-Step Analysis</a></li>
+            <li><a href="#example-3">Example 3: Conditional Workflow</a></li>
+            <li><a href="#example-4">Example 4: Approval Gates</a></li>
+            <li><a href="#example-5">Example 5: Parallel Processing</a></li>
+            <li><a href="#progression">Learning Progression Summary</a></li>
+            <li><a href="#official">Official Examples Repository</a></li>
+          </ul>
+        </div>
+
+        <h2 id="example-1">Example 1: Hello Recipes (Simplest)</h2>
 
         <p><strong>Concepts</strong>: Basic structure, context variables, single step</p>
 
@@ -53,7 +66,7 @@ amplifier run "execute hello-recipe.yaml with name=Alice"
 
         <p><strong>Key learning</strong>: Context variables (<code>{{`{name}`}}</code>) are replaced before agent sees prompt.</p>
 
-        <h2>Example 2: Two-Step Analysis (Context Accumulation)</h2>
+        <h2 id="example-2">Example 2: Two-Step Analysis (Context Accumulation)</h2>
 
         <p><strong>Concepts</strong>: Multiple steps, output chaining, context growth</p>
 
@@ -92,7 +105,7 @@ steps:
 
         <p><strong>Key learning</strong>: Each step sees all previous outputs. Context accumulates!</p>
 
-        <h2>Example 3: Conditional Workflow (Branching)</h2>
+        <h2 id="example-3">Example 3: Conditional Workflow (Branching)</h2>
 
         <p><strong>Concepts</strong>: Bash steps, exit codes, conditions, branching logic</p>
 
@@ -138,7 +151,7 @@ steps:
           <li>Branching: Different paths based on runtime values</li>
         </ul>
 
-        <h2>Example 4: Approval Gates (Human-in-Loop)</h2>
+        <h2 id="example-4">Example 4: Approval Gates (Human-in-Loop)</h2>
 
         <p><strong>Concepts</strong>: Safety gates, human approval, skip on denial</p>
 
@@ -191,7 +204,7 @@ steps:
           <li>Human sees AI analysis before decision</li>
         </ul>
 
-        <h2>Example 5: Parallel Processing (Advanced)</h2>
+        <h2 id="example-5">Example 5: Parallel Processing (Advanced)</h2>
 
         <p><strong>Concepts</strong>: Foreach loops, parallel execution, result aggregation</p>
 
@@ -245,7 +258,7 @@ steps:
           <li>Results are arrays of {foreach_var, step_outputs}</li>
         </ul>
 
-        <h2>Learning Progression Summary</h2>
+        <h2 id="progression">Learning Progression Summary</h2>
 
         <table class="data-table">
           <thead>
@@ -284,7 +297,7 @@ steps:
           </tbody>
         </table>
 
-        <h2>Official Examples Repository</h2>
+        <h2 id="official">Official Examples Repository</h2>
 
         <p>The recipes bundle includes 11 working examples:</p>
 

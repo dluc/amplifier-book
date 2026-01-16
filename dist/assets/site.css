@@ -223,6 +223,16 @@ main p {
   border-color: var(--link);
 }
 
+.toc {
+  margin: 20px 0;
+}
+
+.toc strong {
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
 .section-note {
   font-size: 14px;
   color: var(--muted);

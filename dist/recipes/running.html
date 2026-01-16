@@ -17,7 +17,22 @@
           This guide covers all methods with complete input/output handling.
         </p>
 
-        <h2>Method 1: Command Line (CLI)</h2>
+        <div class="toc">
+          <strong>Contents:</strong>
+          <ul>
+            <li><a href="#cli">Method 1: Command Line</a></li>
+            <li><a href="#programmatic">Method 2: Programmatic (Python API)</a></li>
+            <li><a href="#ai">Method 3: Through AI Agents</a></li>
+            <li><a href="#operations">All Tool Operations</a></li>
+            <li><a href="#input-output">Input/Output Details</a></li>
+            <li><a href="#web-app">Web App Integration</a></li>
+            <li><a href="#paths">Path Resolution</a></li>
+            <li><a href="#errors">Error Handling</a></li>
+            <li><a href="#multi-provider">Running with Different AI Providers</a></li>
+          </ul>
+        </div>
+
+        <h2 id="cli">Method 1: Command Line (CLI)</h2>
 
         <h3>Basic Execution</h3>
 
@@ -85,7 +100,7 @@ amplifier run "execute recipe.yaml"
 cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/state.json | jq .context.final_output
 </code></pre>
 
-        <h2>Method 2: Programmatic (Python API)</h2>
+        <h2 id="programmatic">Method 2: Programmatic (Python API)</h2>
 
         <h3>Setup</h3>
 
@@ -247,7 +262,7 @@ else:
     print("Validation failed:", result.error)
 </code></pre>
 
-        <h2>Method 3: Through AI Agents</h2>
+        <h2 id="ai">Method 3: Through AI Agents</h2>
 
         <h3>Conversational Execution</h3>
 
@@ -274,7 +289,7 @@ amplifier run "Run dependency-upgrade recipe for requests package"
 # AI: Uses approve operation to continue
 </code></pre>
 
-        <h2>All Tool Operations</h2>
+        <h2 id="operations">All Tool Operations</h2>
 
         <table class="data-table">
           <thead>
@@ -331,7 +346,7 @@ amplifier run "Run dependency-upgrade recipe for requests package"
           </tbody>
         </table>
 
-        <h2>Input/Output Details</h2>
+        <h2 id="input-output">Input/Output Details</h2>
 
         <h3>Execute Operation</h3>
 
@@ -566,7 +581,7 @@ async def run_code_review(file_path: str):
 asyncio.run(run_code_review("src/auth.py"))
 </code></pre>
 
-        <h2>Web App Integration</h2>
+        <h2 id="web-app">Web App Integration</h2>
 
         <h3>FastAPI Example</h3>
 
@@ -631,7 +646,7 @@ async def resume_session(session_id: str):
         return {"status": "failed", "error": result.error}, 500
 </code></pre>
 
-        <h2>Path Resolution</h2>
+        <h2 id="paths">Path Resolution</h2>
 
         <h3>Recipe Path Options</h3>
 
@@ -673,7 +688,7 @@ recipe_path: "@recipes:examples/code-review.yaml"
 # Resolves to: [recipes-bundle-location]/examples/code-review.yaml
 </code></pre>
 
-        <h2>Error Handling Strategies</h2>
+        <h2 id="errors">Error Handling Strategies</h2>
 
         <h3>Catch and Retry</h3>
 
@@ -709,7 +724,7 @@ else:
         return None  # Complete failure
 </code></pre>
 
-        <h2>Running Same Recipe with Different AI Providers</h2>
+        <h2 id="multi-provider">Running Same Recipe with Different AI Providers</h2>
 
         <p>
           You can run the same recipe with different AI providers (Anthropic, OpenAI, etc.) by changing the bundle or
