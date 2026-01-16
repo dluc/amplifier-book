@@ -153,6 +153,17 @@ function buildNav(containerId, depthPrefix = "") {
       ],
     },
     {
+      title: "Recipes",
+      icon: "book",
+      links: [
+        { href: root + "recipes/index.html", label: "Overview" },
+        { href: root + "recipes/running.html", label: "Running Recipes" },
+        { href: root + "recipes/examples.html", label: "Examples" },
+        { href: root + "recipes/creating.html", label: "Creating Recipes" },
+        { href: root + "recipes/reference.html", label: "Reference" },
+      ],
+    },
+    {
       title: "Components",
       icon: "box",
       links: [

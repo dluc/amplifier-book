@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Running Recipes</title>
+    <link rel="stylesheet" href="/assets/site.css?v=30" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Running Recipes - Complete Guide</h1>
+
+        <p>
+          Recipes can be executed in multiple ways: command line, programmatically in apps, or conversationally through AI.
+          This guide covers all methods with complete input/output handling.
+        </p>
+
+        <h2>Method 1: Command Line (CLI)</h2>
+
+        <h3>Basic Execution</h3>
+
+        <pre><code class="language-bash"># Execute a recipe
+amplifier run "execute recipe-file.yaml"
+
+# With context variables
+amplifier run "execute recipe-file.yaml with var1=value1 var2=value2"
+
+# With bundle
+amplifier run --bundle recipes "execute my-recipe.yaml with input=data"
+</code></pre>
+
+        <h3>Passing Input (Context Variables)</h3>
+
+        <p><strong>Method 1: Inline with <code>with</code></strong></p>
+
+        <pre><code class="language-bash"># Single variable
+amplifier run "execute code-review.yaml with file_path=src/auth.py"
+
+# Multiple variables
+amplifier run "execute analysis.yaml with file=README.md severity=high max_issues=10"
+
+# Quotes for values with spaces
+amplifier run "execute report.yaml with title='Code Review Report'"
+</code></pre>
+
+        <p><strong>Method 2: Environment variables</strong></p>
+
+        <pre><code class="language-bash"># Recipe can access env vars in bash steps
+export PROJECT_NAME="MyProject"
+amplifier run "execute build-recipe.yaml"
+
+# In recipe:
+# - type: bash
+#   command: echo $PROJECT_NAME
+</code></pre>
+
+        <h3>Getting Output</h3>
+
+        <p><strong>Output appears in terminal</strong>:</p>
+
+        <pre><code class="language-bash">amplifier run "execute recipe.yaml with input=value"
+
+# Output shows:
+# [1/3] step-1 (agent)
+# ... agent output ...
+# [2/3] step-2 (agent)
+# ... agent output ...
+# [3/3] step-3 (agent)
+# ... agent output ...
+#
+# Recipe completed successfully
+# Results: {final_output: "..."}
+</code></pre>
+
+        <p><strong>Capture output to file</strong>:</p>
+
+        <pre><code class="language-bash"># Redirect stdout
+amplifier run "execute recipe.yaml" > results.txt
+
+# Or use session files
+amplifier run "execute recipe.yaml"
+# Results in: ~/.amplifier/projects/myproject/recipe-sessions/recipe_*/state.json
+cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/state.json | jq .context.final_output
+</code></pre>
+
+        <h2>Method 2: Programmatic (Python API)</h2>
+
+        <h3>Setup</h3>
+
+        <pre><code class="language-python">from amplifier_foundation.registry import load_bundle
+from pathlib import Path
+
+# Load bundle with tool-recipes
+bundle = await load_bundle("./bundle.md")
+prepared = await bundle.prepare()
+
+# Create session
+session = await prepared.create_session(session_id="recipe-runner")
+
+# Get recipes tool
+recipes_tool = session.coordinator.get("tools", "recipes")
+</code></pre>
+
+        <h3>Execute Recipe</h3>
+
+        <pre><code class="language-python"># Execute with context
+result = await recipes_tool.execute({
+    "operation": "execute",
+    "recipe_path": "workflows/code-review.yaml",
+    "context": {
+        "file_path": "src/auth.py",
+        "severity": "high"
+    }
+})
+
+# Check success
+if result.success:
+    final_context = result.output
+    print("Recipe completed!")
+    print("Results:", final_context)
+else:
+    print("Recipe failed:", result.error)
+</code></pre>
+
+        <h3>Passing Input (Context)</h3>
+
+        <p><strong>Simple values</strong>:</p>
+
+        <pre><code class="language-python">context = {
+    "file_path": "src/main.py",
+    "severity": "high",
+    "max_issues": 10
+}
+
+result = await recipes_tool.execute({
+    "operation": "execute",
+    "recipe_path": "recipe.yaml",
+    "context": context
+})
+</code></pre>
+
+        <p><strong>Complex values</strong>:</p>
+
+        <pre><code class="language-python">context = {
+    "files": ["src/a.py", "src/b.py", "src/c.py"],
+    "config": {
+        "threshold": 80,
+        "strict_mode": True
+    },
+    "metadata": {
+        "project": "MyApp",
+        "version": "1.0.0"
+    }
+}
+
+result = await recipes_tool.execute({
+    "operation": "execute",
+    "recipe_path": "multi-file.yaml",
+    "context": context
+})
+</code></pre>
+
+        <h3>Getting Output</h3>
+
+        <p><strong>From ToolResult</strong>:</p>
+
+        <pre><code class="language-python">result = await recipes_tool.execute({...})
+
+if result.success:
+    # output is the final context dict
+    final_context = result.output
+
+    # Access specific outputs
+    report = final_context.get("final_report")
+    analysis = final_context.get("analysis")
+    score = final_context.get("quality_score")
+
+    # All step outputs are available
+    print("Available outputs:", final_context.keys())
+else:
+    # Check error
+    error_msg = result.error.get("message")
+    error_type = result.error.get("type")
+    print(f"Error: {error_msg}")
+</code></pre>
+
+        <p><strong>From session files</strong>:</p>
+
+        <pre><code class="language-python">import json
+from pathlib import Path
+
+# Session directory
+session_dir = Path("~/.amplifier/projects/myproject/recipe-sessions/recipe_123/").expanduser()
+
+# Load state
+with open(session_dir / "state.json") as f:
+    state = json.load(f)
+
+# Get all outputs
+context = state["context"]
+print("All outputs:", context)
+
+# Get specific output
+final_output = context.get("final_output")
+</code></pre>
+
+        <h3>Resume Interrupted Recipe</h3>
+
+        <pre><code class="language-python"># List sessions
+list_result = await recipes_tool.execute({
+    "operation": "list"
+})
+
+sessions = list_result.output.get("sessions", [])
+print(f"Found {len(sessions)} sessions")
+
+# Resume specific session
+session_id = sessions[0]["session_id"]
+
+result = await recipes_tool.execute({
+    "operation": "resume",
+    "session_id": session_id
+})
+
+# Continues from last checkpoint
+if result.success:
+    print("Recipe resumed and completed")
+    final_context = result.output
+</code></pre>
+
+        <h3>Validate Before Execution</h3>
+
+        <pre><code class="language-python"># Validate recipe structure
+result = await recipes_tool.execute({
+    "operation": "validate",
+    "recipe_path": "my-recipe.yaml"
+})
+
+if result.success:
+    validation = result.output
+    print("Valid:", validation.get("is_valid"))
+    print("Errors:", validation.get("errors", []))
+    print("Warnings:", validation.get("warnings", []))
+else:
+    print("Validation failed:", result.error)
+</code></pre>
+
+        <h2>Method 3: Through AI Agents</h2>
+
+        <h3>Conversational Execution</h3>
+
+        <pre><code class="language-bash"># Ask AI to run a recipe
+amplifier run "Run the code-review recipe on src/auth.py"
+
+# AI will:
+# 1. Recognize recipe intent
+# 2. Call recipes tool with execute operation
+# 3. Pass file_path as context
+# 4. Stream results back to you
+</code></pre>
+
+        <h3>AI Can Handle Approval Gates</h3>
+
+        <pre><code class="language-bash"># Recipe with approval
+amplifier run "Run dependency-upgrade recipe for requests package"
+
+# AI executes recipe
+# When approval gate reached:
+#   AI: "The recipe requires approval to upgrade. Impact: [shows analysis]
+#        Should I proceed?"
+# You: "Yes, go ahead"
+# AI: Uses approve operation to continue
+</code></pre>
+
+        <h2>All Tool Operations</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Operation</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>execute</code></td>
+              <td>recipe_path, context</td>
+              <td>Final context dict</td>
+              <td>Run recipe from start</td>
+            </tr>
+            <tr>
+              <td><code>resume</code></td>
+              <td>session_id</td>
+              <td>Final context dict</td>
+              <td>Resume from checkpoint</td>
+            </tr>
+            <tr>
+              <td><code>list</code></td>
+              <td>none</td>
+              <td>Array of sessions</td>
+              <td>List active sessions</td>
+            </tr>
+            <tr>
+              <td><code>validate</code></td>
+              <td>recipe_path</td>
+              <td>Validation result</td>
+              <td>Check recipe validity</td>
+            </tr>
+            <tr>
+              <td><code>approvals</code></td>
+              <td>none</td>
+              <td>Pending approvals</td>
+              <td>List waiting gates</td>
+            </tr>
+            <tr>
+              <td><code>approve</code></td>
+              <td>session_id, stage_name</td>
+              <td>Approval status</td>
+              <td>Approve and continue</td>
+            </tr>
+            <tr>
+              <td><code>deny</code></td>
+              <td>session_id, stage_name, reason</td>
+              <td>Denial status</td>
+              <td>Deny and stop</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Input/Output Details</h2>
+
+        <h3>Execute Operation</h3>
+
+        <p><strong>Input</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "execute",
+    "recipe_path": "path/to/recipe.yaml",  # Required
+    "context": {                           # Optional
+        "var1": "value1",
+        "var2": 123,
+        "var3": ["a", "b", "c"]
+    }
+}
+</code></pre>
+
+        <p><strong>Output on success</strong>:</p>
+
+        <pre><code class="language-python">{
+    "session_id": "recipe_20260116_143022_a3f2",
+    "recipe_name": "code-review",
+    "completed_steps": ["analyze", "suggest", "validate"],
+    "context": {
+        # Initial context
+        "file_path": "src/auth.py",
+        # Step outputs
+        "analysis": "...",
+        "improvements": "...",
+        "validation": "...",
+        "final_report": "..."  # Final output
+    }
+}
+</code></pre>
+
+        <p><strong>Output on failure</strong>:</p>
+
+        <pre><code class="language-python"># ToolResult with success=False
+{
+    "message": "Step 'analyze' failed: timeout after 300s",
+    "type": "TimeoutError",
+    "session_id": "recipe_...",
+    "failed_step": "analyze"
+}
+</code></pre>
+
+        <h3>Resume Operation</h3>
+
+        <p><strong>Input</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "resume",
+    "session_id": "recipe_20260116_143022_a3f2"  # Required
+}
+</code></pre>
+
+        <p><strong>Output</strong>: Same as execute (final context)</p>
+
+        <h3>List Operation</h3>
+
+        <p><strong>Input</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "list"
+}
+</code></pre>
+
+        <p><strong>Output</strong>:</p>
+
+        <pre><code class="language-python">{
+    "sessions": [
+        {
+            "session_id": "recipe_20260116_143022_a3f2",
+            "recipe_name": "code-review",
+            "created_at": "2026-01-16T14:30:22",
+            "current_step": 2,
+            "total_steps": 4,
+            "status": "in_progress"
+        },
+        {
+            "session_id": "recipe_20260116_150000_b7c3",
+            "recipe_name": "upgrade-deps",
+            "created_at": "2026-01-16T15:00:00",
+            "current_step": 4,
+            "total_steps": 4,
+            "status": "completed"
+        }
+    ],
+    "count": 2
+}
+</code></pre>
+
+        <h3>Validate Operation</h3>
+
+        <p><strong>Input</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "validate",
+    "recipe_path": "my-recipe.yaml"  # Required
+}
+</code></pre>
+
+        <p><strong>Output</strong>:</p>
+
+        <pre><code class="language-python">{
+    "is_valid": false,
+    "errors": [
+        "Step 'analyze' references undefined variable: {{unknown_var}}",
+        "Agent 'invalid:agent' not found in bundle"
+    ],
+    "warnings": [
+        "Step 'optional' has no output - result will not be available to later steps"
+    ]
+}
+</code></pre>
+
+        <h3>Approval Operations</h3>
+
+        <p><strong>List pending approvals</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "approvals"
+}
+
+# Output:
+{
+    "approvals": [
+        {
+            "session_id": "recipe_123",
+            "stage_name": "apply-changes",
+            "approval_prompt": "Proceed with changes to 5 files?",
+            "context_preview": {...}
+        }
+    ]
+}
+</code></pre>
+
+        <p><strong>Approve stage</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "approve",
+    "session_id": "recipe_123",
+    "stage_name": "apply-changes"
+}
+
+# Output:
+{
+    "approved": true,
+    "session_id": "recipe_123",
+    "stage_name": "apply-changes"
+}
+# Recipe continues execution
+</code></pre>
+
+        <p><strong>Deny stage</strong>:</p>
+
+        <pre><code class="language-python">{
+    "operation": "deny",
+    "session_id": "recipe_123",
+    "stage_name": "apply-changes",
+    "reason": "Changes are too risky"  # Optional
+}
+
+# Output:
+{
+    "denied": true,
+    "session_id": "recipe_123",
+    "stage_name": "apply-changes",
+    "reason": "Changes are too risky"
+}
+# Recipe stops or skips remaining (based on on_approval_denied)
+</code></pre>
+
+        <h2>Complete Programmatic Example</h2>
+
+        <pre><code class="language-python">import asyncio
+from pathlib import Path
+from amplifier_foundation.registry import load_bundle
+
+async def run_code_review(file_path: str):
+    """Execute code review recipe programmatically."""
+
+    # 1. Load bundle
+    bundle = await load_bundle("./bundle.md")
+    prepared = await bundle.prepare()
+
+    # 2. Create session
+    session = await prepared.create_session(session_id="code-reviewer")
+
+    # 3. Get recipes tool
+    recipes_tool = session.coordinator.get("tools", "recipes")
+
+    # 4. Execute recipe
+    result = await recipes_tool.execute({
+        "operation": "execute",
+        "recipe_path": "workflows/code-review.yaml",
+        "context": {
+            "file_path": file_path,
+            "severity": "high"
+        }
+    })
+
+    # 5. Handle result
+    if result.success:
+        context = result.output
+
+        # Extract specific outputs
+        analysis = context.get("analysis")
+        improvements = context.get("improvements")
+        final_report = context.get("final_report")
+
+        print("=== Code Review Results ===")
+        print(f"File: {file_path}")
+        print(f"\nAnalysis:\n{analysis}")
+        print(f"\nImprovements:\n{improvements}")
+        print(f"\nFinal Report:\n{final_report}")
+
+        return final_report
+    else:
+        error = result.error
+        print(f"Recipe failed: {error.get('message')}")
+
+        # Check if partially completed
+        session_id = error.get("session_id")
+        if session_id:
+            print(f"Session saved: {session_id}")
+            print("Can resume with:")
+            print(f'  recipes.execute({{"operation": "resume", "session_id": "{session_id}"}})')
+
+        return None
+
+# Run it
+asyncio.run(run_code_review("src/auth.py"))
+</code></pre>
+
+        <h2>Web App Integration</h2>
+
+        <h3>FastAPI Example</h3>
+
+        <pre><code class="language-python">from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# Global recipes tool (set in startup)
+recipes_tool = None
+
+@app.on_event("startup")
+async def startup():
+    global recipes_tool
+    # Initialize Amplifier and get tool
+    bundle = await load_bundle("./bundle.md")
+    prepared = await bundle.prepare()
+    session = await prepared.create_session(session_id="api-runner")
+    recipes_tool = session.coordinator.get("tools", "recipes")
+
+class RecipeRequest(BaseModel):
+    recipe_path: str
+    context: dict
+
+@app.post("/api/run-recipe")
+async def run_recipe(req: RecipeRequest):
+    """Execute recipe via API."""
+    result = await recipes_tool.execute({
+        "operation": "execute",
+        "recipe_path": req.recipe_path,
+        "context": req.context
+    })
+
+    if result.success:
+        return {
+            "status": "completed",
+            "results": result.output
+        }
+    else:
+        return {
+            "status": "failed",
+            "error": result.error
+        }, 500
+
+@app.get("/api/sessions")
+async def list_sessions():
+    """List recipe sessions."""
+    result = await recipes_tool.execute({"operation": "list"})
+    return result.output
+
+@app.post("/api/resume/{session_id}")
+async def resume_session(session_id: str):
+    """Resume interrupted recipe."""
+    result = await recipes_tool.execute({
+        "operation": "resume",
+        "session_id": session_id
+    })
+
+    if result.success:
+        return {"status": "completed", "results": result.output}
+    else:
+        return {"status": "failed", "error": result.error}, 500
+</code></pre>
+
+        <h2>Path Resolution</h2>
+
+        <h3>Recipe Path Options</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Path Type</th>
+              <th>Example</th>
+              <th>Resolution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Relative</td>
+              <td><code>recipe.yaml</code></td>
+              <td>Relative to current working directory</td>
+            </tr>
+            <tr>
+              <td>Absolute</td>
+              <td><code>/home/user/recipe.yaml</code></td>
+              <td>Exact path</td>
+            </tr>
+            <tr>
+              <td>@mention</td>
+              <td><code>@recipes:examples/review.yaml</code></td>
+              <td>From recipes bundle context</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>@mention resolution</strong>: References files in bundle context directories</p>
+
+        <pre><code class="language-yaml"># In bundle
+tools:
+  - module: tool-recipes
+
+# Can reference
+recipe_path: "@recipes:examples/code-review.yaml"
+# Resolves to: [recipes-bundle-location]/examples/code-review.yaml
+</code></pre>
+
+        <h2>Error Handling Strategies</h2>
+
+        <h3>Catch and Retry</h3>
+
+        <pre><code class="language-python">for attempt in range(3):
+    result = await recipes_tool.execute({...})
+
+    if result.success:
+        break
+
+    if attempt < 2:
+        print(f"Attempt {attempt + 1} failed, retrying...")
+        await asyncio.sleep(5)
+    else:
+        print("All attempts failed")
+        raise Exception(result.error)
+</code></pre>
+
+        <h3>Graceful Degradation</h3>
+
+        <pre><code class="language-python">result = await recipes_tool.execute({...})
+
+if result.success:
+    return result.output.get("final_output")
+else:
+    # Check if partially completed
+    session_id = result.error.get("session_id")
+
+    if session_id:
+        # Get partial results from session
+        state = load_session_state(session_id)
+        return state["context"]  # Partial results
+    else:
+        return None  # Complete failure
+</code></pre>
+
+        <h2>Best Practices</h2>
+
+        <div class="callout">
+          <strong>Input Handling</strong>
+          <div>
+            <ul>
+              <li>Validate required context vars before execution</li>
+              <li>Use validate operation to check recipe structure</li>
+              <li>Provide sensible defaults in recipe context dict</li>
+              <li>Document required vs optional inputs in recipe description</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Output Handling</strong>
+          <div>
+            <ul>
+              <li>Always check <code>result.success</code> before accessing output</li>
+              <li>Handle errors gracefully (retry, partial results, user notification)</li>
+              <li>Use specific output keys (e.g., <code>final_report</code>) not generic names</li>
+              <li>Consider output size limits (10KB per step output)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Troubleshooting</h2>
+
+        <h3>Recipe Won't Execute</h3>
+
+        <p><strong>Check</strong>:</p>
+        <ul>
+          <li>Recipe path correct and file exists</li>
+          <li>YAML syntax valid</li>
+          <li>Required context variables provided</li>
+          <li>tool-recipes loaded in bundle</li>
+        </ul>
+
+        <h3>Can't Get Output</h3>
+
+        <p><strong>Check</strong>:</p>
+        <ul>
+          <li>Step has <code>output</code> field set</li>
+          <li>Accessing correct key from context</li>
+          <li>Step actually executed (not skipped by condition)</li>
+          <li>Output not truncated (check session files for full data)</li>
+        </ul>
+
+        <h3>Session Not Resuming</h3>
+
+        <p><strong>Check</strong>:</p>
+        <ul>
+          <li>Session ID correct (get from list operation)</li>
+          <li>Session not auto-deleted (7 day default)</li>
+          <li>state.json exists in session directory</li>
+          <li>Project path matches (sessions are project-scoped)</li>
+        </ul>
+
+        <h2>References</h2>
+
+        <ul>
+          <li><a href="/recipes/examples.html">See examples</a></li>
+          <li><a href="/recipes/creating.html">Learn to create recipes</a></li>
+          <li><a href="/recipes/reference.html">Complete schema reference</a></li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-bundle-recipes" target="_blank" rel="noreferrer">
+              Official repository
+            </a>
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=30"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

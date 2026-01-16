@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Creating Recipes</title>
+    <link rel="stylesheet" href="/assets/site.css?v=30" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Creating Recipes - Step-by-Step Guide</h1>
+
+        <p>
+          This guide walks you through creating your own multi-step AI workflows, from concept to working recipe.
+        </p>
+
+        <h2>Step 1: Define Your Workflow</h2>
+
+        <p>Break down your task into distinct steps. Each step should have a clear purpose.</p>
+
+        <p><strong>Example task</strong>: Code review with improvements</p>
+
+        <pre><code>Your mental model:
+1. Analyze the code for issues
+2. Suggest concrete improvements
+3. Validate suggestions are feasible
+4. Format as markdown report
+</code></pre>
+
+        <p><strong>Good step characteristics</strong>:</p>
+        <ul>
+          <li>Single responsibility (does one thing)</li>
+          <li>Clear input/output</li>
+          <li>Independent (could run alone if given inputs)</li>
+          <li>Reasonable scope (minutes, not hours)</li>
+        </ul>
+
+        <h2>Step 2: Map Data Flow</h2>
+
+        <p>Identify what each step needs and produces:</p>
+
+        <pre><code>Step 1 (analyze):
+  Needs: file_path (from context)
+  Produces: issues
+
+Step 2 (suggest):
+  Needs: issues (from step 1)
+  Produces: improvements
+
+Step 3 (validate):
+  Needs: improvements (from step 2)
+  Produces: validation
+
+Step 4 (report):
+  Needs: issues, improvements, validation (from steps 1-3)
+  Produces: final_report
+</code></pre>
+
+        <p><strong>Key insight</strong>: Draw arrows showing dependencies. This becomes your recipe structure!</p>
+
+        <h2>Step 3: Choose Agents and Step Types</h2>
+
+        <h3>Step Types</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>When to Use</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>agent</code></td>
+              <td>Analysis, reasoning, generation</td>
+              <td>Code review, brainstorming, writing</td>
+            </tr>
+            <tr>
+              <td><code>bash</code></td>
+              <td>File ops, tests, builds</td>
+              <td>Run pytest, git status, file checks</td>
+            </tr>
+            <tr>
+              <td><code>recipe</code></td>
+              <td>Reusable sub-workflows</td>
+              <td>Call shared component analyzer</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Agent selection</strong>:</p>
+        <ul>
+          <li><code>foundation:zen-architect</code> - Design, analysis, review</li>
+          <li><code>foundation:modular-builder</code> - Code generation</li>
+          <li><code>foundation:bug-hunter</code> - Debugging, troubleshooting</li>
+          <li><code>foundation:explorer</code> - Research, discovery</li>
+        </ul>
+
+        <h2>Step 4: Write the YAML</h2>
+
+        <p>Translate your plan to recipe format:</p>
+
+        <pre><code class="language-yaml">name: "code-review-flow"
+description: "Multi-stage code review with validation"
+version: "1.0.0"
+author: "Your Name"
+tags: ["code-review", "quality"]
+
+context:
+  file_path: ""  # Required input (empty = must be provided)
+
+steps:
+  - id: "analyze"
+    agent: "foundation:zen-architect"
+    mode: "ANALYZE"
+    prompt: |
+      Analyze {{`{file_path}`}} for:
+      - Code quality issues
+      - Potential bugs
+      - Performance concerns
+    output: "issues"
+    timeout: 300
+
+  - id: "suggest-improvements"
+    agent: "foundation:zen-architect"
+    mode: "ARCHITECT"
+    prompt: |
+      Given these issues:
+      {{`{issues}`}}
+
+      Suggest concrete, actionable improvements for {{`{file_path}`}}.
+    output: "improvements"
+    timeout: 300
+
+  - id: "validate-feasibility"
+    agent: "foundation:zen-architect"
+    mode: "REVIEW"
+    prompt: |
+      Review these improvement suggestions:
+      {{`{improvements}`}}
+
+      For each, assess:
+      - Feasibility (easy/medium/hard)
+      - Breaking change risk
+      - Testing requirements
+    output: "validation"
+    timeout: 300
+
+  - id: "create-report"
+    agent: "foundation:modular-builder"
+    prompt: |
+      Create a markdown code review report:
+
+      File: {{`{file_path}`}}
+      Issues Found: {{`{issues}`}}
+      Suggested Improvements: {{`{improvements}`}}
+      Validation: {{`{validation}`}}
+
+      Format professionally with clear sections.
+    output: "final_report"
+    timeout: 300
+</code></pre>
+
+        <h2>Step 5: Test and Iterate</h2>
+
+        <h3>Validate Structure</h3>
+
+        <pre><code class="language-bash"># Check YAML syntax and structure
+amplifier run "validate recipe code-review-flow.yaml"
+</code></pre>
+
+        <p>Validation checks:</p>
+        <ul>
+          <li>✅ Required fields present</li>
+          <li>✅ Variable references valid</li>
+          <li>✅ Agents exist in bundle</li>
+          <li>✅ No circular dependencies</li>
+        </ul>
+
+        <h3>Test Execution</h3>
+
+        <pre><code class="language-bash"># Run with a real file
+amplifier run "execute code-review-flow.yaml with file_path=src/auth.py"
+
+# Watch it execute:
+# [1/4] analyze (agent)
+# [2/4] suggest-improvements (agent)
+# [3/4] validate-feasibility (agent)
+# [4/4] create-report (agent)
+</code></pre>
+
+        <h3>Debug if Needed</h3>
+
+        <pre><code class="language-bash"># Check session state
+ls ~/.amplifier/projects/*/recipe-sessions/
+
+# View state
+cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/state.json | jq .
+
+# View events
+cat ~/.amplifier/projects/*/recipe-sessions/recipe_*/events.jsonl | jq .
+</code></pre>
+
+        <h3>Iterate</h3>
+
+        <p>Common refinements:</p>
+        <ul>
+          <li>Adjust timeouts (too short = failures)</li>
+          <li>Refine prompts (be specific about format/requirements)</li>
+          <li>Add error handling (<code>on_error: continue</code> for optional steps)</li>
+          <li>Add approval gates before destructive operations</li>
+          <li>Add retry logic for flaky operations</li>
+        </ul>
+
+        <h2>Advanced: Adding Features</h2>
+
+        <h3>Retry Logic</h3>
+
+        <pre><code class="language-yaml">- id: "api-call"
+  agent: "foundation:web-research"
+  prompt: "Fetch data from API"
+  retry:
+    max_attempts: 5
+    backoff: "exponential"
+    initial_delay: 5
+    max_delay: 300
+  output: "api_data"
+</code></pre>
+
+        <h3>Conditional Steps</h3>
+
+        <pre><code class="language-yaml">- id: "check-tests-exist"
+  type: "bash"
+  command: "test -d tests/"
+  output_exit_code: "has_tests"
+  on_error: "continue"
+
+- id: "run-tests"
+  condition: "{{`{has_tests}`}} == '0'"
+  type: "bash"
+  command: "pytest tests/"
+  output: "test_results"
+</code></pre>
+
+        <h3>Agent Configuration Override</h3>
+
+        <pre><code class="language-yaml">- id: "creative-brainstorm"
+  agent: "foundation:zen-architect"
+  agent_config:
+    providers:
+      - module: "provider-anthropic"
+        config:
+          temperature: 0.9       # More creative
+          model: "claude-opus-4"  # More capable
+  prompt: "Brainstorm 10 alternative approaches"
+  output: "alternatives"
+</code></pre>
+
+        <h2>Best Practices</h2>
+
+        <div class="callout">
+          <strong>Design Principles</strong>
+          <div>
+            <ul>
+              <li><strong>Small steps</strong> - Each does one thing well</li>
+              <li><strong>Descriptive IDs</strong> - <code>analyze-security</code> not <code>step1</code></li>
+              <li><strong>Clear outputs</strong> - Name what the data represents</li>
+              <li><strong>Handle errors</strong> - Decide: critical or optional?</li>
+              <li><strong>Set timeouts</strong> - Realistic per-step estimates</li>
+              <li><strong>Use approval gates</strong> - Before destructive operations</li>
+              <li><strong>Document context</strong> - Comment required inputs</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Common Patterns</h2>
+
+        <p><strong>Analyze → Improve → Validate</strong></p>
+        <pre><code>1. Analyze current state
+2. Generate improvements
+3. Validate improvements
+4. Report/apply
+</code></pre>
+
+        <p><strong>Plan → Approve → Execute</strong></p>
+        <pre><code>1. Plan changes
+2. Human approval gate
+3. Execute if approved
+4. Verify results
+</code></pre>
+
+        <p><strong>Collect → Process → Aggregate</strong></p>
+        <pre><code>1. Foreach to collect data
+2. Process each item
+3. Aggregate results
+4. Generate summary
+</code></pre>
+
+        <h2>Using the Recipe-Author Agent</h2>
+
+        <p>Let AI help you create recipes:</p>
+
+        <pre><code class="language-bash">amplifier run --bundle git+https://github.com/microsoft/amplifier-bundle-recipes@main \
+  "I need a recipe for upgrading Python dependencies safely"
+</code></pre>
+
+        <p>The recipe-author agent will:</p>
+        <ol>
+          <li>Ask about your workflow</li>
+          <li>Identify steps and dependencies</li>
+          <li>Generate YAML specification</li>
+          <li>Validate structure</li>
+          <li>Save recipe file</li>
+        </ol>
+
+        <h2>Next Steps</h2>
+
+        <ul>
+          <li><a href="/recipes/examples.html">Study more examples</a></li>
+          <li><a href="/recipes/reference.html">See complete schema reference</a></li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-bundle-recipes/blob/main/docs/BEST_PRACTICES.md" target="_blank" rel="noreferrer">
+              Read best practices guide
+            </a>
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=30"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

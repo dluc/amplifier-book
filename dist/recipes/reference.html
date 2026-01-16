@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recipe Reference</title>
+    <link rel="stylesheet" href="/assets/site.css?v=30" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Recipe Schema Reference</h1>
+
+        <p>
+          Complete reference for recipe YAML structure, fields, validation rules, and error handling.
+        </p>
+
+        <h2>Recipe Structure</h2>
+
+        <h3>Top-Level Fields</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>name</code></td>
+              <td>Yes</td>
+              <td>string</td>
+              <td>Unique recipe identifier</td>
+            </tr>
+            <tr>
+              <td><code>description</code></td>
+              <td>Yes</td>
+              <td>string</td>
+              <td>What the recipe does</td>
+            </tr>
+            <tr>
+              <td><code>version</code></td>
+              <td>Yes</td>
+              <td>string</td>
+              <td>Semantic version (1.0.0)</td>
+            </tr>
+            <tr>
+              <td><code>context</code></td>
+              <td>No</td>
+              <td>dict</td>
+              <td>Initial variables</td>
+            </tr>
+            <tr>
+              <td><code>steps</code></td>
+              <td>Yes</td>
+              <td>array</td>
+              <td>List of steps to execute</td>
+            </tr>
+            <tr>
+              <td><code>author</code></td>
+              <td>No</td>
+              <td>string</td>
+              <td>Recipe creator</td>
+            </tr>
+            <tr>
+              <td><code>tags</code></td>
+              <td>No</td>
+              <td>array</td>
+              <td>Categorization tags</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Step Types</h2>
+
+        <h3>Agent Step</h3>
+
+        <p>Spawns an AI sub-agent (default type).</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>id</code></td>
+              <td>Yes</td>
+              <td>Unique step identifier</td>
+            </tr>
+            <tr>
+              <td><code>agent</code></td>
+              <td>Yes</td>
+              <td>Agent name (e.g., "foundation:zen-architect")</td>
+            </tr>
+            <tr>
+              <td><code>prompt</code></td>
+              <td>Yes</td>
+              <td>What to ask the agent (supports <code>{{`{vars}`}}</code>)</td>
+            </tr>
+            <tr>
+              <td><code>output</code></td>
+              <td>No</td>
+              <td>Variable name to store result</td>
+            </tr>
+            <tr>
+              <td><code>mode</code></td>
+              <td>No</td>
+              <td>Agent mode hint (ANALYZE, ARCHITECT, REVIEW, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>timeout</code></td>
+              <td>No</td>
+              <td>Seconds before timeout (default: 600)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Bash Step</h3>
+
+        <p>Executes shell command (no LLM overhead).</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>type</code></td>
+              <td>Yes</td>
+              <td>Must be "bash"</td>
+            </tr>
+            <tr>
+              <td><code>command</code></td>
+              <td>Yes</td>
+              <td>Shell command (supports <code>{{`{vars}`}}</code>)</td>
+            </tr>
+            <tr>
+              <td><code>output</code></td>
+              <td>No</td>
+              <td>Stores stdout</td>
+            </tr>
+            <tr>
+              <td><code>output_exit_code</code></td>
+              <td>No</td>
+              <td>Stores exit code (for conditions)</td>
+            </tr>
+            <tr>
+              <td><code>env</code></td>
+              <td>No</td>
+              <td>Environment variables dict</td>
+            </tr>
+            <tr>
+              <td><code>working_dir</code></td>
+              <td>No</td>
+              <td>Directory to run command in</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Recipe Step</h3>
+
+        <p>Invokes sub-recipe (composition).</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>type</code></td>
+              <td>Yes</td>
+              <td>Must be "recipe"</td>
+            </tr>
+            <tr>
+              <td><code>recipe</code></td>
+              <td>Yes</td>
+              <td>Path to sub-recipe YAML</td>
+            </tr>
+            <tr>
+              <td><code>context</code></td>
+              <td>No</td>
+              <td>Variables to pass to sub-recipe</td>
+            </tr>
+            <tr>
+              <td><code>output</code></td>
+              <td>No</td>
+              <td>Stores sub-recipe result</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Common Fields (All Step Types)</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>condition</code></td>
+              <td>string</td>
+              <td>none</td>
+              <td>Python expression - skip if false</td>
+            </tr>
+            <tr>
+              <td><code>on_error</code></td>
+              <td>enum</td>
+              <td>fail</td>
+              <td>fail, continue, skip_remaining</td>
+            </tr>
+            <tr>
+              <td><code>requires_approval</code></td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Pause for human approval</td>
+            </tr>
+            <tr>
+              <td><code>approval_prompt</code></td>
+              <td>string</td>
+              <td>none</td>
+              <td>Message shown to human</td>
+            </tr>
+            <tr>
+              <td><code>on_approval_denied</code></td>
+              <td>enum</td>
+              <td>fail</td>
+              <td>What to do if human denies</td>
+            </tr>
+            <tr>
+              <td><code>retry</code></td>
+              <td>object</td>
+              <td>none</td>
+              <td>Retry configuration</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Retry Configuration</h2>
+
+        <pre><code class="language-yaml">retry:
+  max_attempts: 5            # Total attempts (default: 1)
+  backoff: "exponential"     # exponential, linear, or constant
+  initial_delay: 5           # Seconds before first retry
+  max_delay: 300             # Max seconds between retries
+</code></pre>
+
+        <h3>Backoff Strategies</h3>
+
+        <ul>
+          <li><strong>exponential</strong>: 5s → 10s → 20s → 40s (doubles each time)</li>
+          <li><strong>linear</strong>: 5s → 10s → 15s → 20s (adds initial_delay)</li>
+          <li><strong>constant</strong>: 5s → 5s → 5s (same delay)</li>
+        </ul>
+
+        <h2>Foreach Loops</h2>
+
+        <pre><code class="language-yaml">- id: "process-all-files"
+  foreach: "{{`{files}`}}"       # Array to iterate over
+  foreach_var: "file"        # Variable name in sub-steps
+  max_concurrent: 3          # Parallel execution limit
+  steps:                     # Sub-steps (run for each item)
+    - id: "process"
+      prompt: "Process {{`{file}`}}"
+      output: "result"
+  output: "all_results"      # Array of results
+</code></pre>
+
+        <h2>Error Handling</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>on_error</th>
+              <th>Behavior</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>fail</code></td>
+              <td>Stop recipe, raise error</td>
+              <td>Critical steps (default)</td>
+            </tr>
+            <tr>
+              <td><code>continue</code></td>
+              <td>Log error, proceed to next step</td>
+              <td>Optional enhancements</td>
+            </tr>
+            <tr>
+              <td><code>skip_remaining</code></td>
+              <td>Skip all remaining steps</td>
+              <td>Approval denial, unrecoverable state</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Validation Rules</h2>
+
+        <p>Before execution, recipes are validated for:</p>
+
+        <ul>
+          <li><strong>Structure</strong> - Required fields present, types correct</li>
+          <li><strong>Variable references</strong> - All <code>{{`{variables}`}}</code> defined or will be defined</li>
+          <li><strong>Agent availability</strong> - Referenced agents exist in bundle</li>
+          <li><strong>Step dependencies</strong> - No undefined variable access</li>
+          <li><strong>Recursion limits</strong> - Max depth: 5, max total steps: 100</li>
+          <li><strong>Foreach validity</strong> - Foreach target is array, sub-steps valid</li>
+        </ul>
+
+        <h2>Session Persistence</h2>
+
+        <h3>Session Directory</h3>
+
+        <pre><code>~/.amplifier/projects/&lt;project&gt;/recipe-sessions/
+  recipe_20260116_143022_a3f2/
+    state.json        # Current state and outputs
+    recipe.yaml       # Recipe being executed
+    events.jsonl      # Execution event log
+</code></pre>
+
+        <h3>State Structure</h3>
+
+        <pre><code class="language-json">{
+  "session_id": "recipe_20260116_143022_a3f2",
+  "recipe_name": "code-review-flow",
+  "current_step_index": 2,
+  "context": {
+    "file_path": "src/auth.py",
+    "issues": "...",
+    "improvements": "..."
+  },
+  "completed_steps": ["analyze", "suggest-improvements"]
+}
+</code></pre>
+
+        <h3>Resumption</h3>
+
+        <pre><code class="language-bash"># Resume from checkpoint
+amplifier run "resume recipe session recipe_20260116_143022_a3f2"
+
+# Resumes from step 3 (last checkpoint was after step 2)
+</code></pre>
+
+        <h2>Limits and Constraints</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Limit</th>
+              <th>Default</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Max recursion depth</td>
+              <td>5</td>
+              <td>Prevent infinite sub-recipe loops</td>
+            </tr>
+            <tr>
+              <td>Max total steps</td>
+              <td>100</td>
+              <td>Prevent runaway execution</td>
+            </tr>
+            <tr>
+              <td>Max output size</td>
+              <td>10KB</td>
+              <td>Prevent context overflow</td>
+            </tr>
+            <tr>
+              <td>Session auto-cleanup</td>
+              <td>7 days</td>
+              <td>Prevent accumulation of stale sessions</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Variable Syntax</h2>
+
+        <h3>Template Variables</h3>
+
+        <p>Access context in prompts/commands:</p>
+
+        <pre><code class="language-yaml">context:
+  file_path: "src/auth.py"
+  severity: "high"
+
+steps:
+  - prompt: "Scan {{`{file_path}`}} for {{`{severity}`}} issues"
+    # Expands to: "Scan src/auth.py for high issues"
+</code></pre>
+
+        <h3>Nested Access</h3>
+
+        <pre><code class="language-yaml"># Access object properties
+{{`{result.stdout}`}}
+{{`{validation.score}`}}
+{{`{step.index}`}}
+
+# Access array elements
+{{`{files[0]}`}}
+{{`{results[2].output}`}}
+</code></pre>
+
+        <h3>Built-in Variables</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>{{`{recipe.name}`}}</code></td>
+              <td>Current recipe name</td>
+            </tr>
+            <tr>
+              <td><code>{{`{recipe.version}`}}</code></td>
+              <td>Current recipe version</td>
+            </tr>
+            <tr>
+              <td><code>{{`{session.id}`}}</code></td>
+              <td>Current session ID</td>
+            </tr>
+            <tr>
+              <td><code>{{`{step.id}`}}</code></td>
+              <td>Current step ID</td>
+            </tr>
+            <tr>
+              <td><code>{{`{step.index}`}}</code></td>
+              <td>Current step index (0-based)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Condition Expressions</h2>
+
+        <p>Python expressions evaluated before step execution:</p>
+
+        <h3>Comparison Operators</h3>
+
+        <pre><code class="language-yaml"># Equality
+condition: "{{`{status}`}} == 'success'"
+condition: "{{`{code}`}} != 0"
+
+# Comparison
+condition: "{{`{score}`}} > 80"
+condition: "{{`{count}`}} &lt;= 10"
+
+# Logical
+condition: "{{`{enabled}`}} and {{`{ready}`}}"
+condition: "{{`{failed}`}} or {{`{skipped}`}}"
+condition: "not {{`{disabled}`}}"
+
+# Complex
+condition: "({{`{score}`}} > 50) and ({{`{status}`}} == 'pass')"
+</code></pre>
+
+        <h3>Type Checking</h3>
+
+        <pre><code class="language-yaml"># Check if defined
+condition: "{{`{optional_var}`}} is not None"
+
+# Check type
+condition: "isinstance({{`{data}`}}, list)"
+
+# String operations
+condition: "'error' in {{`{message}`}}"
+condition: "{{`{file}`}}.endswith('.py')"
+</code></pre>
+
+        <h2>Advanced Features</h2>
+
+        <h3>Agent Config Override</h3>
+
+        <pre><code class="language-yaml">- id: "special-step"
+  agent: "foundation:zen-architect"
+  agent_config:
+    providers:
+      - module: "provider-anthropic"
+        config:
+          model: "claude-opus-4"
+          temperature: 0.8
+    tools:
+      - tool-filesystem
+      - tool-bash
+  prompt: "..."
+</code></pre>
+
+        <h3>Recursion Limits Override</h3>
+
+        <pre><code class="language-yaml">- id: "call-sub-recipe"
+  type: "recipe"
+  recipe: "complex-workflow.yaml"
+  recursion_config:
+    max_depth: 10        # Allow deeper nesting
+    max_total_steps: 200 # Allow more steps
+</code></pre>
+
+        <h2>Troubleshooting</h2>
+
+        <h3>Common Errors</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Error</th>
+              <th>Cause</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Variable not found</td>
+              <td><code>{{`{undefined}`}}</code> not in context</td>
+              <td>Check spelling, ensure step that creates it ran first</td>
+            </tr>
+            <tr>
+              <td>Agent not found</td>
+              <td>Invalid agent name</td>
+              <td>Check available agents, ensure bundle includes them</td>
+            </tr>
+            <tr>
+              <td>Step timeout</td>
+              <td>Exceeded timeout limit</td>
+              <td>Increase timeout or simplify prompt</td>
+            </tr>
+            <tr>
+              <td>Recursion limit</td>
+              <td>Too deep sub-recipe nesting</td>
+              <td>Flatten structure or increase max_depth</td>
+            </tr>
+            <tr>
+              <td>Validation failed</td>
+              <td>Invalid YAML structure</td>
+              <td>Check syntax, required fields, variable references</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Complete Example</h2>
+
+        <p>Real-world recipe showing all major features:</p>
+
+        <pre><code class="language-yaml">name: "comprehensive-workflow"
+description: "Demonstrates all recipe features"
+version: "1.0.0"
+author: "Amplifier Team"
+tags: ["example", "comprehensive"]
+
+context:
+  target_file: "src/main.py"
+  severity_threshold: 5
+
+steps:
+  # Step 1: Check preconditions (bash)
+  - id: "verify-file-exists"
+    type: "bash"
+    command: "test -f {{`{target_file}`}}"
+    output_exit_code: "file_exists"
+    on_error: "continue"
+
+  # Step 2: Conditional abort
+  - id: "abort-if-missing"
+    condition: "{{`{file_exists}`}} != '0'"
+    agent: "foundation:zen-architect"
+    prompt: "File {{`{target_file}`}} not found. Recipe cannot continue."
+    on_error: "skip_remaining"
+
+  # Step 3: Analysis with retry
+  - id: "analyze-code"
+    agent: "foundation:bug-hunter"
+    prompt: "Analyze {{`{target_file}`}} for bugs and security issues"
+    output: "analysis"
+    timeout: 600
+    retry:
+      max_attempts: 3
+      backoff: "exponential"
+
+  # Step 4: Approval gate
+  - id: "review-gate"
+    requires_approval: true
+    approval_prompt: |
+      Analysis complete: {{`{analysis}`}}
+
+      Proceed with automated fixes?
+    on_approval_denied: "skip_remaining"
+
+  # Step 5: Apply fixes (only if approved)
+  - id: "apply-fixes"
+    agent: "foundation:modular-builder"
+    agent_config:
+      providers:
+        - module: "provider-anthropic"
+          config:
+            model: "claude-opus-4"
+    prompt: "Apply fixes for issues in {{`{analysis}`}}"
+    output: "fixes_applied"
+
+  # Step 6: Verify
+  - id: "run-tests"
+    type: "bash"
+    command: "pytest tests/ -v"
+    output: "test_results"
+    on_error: "continue"  # Optional verification
+
+  # Step 7: Generate report
+  - id: "create-report"
+    agent: "foundation:modular-builder"
+    prompt: |
+      Generate final report:
+
+      File: {{`{target_file}`}}
+      Analysis: {{`{analysis}`}}
+      Fixes: {{`{fixes_applied}`}}
+      Tests: {{`{test_results}`}}
+    output: "final_report"
+</code></pre>
+
+        <h2>Official Documentation</h2>
+
+        <ul>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-bundle-recipes/blob/main/docs/RECIPE_SCHEMA.md" target="_blank" rel="noreferrer">
+              Complete Schema Reference (2337 lines)
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-bundle-recipes/blob/main/docs/BEST_PRACTICES.md" target="_blank" rel="noreferrer">
+              Best Practices Guide
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-bundle-recipes/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noreferrer">
+              Troubleshooting Guide
+            </a>
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=30"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

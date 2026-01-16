@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recipes Overview</title>
+    <link rel="stylesheet" href="/assets/site.css?v=30" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Recipes: Multi-Step AI Workflows</h1>
+
+        <p>
+          Recipes are <strong>declarative YAML specifications</strong> that orchestrate multi-step AI agent workflows.
+          Define once, run anywhere, resume anytime.
+        </p>
+
+        <div class="callout ok">
+          <strong>What Makes Recipes Powerful</strong>
+          <div>
+            <ul>
+              <li><strong>Declarative</strong> - Specify what should happen, not how</li>
+              <li><strong>Sequential</strong> - Steps execute in order, building on each other</li>
+              <li><strong>Resumable</strong> - Automatic checkpointing, resume after interruption</li>
+              <li><strong>Context-aware</strong> - Later steps access earlier results</li>
+              <li><strong>Agent delegation</strong> - Each step spawns specialized sub-agent</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Quick Example</h2>
+
+        <pre><code class="language-yaml">name: "code-review"
+version: "1.0.0"
+
+context:
+  file_path: "src/auth.py"
+
+steps:
+  - id: "analyze"
+    agent: "foundation:zen-architect"
+    prompt: "Analyze {{`{file_path}`}}"
+    output: "issues"
+
+  - id: "suggest"
+    prompt: "Given {{`{issues}`}}, suggest fixes"
+    output: "improvements"
+</code></pre>
+
+        <p><strong>Run it</strong>:</p>
+        <pre><code>amplifier run "execute code-review.yaml with file_path=src/auth.py"</code></pre>
+
+        <h2>When to Use Recipes</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Use Recipes For</th>
+              <th>Don't Use For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Repeatable multi-step workflows</td>
+              <td>Simple one-off questions</td>
+            </tr>
+            <tr>
+              <td>Complex orchestration (multiple agents)</td>
+              <td>Single-agent tasks</td>
+            </tr>
+            <tr>
+              <td>Long-running processes</td>
+              <td>Quick exploratory work</td>
+            </tr>
+            <tr>
+              <td>Team shared workflows</td>
+              <td>Dynamic/unpredictable paths</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Decision rule</strong>: If your workflow has 3+ distinct steps that build on each other, use a recipe.</p>
+
+        <h2>Core Concepts</h2>
+
+        <h3>Sequential Execution</h3>
+
+        <p>
+          Recipes enforce strict sequential order through a Python for loop. Each step completes before the next begins.
+          This ensures predictable execution and proper context accumulation.
+        </p>
+
+        <h3>Context Variables</h3>
+
+        <p>
+          Steps access previous results using <code>{{`{variable}`}}</code> syntax. Context grows as steps complete:
+        </p>
+
+        <pre><code>Initial: {file_path: "auth.py"}
+After step 1: {file_path: "auth.py", issues: "..."}
+After step 2: {file_path: "auth.py", issues: "...", improvements: "..."}
+</code></pre>
+
+        <h3>Agent Delegation</h3>
+
+        <p>
+          Each step spawns a fresh sub-agent with specific capabilities. The agent executes, returns results,
+          and terminates. Next step gets a new agent instance.
+        </p>
+
+        <h2>Learn More</h2>
+
+        <div class="grid2">
+          <div class="callout">
+            <strong><a href="/recipes/examples.html">Examples</a></strong>
+            <div>
+              Progressive learning path from simple to complex:
+              <ul>
+                <li>Hello Recipes (simplest)</li>
+                <li>Two-step analysis</li>
+                <li>Conditional workflows</li>
+                <li>Approval gates</li>
+                <li>Parallel processing</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong><a href="/recipes/creating.html">Creating Recipes</a></strong>
+            <div>
+              Step-by-step guide to building your own:
+              <ul>
+                <li>Define workflow</li>
+                <li>Map data flow</li>
+                <li>Write YAML</li>
+                <li>Test and iterate</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="callout">
+            <strong><a href="/recipes/reference.html">Reference</a></strong>
+            <div>
+              Complete schema and field reference:
+              <ul>
+                <li>Recipe structure</li>
+                <li>Step types and fields</li>
+                <li>Validation rules</li>
+                <li>Error handling</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong><a href="https://github.com/microsoft/amplifier-bundle-recipes" target="_blank" rel="noreferrer">Official Repo</a></strong>
+            <div>
+              Complete source and examples:
+              <ul>
+                <li>11 working recipes</li>
+                <li>Full documentation</li>
+                <li>Templates</li>
+                <li>Best practices</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h2>How to Run Recipes</h2>
+
+        <h3>Via Command Line</h3>
+
+        <pre><code class="language-bash"># Load recipes bundle and execute
+amplifier run --bundle git+https://github.com/microsoft/amplifier-bundle-recipes@main \
+  "execute examples/simple-analysis-recipe.yaml with file_path=README.md"
+
+# Or if recipes is in your bundle
+amplifier run "execute my-recipe.yaml with input=value"
+</code></pre>
+
+        <h3>Programmatically (In Your App)</h3>
+
+        <p>Recipes are executed through the <code>tool-recipes</code> module like any other tool:</p>
+
+        <pre><code class="language-python">from amplifier_foundation.registry import load_bundle
+
+# Load bundle with tool-recipes
+bundle = await load_bundle("./bundle.md")
+prepared = await bundle.prepare()
+session = await prepared.create_session(session_id="my-session")
+
+# Get recipes tool from coordinator
+recipes_tool = session.coordinator.get("tools", "recipes")
+
+# Execute a recipe
+result = await recipes_tool.execute({
+    "operation": "execute",
+    "recipe_path": "code-review.yaml",
+    "context": {"file_path": "src/auth.py"}
+})
+
+# Get results
+final_context = result.output
+print(final_context.get("final_report"))
+</code></pre>
+
+        <p><strong>Use cases for programmatic execution</strong>:</p>
+        <ul>
+          <li>Web apps triggering workflows</li>
+          <li>Automated pipelines (CI/CD)</li>
+          <li>Background job processing</li>
+          <li>Custom orchestration systems</li>
+        </ul>
+
+        <h3>Through AI Agents</h3>
+
+        <p>AI can execute recipes using the recipes tool:</p>
+
+        <pre><code class="language-bash">amplifier run "Please run the code-review recipe on src/auth.py"
+
+# AI will:
+# 1. Recognize "recipe" intent
+# 2. Use recipes tool
+# 3. Execute recipe
+# 4. Report results
+</code></pre>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=30"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>

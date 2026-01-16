@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recipe Examples</title>
+    <link rel="stylesheet" href="/assets/site.css?v=30" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Recipe Examples - Progressive Learning</h1>
+
+        <p>
+          Learn recipes through 5 progressive examples, building from the simplest "hello world" to advanced parallel
+          processing. Each example introduces new concepts.
+        </p>
+
+        <h2>Example 1: Hello Recipes (Simplest)</h2>
+
+        <p><strong>Concepts</strong>: Basic structure, context variables, single step</p>
+
+        <pre><code class="language-yaml">name: "hello-recipe"
+description: "Your first recipe"
+version: "1.0.0"
+
+context:
+  name: "World"
+
+steps:
+  - id: "greet"
+    agent: "foundation:zen-architect"
+    prompt: "Say hello to {{`{name}`}}"
+    output: "greeting"
+</code></pre>
+
+        <p><strong>What happens</strong>:</p>
+        <ol>
+          <li>Context starts with <code>name: "World"</code></li>
+          <li>Step "greet" spawns zen-architect agent</li>
+          <li>Prompt expands to: "Say hello to World"</li>
+          <li>Agent response stored as <code>{{`{greeting}`}}</code></li>
+          <li>Recipe completes with final context containing greeting</li>
+        </ol>
+
+        <p><strong>Run it</strong>:</p>
+        <pre><code class="language-bash">amplifier run "execute hello-recipe.yaml"
+
+# Or customize:
+amplifier run "execute hello-recipe.yaml with name=Alice"
+</code></pre>
+
+        <p><strong>Key learning</strong>: Context variables (<code>{{`{name}`}}</code>) are replaced before agent sees prompt.</p>
+
+        <h2>Example 2: Two-Step Analysis (Context Accumulation)</h2>
+
+        <p><strong>Concepts</strong>: Multiple steps, output chaining, context growth</p>
+
+        <pre><code class="language-yaml">name: "file-analysis"
+description: "Analyze a file in two steps"
+version: "1.0.0"
+
+context:
+  file_path: "README.md"
+
+steps:
+  - id: "summarize"
+    agent: "foundation:explorer"
+    prompt: "Read {{`{file_path}`}} and write a 3-sentence summary"
+    output: "summary"
+    timeout: 300
+
+  - id: "extract-key-points"
+    agent: "foundation:zen-architect"
+    prompt: |
+      Based on this summary: {{`{summary}`}}
+
+      Identify 3 key points from {{`{file_path}`}}.
+    output: "key_points"
+    timeout: 300
+</code></pre>
+
+        <p><strong>What happens</strong>:</p>
+        <ol>
+          <li>Step 1 executes → summary stored to context</li>
+          <li>Context now: <code>{file_path, summary}</code></li>
+          <li>Step 2 has access to BOTH <code>{{`{summary}`}}</code> AND <code>{{`{file_path}`}}</code></li>
+          <li>Step 2 executes → key_points stored</li>
+          <li>Final context: <code>{file_path, summary, key_points}</code></li>
+        </ol>
+
+        <p><strong>Key learning</strong>: Each step sees all previous outputs. Context accumulates!</p>
+
+        <h2>Example 3: Conditional Workflow (Branching)</h2>
+
+        <p><strong>Concepts</strong>: Bash steps, exit codes, conditions, branching logic</p>
+
+        <pre><code class="language-yaml">name: "conditional-workflow"
+version: "1.0.0"
+
+context:
+  file_path: "src/auth.py"
+
+steps:
+  - id: "check-file-exists"
+    type: "bash"
+    command: "test -f {{`{file_path}`}}"
+    output_exit_code: "file_exists_code"
+    on_error: "continue"
+
+  - id: "analyze-if-exists"
+    condition: "{{`{file_exists_code}`}} == '0'"
+    agent: "foundation:zen-architect"
+    prompt: "Analyze {{`{file_path}`}} for code quality"
+    output: "analysis"
+
+  - id: "report-missing"
+    condition: "{{`{file_exists_code}`}} != '0'"
+    agent: "foundation:zen-architect"
+    prompt: "File {{`{file_path}`}} not found. Suggest where it should be."
+    output: "alternatives"
+</code></pre>
+
+        <p><strong>What happens</strong>:</p>
+        <ol>
+          <li>Bash step checks file existence (exit code 0 = exists, non-zero = missing)</li>
+          <li>Exit code stored as <code>{{`{file_exists_code}`}}</code></li>
+          <li><strong>IF</strong> code == 0: analyze step runs (file exists)</li>
+          <li><strong>ELSE</strong>: report-missing step runs (file not found)</li>
+          <li>Skipped steps don't execute, their outputs are undefined</li>
+        </ol>
+
+        <p><strong>Key learning</strong>:</p>
+        <ul>
+          <li>Bash steps: Fast, no LLM overhead, capture exit codes</li>
+          <li>Conditions: Python expressions evaluated before step</li>
+          <li>Branching: Different paths based on runtime values</li>
+        </ul>
+
+        <h2>Example 4: Approval Gates (Human-in-Loop)</h2>
+
+        <p><strong>Concepts</strong>: Safety gates, human approval, skip on denial</p>
+
+        <pre><code class="language-yaml">name: "careful-upgrade"
+description: "Upgrade with human approval"
+version: "1.0.0"
+
+context:
+  package: "requests"
+
+steps:
+  - id: "analyze-impact"
+    agent: "foundation:zen-architect"
+    prompt: "Analyze what upgrading {{`{package}`}} would change in requirements.txt"
+    output: "impact_analysis"
+
+  - id: "approval-gate"
+    requires_approval: true
+    approval_prompt: |
+      Impact Analysis: {{`{impact_analysis}`}}
+
+      This will modify requirements.txt.
+      Proceed with upgrade?
+    on_approval_denied: "skip_remaining"
+
+  - id: "apply-upgrade"
+    type: "bash"
+    command: "pip install --upgrade {{`{package}`}}"
+    output: "upgrade_result"
+    timeout: 600
+
+  - id: "verify"
+    type: "bash"
+    command: "pip show {{`{package}`}}"
+    output: "verification"
+</code></pre>
+
+        <p><strong>What happens</strong>:</p>
+        <ol>
+          <li>Step 1: AI analyzes impact</li>
+          <li>Step 2: <strong>Recipe pauses</strong>, shows impact to human</li>
+          <li><strong>IF approved</strong>: Steps 3-4 execute (upgrade + verify)</li>
+          <li><strong>IF denied</strong>: Steps 3-4 skipped, recipe ends safely</li>
+        </ol>
+
+        <p><strong>Key learning</strong>:</p>
+        <ul>
+          <li>Approval gates prevent destructive operations without review</li>
+          <li><code>on_approval_denied: skip_remaining</code> aborts safely</li>
+          <li>Human sees AI analysis before decision</li>
+        </ul>
+
+        <h2>Example 5: Parallel Processing (Advanced)</h2>
+
+        <p><strong>Concepts</strong>: Foreach loops, parallel execution, result aggregation</p>
+
+        <pre><code class="language-yaml">name: "multi-file-lint"
+description: "Lint multiple files in parallel"
+version: "1.0.0"
+
+context:
+  files:
+    - "src/auth.py"
+    - "src/users.py"
+    - "src/db.py"
+    - "src/api.py"
+
+steps:
+  - id: "parallel-lint"
+    foreach: "{{`{files}`}}"
+    foreach_var: "file"
+    max_concurrent: 3
+    steps:
+      - id: "lint-file"
+        agent: "foundation:zen-architect"
+        prompt: "Lint {{`{file}`}} and report code quality issues"
+        output: "lint_result"
+        timeout: 300
+    output: "all_lint_results"
+
+  - id: "aggregate-results"
+    agent: "foundation:zen-architect"
+    prompt: |
+      Summarize all lint results: {{`{all_lint_results}`}}
+
+      Identify the most critical issues across all files.
+    output: "summary"
+</code></pre>
+
+        <p><strong>What happens</strong>:</p>
+        <ol>
+          <li>Foreach step iterates over files list</li>
+          <li>Spawns 3 concurrent sub-recipes (one per file, up to 3 at once)</li>
+          <li>Each sub-recipe runs its lint-file step</li>
+          <li>Results collected as array: <code>[{file: "auth.py", lint_result: "..."}, ...]</code></li>
+          <li>Aggregate step processes all results together</li>
+        </ol>
+
+        <p><strong>Key learning</strong>:</p>
+        <ul>
+          <li>Only foreach loops support parallelism</li>
+          <li>Regular steps are always sequential</li>
+          <li><code>max_concurrent</code> limits parallel execution</li>
+          <li>Results are arrays of {foreach_var, step_outputs}</li>
+        </ul>
+
+        <h2>Learning Progression Summary</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Example</th>
+              <th>Concepts Introduced</th>
+              <th>Next Step</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Hello Recipes</td>
+              <td>Basic structure, variables, single step</td>
+              <td>Add second step</td>
+            </tr>
+            <tr>
+              <td>2. Two-Step Analysis</td>
+              <td>Multiple steps, output chaining</td>
+              <td>Add branching</td>
+            </tr>
+            <tr>
+              <td>3. Conditional Workflow</td>
+              <td>Bash steps, conditions, branching</td>
+              <td>Add safety</td>
+            </tr>
+            <tr>
+              <td>4. Approval Gates</td>
+              <td>Human review, safety gates</td>
+              <td>Add concurrency</td>
+            </tr>
+            <tr>
+              <td>5. Parallel Processing</td>
+              <td>Foreach, concurrent execution</td>
+              <td>Build real workflows!</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Official Examples Repository</h2>
+
+        <p>The recipes bundle includes 11 working examples:</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Recipe File</th>
+              <th>Complexity</th>
+              <th>What It Demonstrates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>simple-analysis-recipe.yaml</code></td>
+              <td>Beginner</td>
+              <td>Basic 3-step sequential flow</td>
+            </tr>
+            <tr>
+              <td><code>bash-step-example.yaml</code></td>
+              <td>Beginner</td>
+              <td>Shell commands, env vars, exit codes</td>
+            </tr>
+            <tr>
+              <td><code>conditional-workflow.yaml</code></td>
+              <td>Intermediate</td>
+              <td>Conditional logic, branching</td>
+            </tr>
+            <tr>
+              <td><code>code-review-recipe.yaml</code></td>
+              <td>Intermediate</td>
+              <td>Real-world analysis pipeline</td>
+            </tr>
+            <tr>
+              <td><code>dependency-upgrade-recipe.yaml</code></td>
+              <td>Intermediate</td>
+              <td>Approval gates, error handling</td>
+            </tr>
+            <tr>
+              <td><code>parallel-analysis-recipe.yaml</code></td>
+              <td>Advanced</td>
+              <td>Foreach loops, concurrent execution</td>
+            </tr>
+            <tr>
+              <td><code>comprehensive-review.yaml</code></td>
+              <td>Advanced</td>
+              <td>All features combined</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <a href="https://github.com/microsoft/amplifier-bundle-recipes/tree/main/examples" target="_blank" rel="noreferrer">
+            View all examples on GitHub →
+          </a>
+        </p>
+
+        <h2>Next Steps</h2>
+
+        <ul>
+          <li><a href="/recipes/creating.html">Learn how to create your own recipes</a></li>
+          <li><a href="/recipes/reference.html">See complete schema reference</a></li>
+          <li><a href="/recipes/index.html">Back to recipes overview</a></li>
+        </ul>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=30"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
