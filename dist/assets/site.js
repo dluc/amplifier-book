@@ -142,14 +142,31 @@ function buildNav(containerId, depthPrefix = "") {
       ],
     },
     {
+      title: "Core",
+      icon: "cpu",
+      links: [
+        { href: root + "core/core-and-foundation.html", label: "Kernel & Foundation" },
+        { href: root + "core/building-other-apps.html", label: "Building Apps" },
+        { href: root + "core/creating-modules.html", label: "Creating Modules" },
+      ],
+    },
+    {
       title: "Bundles",
       icon: "layers",
       links: [
         { href: root + "bundles/fundamentals.html", label: "Fundamentals" },
-        { href: root + "bundles/composition.html", label: "Composition Patterns" },
+        { href: root + "bundles/composition.html", label: "Composition" },
         { href: root + "bundles/authoring.html", label: "Creating Bundles" },
         { href: root + "bundles/index.html", label: "Available Bundles" },
-        { href: root + "bundles/deep-dive.html", label: "Deep Dive (All)" },
+        { href: root + "bundles/deep-dive.html", label: "Deep Dive" },
+      ],
+    },
+    {
+      title: "Modules",
+      icon: "box",
+      links: [
+        { href: root + "modules/index.html", label: "Overview" },
+        { href: root + "hooks/index.html", label: "Hooks" },
       ],
     },
     {
@@ -157,37 +174,20 @@ function buildNav(containerId, depthPrefix = "") {
       icon: "book",
       links: [
         { href: root + "recipes/index.html", label: "Overview" },
-        { href: root + "recipes/running.html", label: "Running Recipes" },
+        { href: root + "recipes/running.html", label: "Running" },
         { href: root + "recipes/examples.html", label: "Examples" },
-        { href: root + "recipes/creating.html", label: "Creating Recipes" },
+        { href: root + "recipes/creating.html", label: "Creating" },
         { href: root + "recipes/reference.html", label: "Reference" },
       ],
     },
     {
-      title: "Components",
-      icon: "box",
-      links: [
-        { href: root + "modules/index.html", label: "Modules" },
-        { href: root + "hooks/index.html", label: "Hooks" },
-      ],
-    },
-    {
-      title: "How The CLI Works",
+      title: "CLI Example",
       icon: "terminal",
       links: [
-        { href: root + "cli/how-it-works.html", label: "CLI Overview" },
-        { href: root + "cli/configuration.html", label: "CLI Configuration" },
-        { href: root + "cli/uses-modules.html", label: "CLI → Modules" },
-        { href: root + "cli/uses-hooks.html", label: "CLI → Hooks" },
-      ],
-    },
-    {
-      title: "Core",
-      icon: "cpu",
-      links: [
-        { href: root + "core/core-and-foundation.html", label: "amplifier-core & foundation" },
-        { href: root + "core/building-other-apps.html", label: "Building Other Apps" },
-        { href: root + "core/creating-modules.html", label: "Creating Custom Modules" },
+        { href: root + "cli/how-it-works.html", label: "How it Works" },
+        { href: root + "cli/configuration.html", label: "Configuration" },
+        { href: root + "cli/uses-modules.html", label: "Using Modules" },
+        { href: root + "cli/uses-hooks.html", label: "Using Hooks" },
       ],
     },
     {
