@@ -166,6 +166,7 @@ function buildNav(containerId, depthPrefix = "") {
       icon: "box",
       links: [
         { href: root + "modules/index.html", label: "Overview" },
+        { href: root + "modules/skills.html", label: "Skills" },
         { href: root + "hooks/index.html", label: "Hooks" },
       ],
     },

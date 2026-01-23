@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skills - Knowledge System</title>
+    <link rel="stylesheet" href="/assets/site.css?v=31" />
+  </head>
+  <body>
+    <div class="layout">
+      <nav id="nav"></nav>
+      <main>
+        <h1>Skills: Reusable Knowledge System</h1>
+
+        <p>
+          Skills are <strong>reusable knowledge packages</strong> that provide domain expertise to AI agents.
+          Unlike tools (which execute actions), skills provide knowledge that informs agent behavior.
+        </p>
+
+        <div class="callout ok">
+          <strong>Included in Foundation</strong>
+          <div>
+            <p>Skills are part of the foundation bundle. Anyone using foundation automatically has skills capability!</p>
+            <p>No separate installation or configuration needed to get started.</p>
+          </div>
+        </div>
+
+        <div class="toc">
+          <strong>Contents:</strong>
+          <ul>
+            <li><a href="#what">What Skills Are</a></li>
+            <li><a href="#vs">Skills vs Other Concepts</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#using">Using Skills</a></li>
+            <li><a href="#git-urls">Loading from Git URLs (New!)</a></li>
+            <li><a href="#creating">Creating Skills</a></li>
+            <li><a href="#examples">Examples</a></li>
+          </ul>
+        </div>
+
+        <h2 id="what">What Skills Are</h2>
+
+        <p>Skills follow the <a href="https://github.com/anthropics/skills" target="_blank" rel="noreferrer">Anthropic Skills format</a>:</p>
+
+        <ul>
+          <li><strong>Knowledge packages</strong> - Domain expertise, best practices, workflows</li>
+          <li><strong>Progressive disclosure</strong> - 3 levels (metadata → content → references)</li>
+          <li><strong>Reusable</strong> - Share across projects, teams, organizations</li>
+          <li><strong>On-demand</strong> - Agent loads when needed (not all loaded upfront)</li>
+        </ul>
+
+        <h3>Progressive Disclosure Levels</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>What</th>
+              <th>Tokens</th>
+              <th>When Loaded</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Metadata</td>
+              <td>Name + description</td>
+              <td>~100</td>
+              <td>Always visible to agent</td>
+            </tr>
+            <tr>
+              <td>2. Content</td>
+              <td>Full skill markdown</td>
+              <td>1-5k</td>
+              <td>When agent calls load_skill</td>
+            </tr>
+            <tr>
+              <td>3. References</td>
+              <td>Additional files</td>
+              <td>0 until accessed</td>
+              <td>When agent references them</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Why progressive</strong>: Agents see what's available (metadata) without loading everything. Prevents context bloat.</p>
+
+        <h2 id="vs">Skills vs Other Concepts</h2>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>What It Is</th>
+              <th>Key Difference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tools</strong></td>
+              <td>Execute actions</td>
+              <td>Tools DO things (bash, web search). Skills KNOW things (best practices).</td>
+            </tr>
+            <tr>
+              <td><strong>Context</strong></td>
+              <td>Static bundle files</td>
+              <td>Context is yours. Skills are shared packages (can come from git).</td>
+            </tr>
+            <tr>
+              <td><strong>Agents</strong></td>
+              <td>Pre-configured roles</td>
+              <td>Agents are WHO. Skills are WHAT THEY KNOW (loaded on-demand).</td>
+            </tr>
+            <tr>
+              <td><strong>Bundles</strong></td>
+              <td>Full configuration</td>
+              <td>Bundles configure everything. Skills are knowledge loaded by tool-skills.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="how-it-works">How It Works</h2>
+
+        <h3>Automatic Visibility</h3>
+
+        <p>When skills are configured, agents see them before each request:</p>
+
+        <pre><code>&lt;available_skills&gt;
+Available skills (use load_skill tool):
+
+- **python-testing**: Best practices for Python testing with pytest
+- **git-workflow**: Git branching and commit message standards
+- **api-design**: RESTful API design patterns
+&lt;/available_skills&gt;
+</code></pre>
+
+        <p><strong>No manual listing needed</strong> - The visibility hook injects this automatically!</p>
+
+        <h3>Agent Workflow</h3>
+
+        <pre><code>User: "Set up Python testing for this project"
+
+Agent sees: &lt;available_skills&gt; with "python-testing"
+
+Agent thinks: "I should load the python-testing skill"
+
+Agent calls: load_skill(skill_name="python-testing")
+
+System returns: [Full pytest guide with examples]
+
+Agent: Creates test structure following skill guidance
+</code></pre>
+
+        <h2 id="using">Using Skills</h2>
+
+        <h3>Configuration (Settings.yaml)</h3>
+
+        <pre><code class="language-yaml"># Global (~/.amplifier/settings.yaml)
+skills:
+  dirs:
+    - ~/.amplifier/skills            # Your personal skills
+    - git+https://github.com/anthropics/skills@main  # Anthropic's library
+
+# Project-specific (.amplifier/settings.local.yaml)
+skills:
+  dirs:
+    - .amplifier/skills              # Project skills (merged with global)
+</code></pre>
+
+        <h3>The load_skill Tool</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Operation</th>
+              <th>Usage</th>
+              <th>Returns</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>List all</td>
+              <td><code>load_skill(list=true)</code></td>
+              <td>Array of {name, description}</td>
+            </tr>
+            <tr>
+              <td>Search</td>
+              <td><code>load_skill(search="python")</code></td>
+              <td>Matching skills</td>
+            </tr>
+            <tr>
+              <td>Get metadata</td>
+              <td><code>load_skill(info="skill-name")</code></td>
+              <td>Name, description, version, etc.</td>
+            </tr>
+            <tr>
+              <td>Load content</td>
+              <td><code>load_skill(skill_name="skill-name")</code></td>
+              <td>Full skill markdown content</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 id="git-urls">Loading from Git URLs (New Feature)</h2>
+
+        <p>
+          As of January 2026, skills can be loaded <strong>directly from git repositories</strong> without cloning locally.
+        </p>
+
+        <h3>Supported Formats</h3>
+
+        <pre><code class="language-yaml">skills:
+  dirs:
+    # Full repository
+    - git+https://github.com/anthropics/skills@main
+
+    # Subdirectory within repo
+    - git+https://github.com/myorg/shared@main#subdirectory=skills
+
+    # Specific branch or tag
+    - git+https://github.com/team/skills@v1.0.0
+
+    # Mix local and remote
+    - .amplifier/skills                          # Local
+    - git+https://github.com/team/skills@main    # Remote
+</code></pre>
+
+        <h3>Benefits of Git URLs</h3>
+
+        <ul>
+          <li><strong>No cloning</strong> - Automatic fetch and cache</li>
+          <li><strong>Always current</strong> - Pull latest on update</li>
+          <li><strong>Share easily</strong> - Just share URL, not files</li>
+          <li><strong>Team sync</strong> - Everyone uses same skills version</li>
+          <li><strong>Public libraries</strong> - Use Anthropic's or community skills</li>
+        </ul>
+
+        <h3>Example: Using Anthropic Skills</h3>
+
+        <pre><code class="language-yaml"># In settings.yaml
+skills:
+  dirs:
+    - git+https://github.com/anthropics/skills@main
+
+# That's it! No git clone needed.
+</code></pre>
+
+        <p>Run Amplifier, agent automatically sees all Anthropic skills:</p>
+
+        <pre><code class="language-bash">amplifier run "What skills are available?"
+
+# Agent responds with list from Anthropic's library
+</code></pre>
+
+        <h2 id="creating">Creating Skills</h2>
+
+        <h3>Directory Structure</h3>
+
+        <pre><code>my-skills/
+├── python-testing/
+│   ├── SKILL.md          # Required: skill definition
+│   └── examples/
+│       └── pytest-setup.md
+├── api-design/
+│   ├── SKILL.md
+│   └── rest-patterns.md
+└── git-workflow/
+    └── SKILL.md
+</code></pre>
+
+        <h3>SKILL.md Format</h3>
+
+        <pre><code class="language-markdown">---
+name: python-testing
+description: Best practices for Python testing with pytest and coverage
+version: 1.0.0
+license: MIT
+metadata:
+  category: development
+  tags: [python, testing, pytest]
+---
+
+# Python Testing Best Practices
+
+This skill provides comprehensive guidance for Python testing.
+
+## Quick Start
+
+1. Install pytest: `pip install pytest pytest-cov`
+2. Create tests/ directory
+3. Name test files: `test_*.py`
+4. Run: `pytest tests/`
+
+## Test Structure
+
+```python
+def test_function_name():
+    # Arrange
+    input_data = ...
+
+    # Act
+    result = function_under_test(input_data)
+
+    # Assert
+    assert result == expected
+```
+
+## Coverage
+
+Run with coverage:
+```bash
+pytest tests/ --cov=src --cov-report=html
+```
+
+Aim for 80%+ coverage on critical paths.
+
+## References
+
+- @python-testing:examples/pytest-setup.md
+</code></pre>
+
+        <h3>Best Practices for Skill Creation</h3>
+
+        <ul>
+          <li><strong>Focused</strong> - One skill = one domain (not everything about Python)</li>
+          <li><strong>Actionable</strong> - Provide steps, examples, code</li>
+          <li><strong>Versioned</strong> - Use semantic versioning</li>
+          <li><strong>Examples</strong> - Include reference files</li>
+          <li><strong>Tested</strong> - Verify skills actually help agents</li>
+        </ul>
+
+        <h2 id="examples">Example Skills</h2>
+
+        <h3>From Anthropic's Library</h3>
+
+        <pre><code class="language-bash"># See available skills
+git clone https://github.com/anthropics/skills
+cd skills/skills
+ls
+
+# Highlights:
+# - jupyter: Jupyter notebook workflows
+# - git: Git commands and workflows
+# - typescript: TypeScript best practices
+# - many more...
+</code></pre>
+
+        <h3>Common Skill Types</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Examples</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Development</td>
+              <td>python-testing, module-patterns</td>
+              <td>Coding standards and practices</td>
+            </tr>
+            <tr>
+              <td>Tools</td>
+              <td>git-workflow, docker-compose</td>
+              <td>Using specific tools effectively</td>
+            </tr>
+            <tr>
+              <td>Architecture</td>
+              <td>api-design, microservices</td>
+              <td>Design patterns and architecture</td>
+            </tr>
+            <tr>
+              <td>Domain</td>
+              <td>healthcare-data, finance-regulations</td>
+              <td>Industry-specific knowledge</td>
+            </tr>
+            <tr>
+              <td>Process</td>
+              <td>code-review, security-audit</td>
+              <td>Workflow and process guidance</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Configuration Reference</h2>
+
+        <h3>Bundle Configuration</h3>
+
+        <pre><code class="language-yaml"># In bundle.md
+tools:
+  - module: tool-skills
+    source: git+https://github.com/microsoft/amplifier-module-tool-skills@main
+    config:
+      skills_dirs:
+        - .amplifier/skills
+        - git+https://github.com/anthropics/skills@main
+      visibility:
+        enabled: true          # Show automatically (default)
+        max_skills_visible: 50 # Limit for large collections
+</code></pre>
+
+        <h3>Settings.yaml (Recommended)</h3>
+
+        <pre><code class="language-yaml"># Global skills (all bundles)
+skills:
+  dirs:
+    - ~/.amplifier/skills
+    - git+https://github.com/team/shared-skills@main
+</code></pre>
+
+        <h3>Priority Order</h3>
+
+        <ol>
+          <li>Bundle config (<code>skills_dirs</code>) - Highest</li>
+          <li>Settings.yaml (<code>skills.dirs</code>) - Recommended</li>
+          <li>Defaults (<code>.amplifier/skills</code>, <code>~/.amplifier/skills</code>) - Fallback</li>
+        </ol>
+
+        <h2>When to Use Skills</h2>
+
+        <div class="grid2">
+          <div class="callout ok">
+            <strong>✅ Use Skills For</strong>
+            <div>
+              <ul>
+                <li>Reusable domain knowledge</li>
+                <li>Best practices and standards</li>
+                <li>Team-wide conventions</li>
+                <li>External expertise (Anthropic's library)</li>
+                <li>Knowledge that changes over time</li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout">
+            <strong>Use Context For</strong>
+            <div>
+              <ul>
+                <li>Project-specific instructions</li>
+                <li>One-off guidance</li>
+                <li>Static, unchanging content</li>
+                <li>Bundle-specific instructions</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h2>Programmatic Usage</h2>
+
+        <pre><code class="language-python">from amplifier_foundation.registry import load_bundle
+
+# Load bundle with skills
+bundle = await load_bundle("./bundle.md")
+prepared = await bundle.prepare()
+session = await prepared.create_session(session_id="skill-user")
+
+# Get skills tool
+skills_tool = session.coordinator.get("tools", "load_skill")
+
+# List available skills
+result = await skills_tool.execute({"list": True})
+skills = result.output.get("skills", [])
+print(f"Found {len(skills)} skills")
+
+# Load specific skill
+result = await skills_tool.execute({"skill_name": "python-testing"})
+content = result.output.get("content")
+print(content)  # Full skill markdown
+</code></pre>
+
+        <h2>References</h2>
+
+        <ul>
+          <li>
+            <a href="https://github.com/microsoft/amplifier-module-tool-skills" target="_blank" rel="noreferrer">
+              tool-skills repository
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/anthropics/skills" target="_blank" rel="noreferrer">
+              Anthropic Skills library
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/anthropics/skills/blob/main/SKILLS_FORMAT.md" target="_blank" rel="noreferrer">
+              Anthropic Skills format specification
+            </a>
+          </li>
+        </ul>
+
+        <div class="callout">
+          <strong>Getting Started</strong>
+          <div>
+            <p>Skills are already in foundation. Just add some:</p>
+            <pre><code class="language-bash"># Add Anthropic's library
+echo "skills:
+  dirs:
+    - git+https://github.com/anthropics/skills@main" >> ~/.amplifier/settings.yaml
+
+# Use them
+amplifier run "What skills are available?"
+amplifier run "Load the git skill and help me write better commit messages"
+</code></pre>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/assets/site.js?v=31"></script>
+    <script>
+      buildNav("nav");
+    </script>
+  </body>
+</html>
