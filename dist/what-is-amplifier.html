@@ -57,9 +57,31 @@ flowchart TB
           </div>
         </div>
 
-        <h2>Configuration: Bundles are the new standard</h2>
+        <h2>No "One True Amplifier" - It's Configured Per Session</h2>
+
+        <div class="callout warn">
+          <strong>Critical Architectural Principle</strong>
+          <div>
+            <p>
+              There is <strong>no single "Amplifier instance" with all features</strong>. Each session is configured with a specific bundle,
+              which determines what that session can do.
+            </p>
+            <p>
+              Two sessions can have completely different capabilities:
+            </p>
+            <ul>
+              <li>Session A (recipes bundle): Can execute multi-step workflows, has recipe-author agent</li>
+              <li>Session B (lsp-python bundle): Can navigate code with LSP, has python-code-intel agent</li>
+            </ul>
+            <p>
+              Same kernel, same app, different configurations = different behaviors.
+            </p>
+          </div>
+        </div>
+
+        <h2>Configuration: Bundles Determine Capabilities</h2>
         <p>
-          Amplifier uses <strong>bundles</strong> as the primary way to configure and compose capabilities. A bundle is a markdown file with YAML frontmatter that specifies:
+          Amplifier uses <strong>bundles</strong> to configure what each session can do. A bundle is a markdown file with YAML frontmatter that specifies:
         </p>
         <ul>
           <li>Which modules to load (providers, tools, hooks, orchestrators)</li>
@@ -69,7 +91,8 @@ flowchart TB
           <li>Other bundles to include (composition)</li>
         </ul>
         <p>
-          This replaces the older profile/collection system, providing better composability and reproducibility. See the <a href="/bundles/index.html">Bundles page</a> for details.
+          <strong>The bundle you choose determines what that session can do.</strong> Change bundles, change capabilities.
+          See the <a href="/bundles/index.html">Bundles page</a> for details.
         </p>
 
         <h2>Entry point vs. ecosystem</h2>
